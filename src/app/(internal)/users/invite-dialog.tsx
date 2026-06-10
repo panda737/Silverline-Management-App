@@ -42,8 +42,8 @@ export function InviteDialog({ clients }: { clients: Option[] }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <UserPlus className="size-4" />
+        <Button size="sm">
+          <UserPlus className="size-3.5" />
           Invite user
         </Button>
       </DialogTrigger>

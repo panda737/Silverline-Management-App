@@ -114,7 +114,7 @@ export default async function ProjectDetailPage({
         </Button>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-xl font-medium tracking-tight">
               {project.name}
             </h1>
             <div className="flex flex-wrap items-center gap-2">

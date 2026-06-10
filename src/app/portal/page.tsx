@@ -70,19 +70,20 @@ export default async function PortalDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="space-y-0.5">
+        <h1 className="text-xl font-medium tracking-tight">
           Welcome, {profile.full_name.split(" ")[0] || "there"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {companyData?.company_name} — your projects with Silverline at a
-          glance.
+          {companyData?.company_name
+            ? `${companyData.company_name} — your projects with Silverline at a glance.`
+            : "Your projects with Silverline at a glance."}
         </p>
       </div>
 
       <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <FolderKanban className="size-5 text-primary" />
+        <h2 className="flex items-center gap-2 text-sm font-medium">
+          <FolderKanban className="size-4 text-primary" />
           Your projects
         </h2>
         {activeProjects.length === 0 ? (
@@ -162,8 +163,8 @@ export default async function PortalDashboardPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <MessageSquare className="size-5 text-primary" />
+        <h2 className="flex items-center gap-2 text-sm font-medium">
+          <MessageSquare className="size-4 text-primary" />
           Latest updates
         </h2>
         {updates.length === 0 ? (

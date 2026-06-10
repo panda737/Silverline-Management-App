@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { requireInternal } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 import {
   Table,
   TableBody,
@@ -88,20 +90,17 @@ export default async function ProjectsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-muted-foreground">
-            All active and historical compliance projects.
-          </p>
-        </div>
-        <Button asChild>
+      <PageHeader
+        title="Projects"
+        description="All active and historical compliance projects."
+      >
+        <Button asChild size="sm">
           <Link href="/projects/new">
-            <Plus className="size-4" />
+            <Plus className="size-3.5" />
             New project
           </Link>
         </Button>
-      </div>
+      </PageHeader>
 
       <ProjectsFilters
         managers={(staff ?? []).map((s) => ({ id: s.id, label: s.full_name }))}
@@ -112,23 +111,28 @@ export default async function ProjectsPage({
       />
 
       {projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
-          <FolderKanban className="size-8 text-muted-foreground" />
-          <div>
-            <p className="font-medium">No projects found</p>
-            <p className="text-sm text-muted-foreground">
-              {Object.keys(params).length > 0
-                ? "Try adjusting the filters."
-                : "Create your first project to get started."}
-            </p>
-          </div>
-          <Button asChild variant="outline">
-            <Link href="/projects/new">
-              <Plus className="size-4" />
-              New project
-            </Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={FolderKanban}
+          title={
+            Object.keys(params).length > 0
+              ? "No projects match these filters"
+              : "No projects yet"
+          }
+          description={
+            Object.keys(params).length > 0
+              ? "Try adjusting or clearing the filters."
+              : "Create your first project to start tracking timelines, tasks and client updates."
+          }
+        >
+          {Object.keys(params).length === 0 && (
+            <Button asChild size="sm">
+              <Link href="/projects/new">
+                <Plus className="size-3.5" />
+                Create project
+              </Link>
+            </Button>
+          )}
+        </EmptyState>
       ) : (
         <div className="rounded-lg border">
           <Table>

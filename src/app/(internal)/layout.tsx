@@ -1,6 +1,6 @@
 import { requireInternal } from "@/lib/auth";
-import { AppSidebar, MobileHeader } from "@/components/app-sidebar";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { AppHeader, AppRail } from "@/components/app-shell";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default async function InternalLayout({
   children,
@@ -15,17 +15,16 @@ export default async function InternalLayout({
   };
 
   return (
-    <div className="min-h-svh">
-      <AppSidebar user={user} />
-      <MobileHeader user={user} />
-      <div className="lg:pl-60">
-        <div className="hidden items-center justify-end border-b px-6 py-2 lg:flex">
-          <ThemeToggle />
-        </div>
-        <main className="mx-auto w-full max-w-7xl px-4 py-6 lg:px-8">
-          {children}
+    <TooltipProvider>
+      <div className="min-h-svh">
+        <AppHeader user={user} />
+        <AppRail user={user} />
+        <main className="pt-12 md:pl-12">
+          <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8">
+            {children}
+          </div>
         </main>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

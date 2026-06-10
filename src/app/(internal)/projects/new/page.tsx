@@ -31,7 +31,7 @@ export default async function NewProjectPage() {
             Projects
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">New project</h1>
+        <h1 className="text-xl font-medium tracking-tight">New project</h1>
         <p className="text-sm text-muted-foreground">
           The project timeline is generated automatically from the template for
           the selected project type and can be edited afterwards.

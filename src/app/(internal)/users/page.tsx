@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { USER_ROLE_LABELS } from "@/lib/labels";
+import { PageHeader } from "@/components/page-header";
 import { InviteDialog } from "./invite-dialog";
 import { setUserActive } from "./actions";
 import type { UserRole } from "@/lib/database.types";
@@ -29,13 +30,13 @@ type UserRowData = {
   client: { company_name: string } | null;
 };
 
+const pillBase =
+  "rounded-full px-2 py-px text-[11px] leading-[18px] font-medium";
+
 const ROLE_BADGE: Record<UserRole, string> = {
-  admin:
-    "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300 border-transparent",
-  staff:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-transparent",
-  client:
-    "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border-transparent",
+  admin: `${pillBase} border-violet-500/25 bg-violet-500/10 text-violet-700 dark:text-violet-400`,
+  staff: `${pillBase} border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`,
+  client: `${pillBase} border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-400`,
 };
 
 export default async function UsersPage() {
@@ -45,7 +46,11 @@ export default async function UsersPage() {
   const [{ data: usersData, error }, { data: clients }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, email, role, active, created_at, client:clients(company_name)")
+      .select(
+        // profiles↔clients has two FKs (client_id and clients.created_by) —
+        // the embed must name which one to follow.
+        "id, full_name, email, role, active, created_at, client:clients!profiles_client_id_fkey(company_name)"
+      )
       .order("created_at", { ascending: false }),
     supabase.from("clients").select("id, company_name").order("company_name"),
   ]);
@@ -55,20 +60,17 @@ export default async function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <p className="text-sm text-muted-foreground">
-            Staff and client portal accounts. All accounts are invite-only.
-          </p>
-        </div>
+      <PageHeader
+        title="Users"
+        description="Staff and client portal accounts. All accounts are invite-only."
+      >
         <InviteDialog
           clients={(clients ?? []).map((c) => ({
             id: c.id,
             label: c.company_name,
           }))}
         />
-      </div>
+      </PageHeader>
 
       <div className="rounded-lg border">
         <Table>
@@ -110,11 +112,15 @@ export default async function UsersPage() {
                 </TableCell>
                 <TableCell>
                   {u.active ? (
-                    <Badge className="border-transparent bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">
+                    <Badge
+                      className={`${pillBase} border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`}
+                    >
                       Active
                     </Badge>
                   ) : (
-                    <Badge variant="outline">Deactivated</Badge>
+                    <Badge variant="outline" className={pillBase}>
+                      Deactivated
+                    </Badge>
                   )}
                 </TableCell>
                 <TableCell>

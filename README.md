@@ -36,7 +36,11 @@ Storage, RLS).
      blocks its binary):
      `SUPABASE_ACCESS_TOKEN=sbp_... node scripts/apply-migrations.mjs <ref>`
      (personal access token from supabase.com/dashboard/account/tokens).
-4. Seed test data: `npm run seed`
+4. The app starts empty. Sign in as the bootstrap admin, invite your real
+   account from the Users page, then deactivate the bootstrap admin.
+   Optional **demo data** (sample client, projects, tasks, test users) can be
+   loaded with `npm run seed:demo` and removed again with
+   `npx tsx scripts/purge-demo-data.ts`.
 5. Supabase dashboard auth configuration (one-time, not schema):
    - Authentication → URL Configuration: set **Site URL** to your app URL and
      add `http://localhost:3000/**` (and the production URL) to
@@ -45,21 +49,19 @@ Storage, RLS).
      invite-only via the Users page.
 6. `npm run dev`
 
-## Seed users (password for all: `Password123!`)
+## Logins
 
-| Role   | Email                        |
-| ------ | ---------------------------- |
-| Admin  | admin@silverline.test        |
-| Staff  | staff1@silverline.test       |
-| Staff  | staff2@silverline.test       |
-| Client | client1@vaalrecyclers.test   |
-| Client | client2@vaalrecyclers.test   |
+Bootstrap admin: `admin@silverline.test` / `Password123!` — change or replace
+this account before going to production. Running `npm run seed:demo` adds demo
+accounts (staff1/staff2@silverline.test, client1/client2@vaalrecyclers.test,
+same password).
 
 ## Scripts
 
 - `npm run dev` / `npm run build` / `npm start`
 - `npm run typecheck` — `tsc --noEmit`
-- `npm run seed` — idempotent seed (users, client company, sample projects)
+- `npm run seed:demo` — OPTIONAL demo data (sample client, projects, tasks,
+  test users); remove again with `npx tsx scripts/purge-demo-data.ts`
 - `npx tsx scripts/rls-smoke-test.ts` — signs in as seed users with the anon
   key and verifies clients cannot read internal data
 - `node scripts/apply-migrations.mjs <ref>` — apply migrations via the

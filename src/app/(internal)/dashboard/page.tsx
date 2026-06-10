@@ -3,16 +3,14 @@ import Link from "next/link";
 import { addDays, format, isBefore, startOfDay } from "date-fns";
 import {
   Activity,
-  AlertTriangle,
   CalendarClock,
   CheckSquare,
-  Clock,
   FolderKanban,
-  Hourglass,
-  Landmark,
+  Plus,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireInternal } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -20,7 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 import { PriorityBadge, TaskStatusBadge } from "@/components/status-badge";
 import { PROJECT_STATUS_LABELS, PROJECT_TYPE_LABELS } from "@/lib/labels";
 import type {
@@ -48,20 +47,10 @@ type TaskLite = {
   project: { id: string; name: string } | null;
 };
 
-type DeadlineItem = {
-  id: string;
-  label: string;
-  due_date: string;
-  projectId: string;
-  projectName: string;
-  kind: "task" | "stage";
-};
-
 type ActivityItem = {
   id: string;
   action: string;
   created_at: string;
-  details: Record<string, unknown>;
   actor: { full_name: string } | null;
   project: { id: string; name: string } | null;
 };
@@ -71,39 +60,38 @@ const ACTIVITY_LABELS: Record<string, string> = {
   status_changed: "changed status on",
   timeline_item_completed: "completed a stage on",
   timeline_item_updated: "updated the timeline of",
+  task_created: "added a task to",
   task_completed: "completed a task on",
   document_uploaded: "uploaded a document to",
   client_update_posted: "posted a client update on",
   member_assigned: "assigned a member to",
   deadline_changed: "changed a deadline on",
+  client_created: "added client",
 };
 
-function StatCard({
-  title,
+function Stat({
+  label,
   value,
-  icon: Icon,
   href,
-  accent,
+  alert,
 }: {
-  title: string;
+  label: string;
   value: number;
-  icon: React.ComponentType<{ className?: string }>;
   href: string;
-  accent?: string;
+  alert?: boolean;
 }) {
   return (
     <Link href={href}>
-      <Card className="transition-colors hover:border-primary/40">
-        <CardContent className="flex items-center gap-4 pt-6">
-          <div
-            className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${accent ?? "bg-primary/10 text-primary"}`}
+      <Card className="gap-1 py-4 transition-colors hover:border-foreground/20">
+        <CardContent className="space-y-1">
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <p
+            className={`text-2xl leading-none font-medium tabular-nums ${
+              alert && value > 0 ? "text-red-600 dark:text-red-400" : ""
+            }`}
           >
-            <Icon className="size-5" />
-          </div>
-          <div>
-            <p className="text-2xl font-semibold tabular-nums">{value}</p>
-            <p className="text-sm text-muted-foreground">{title}</p>
-          </div>
+            {value}
+          </p>
         </CardContent>
       </Card>
     </Link>
@@ -120,7 +108,7 @@ export default async function DashboardPage() {
 
   const [
     { data: projectsData },
-    { data: openTasksData },
+    { data: nearTasksData },
     { data: myTasksData },
     { data: dueStagesData },
     { data: activityData },
@@ -128,18 +116,14 @@ export default async function DashboardPage() {
     supabase.from("projects").select("id, name, status, project_type"),
     supabase
       .from("tasks")
-      .select(
-        "id, title, due_date, status, priority, project:projects(id, name)"
-      )
+      .select("id, title, due_date, status, priority, project:projects(id, name)")
       .neq("status", "done")
       .not("due_date", "is", null)
       .lte("due_date", horizonStr)
       .order("due_date"),
     supabase
       .from("tasks")
-      .select(
-        "id, title, due_date, status, priority, project:projects(id, name)"
-      )
+      .select("id, title, due_date, status, priority, project:projects(id, name)")
       .eq("assigned_to", profile.id)
       .neq("status", "done")
       .order("due_date", { ascending: true, nullsFirst: false })
@@ -153,30 +137,27 @@ export default async function DashboardPage() {
       .order("due_date"),
     supabase
       .from("activity_log")
-      .select(
-        "id, action, created_at, details, actor:profiles(full_name), project:projects(id, name)"
-      )
+      .select("id, action, created_at, actor:profiles(full_name), project:projects(id, name)")
       .order("created_at", { ascending: false })
       .limit(8),
   ]);
 
   const projects = (projectsData ?? []) as ProjectLite[];
-  const nearTasks = (openTasksData ?? []) as unknown as TaskLite[];
+  const nearTasks = (nearTasksData ?? []) as unknown as TaskLite[];
   const myTasks = (myTasksData ?? []) as unknown as TaskLite[];
   const activity = (activityData ?? []) as unknown as ActivityItem[];
 
   const activeProjects = projects.filter(
     (p) => !["completed", "cancelled"].includes(p.status)
   );
+  const overdueTasks = nearTasks.filter(
+    (t) => t.due_date && isBefore(new Date(t.due_date), today)
+  );
   const waitingClient = projects.filter((p) => p.status === "waiting_on_client");
   const waitingAuthority = projects.filter(
     (p) => p.status === "waiting_on_authority"
   );
   const atRisk = projects.filter((p) => p.status === "at_risk");
-
-  const overdueTasks = nearTasks.filter(
-    (t) => t.due_date && isBefore(new Date(t.due_date), today)
-  );
 
   const byStatus = new Map<ProjectStatus, number>();
   const byType = new Map<ProjectType, number>();
@@ -185,7 +166,7 @@ export default async function DashboardPage() {
     byType.set(p.project_type, (byType.get(p.project_type) ?? 0) + 1);
   }
 
-  const deadlines: DeadlineItem[] = [
+  const deadlines = [
     ...nearTasks
       .filter((t) => t.due_date && !isBefore(new Date(t.due_date), today))
       .map((t) => ({
@@ -215,223 +196,212 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Welcome back, {profile.full_name.split(" ")[0] || "there"}.
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description={`Welcome back, ${profile.full_name.split(" ")[0] || "there"}.`}
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard
-          title="Active projects"
-          value={activeProjects.length}
-          icon={FolderKanban}
-          href="/projects"
-        />
-        <StatCard
-          title="Overdue tasks"
-          value={overdueTasks.length}
-          icon={Clock}
-          href="/projects"
-          accent="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-        />
-        <StatCard
-          title="Waiting on client"
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+        <Stat label="Active projects" value={activeProjects.length} href="/projects" />
+        <Stat label="Overdue tasks" value={overdueTasks.length} href="/tasks" alert />
+        <Stat
+          label="Waiting on client"
           value={waitingClient.length}
-          icon={Hourglass}
           href="/projects?status=waiting_on_client"
-          accent="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
         />
-        <StatCard
-          title="Waiting on authority"
+        <Stat
+          label="Waiting on authority"
           value={waitingAuthority.length}
-          icon={Landmark}
           href="/projects?status=waiting_on_authority"
-          accent="bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300"
         />
-        <StatCard
-          title="At risk"
-          value={atRisk.length}
-          icon={AlertTriangle}
-          href="/projects?status=at_risk"
-          accent="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
-        />
+        <Stat label="At risk" value={atRisk.length} href="/projects?status=at_risk" alert />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Upcoming deadlines */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CalendarClock className="size-4 text-primary" />
-              Upcoming deadlines
-            </CardTitle>
-            <CardDescription>Tasks and stages due in the next 14 days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {deadlines.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">
-                Nothing due in the next two weeks.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {deadlines.map((d) => (
-                  <li key={`${d.kind}-${d.id}`} className="flex items-center gap-3">
-                    <Badge
-                      variant="outline"
-                      className="w-16 shrink-0 justify-center tabular-nums"
-                    >
-                      {format(new Date(d.due_date), "d MMM")}
-                    </Badge>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{d.label}</p>
-                      <Link
-                        href={`/projects/${d.projectId}`}
-                        className="truncate text-xs text-muted-foreground hover:text-primary hover:underline"
-                      >
-                        {d.projectName}
-                      </Link>
-                    </div>
-                    <Badge variant="secondary" className="ml-auto shrink-0">
-                      {d.kind === "task" ? "Task" : "Stage"}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      {projects.length === 0 ? (
+        <EmptyState
+          icon={FolderKanban}
+          title="No projects yet"
+          description="Create your first project to start tracking timelines, tasks and client updates."
+        >
+          <Button asChild size="sm">
+            <Link href="/projects/new">
+              <Plus className="size-3.5" />
+              Create project
+            </Link>
+          </Button>
+        </EmptyState>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <CalendarClock className="size-4 text-primary" />
+                Upcoming deadlines
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Tasks and stages due in the next 14 days
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {deadlines.length === 0 ? (
+                <p className="py-3 text-sm text-muted-foreground">
+                  Nothing due in the next two weeks.
+                </p>
+              ) : (
+                <ul className="space-y-2.5">
+                  {deadlines.map((d) => (
+                    <li key={`${d.kind}-${d.id}`} className="flex items-center gap-3">
+                      <span className="w-12 shrink-0 text-xs text-muted-foreground tabular-nums">
+                        {format(new Date(d.due_date), "d MMM")}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm">{d.label}</p>
+                        <Link
+                          href={`/projects/${d.projectId}`}
+                          className="truncate text-xs text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          {d.projectName}
+                        </Link>
+                      </div>
+                      <span className="ml-auto shrink-0 rounded-full border px-2 text-[11px] leading-[18px] text-muted-foreground">
+                        {d.kind === "task" ? "Task" : "Stage"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* My tasks */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CheckSquare className="size-4 text-primary" />
-              My tasks
-            </CardTitle>
-            <CardDescription>Open tasks assigned to you</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {myTasks.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">
-                No open tasks assigned to you.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {myTasks.map((t) => (
-                  <li key={t.id} className="flex items-center gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{t.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {t.project?.name}
-                        {t.due_date &&
-                          ` · due ${format(new Date(t.due_date), "d MMM")}`}
-                      </p>
-                    </div>
-                    <PriorityBadge priority={t.priority} />
-                    <TaskStatusBadge status={t.status} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <CheckSquare className="size-4 text-primary" />
+                My tasks
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Open tasks assigned to you
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {myTasks.length === 0 ? (
+                <p className="py-3 text-sm text-muted-foreground">
+                  No tasks assigned to you.
+                </p>
+              ) : (
+                <ul className="space-y-2.5">
+                  {myTasks.map((t) => (
+                    <li key={t.id} className="flex items-center gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm">{t.title}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {t.project?.name}
+                          {t.due_date &&
+                            ` · due ${format(new Date(t.due_date), "d MMM")}`}
+                        </p>
+                      </div>
+                      <PriorityBadge priority={t.priority} />
+                      <TaskStatusBadge status={t.status} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Projects by status / type */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Projects by status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {projects.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">No projects yet.</p>
-            ) : (
-              <ul className="space-y-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Projects by status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-0.5">
                 {[...byStatus.entries()]
                   .sort((a, b) => b[1] - a[1])
                   .map(([status, count]) => (
                     <li key={status}>
                       <Link
                         href={`/projects?status=${status}`}
-                        className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted"
+                        className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"
                       >
-                        <span>{PROJECT_STATUS_LABELS[status]}</span>
+                        <span className="text-muted-foreground">
+                          {PROJECT_STATUS_LABELS[status]}
+                        </span>
                         <span className="font-medium tabular-nums">{count}</span>
                       </Link>
                     </li>
                   ))}
               </ul>
-            )}
-            {byType.size > 0 && (
-              <>
-                <p className="mt-5 mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                  By type
-                </p>
-                <ul className="space-y-2">
-                  {[...byType.entries()]
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([type, count]) => (
-                      <li key={type}>
-                        <Link
-                          href={`/projects?type=${type}`}
-                          className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted"
-                        >
-                          <span>{PROJECT_TYPE_LABELS[type]}</span>
-                          <span className="font-medium tabular-nums">{count}</span>
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Activity className="size-4 text-primary" />
-              Recent activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {activity.length === 0 ? (
-              <p className="py-4 text-sm text-muted-foreground">
-                No activity yet.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {activity.map((a) => (
-                  <li key={a.id} className="flex gap-3 text-sm">
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
-                    <div className="min-w-0">
-                      <p>
-                        <span className="font-medium">
-                          {a.actor?.full_name ?? "Someone"}
-                        </span>{" "}
-                        {ACTIVITY_LABELS[a.action] ?? a.action}{" "}
-                        {a.project && (
+              {byType.size > 0 && (
+                <>
+                  <p className="mt-4 mb-1 px-2 text-xs font-medium text-muted-foreground">
+                    By type
+                  </p>
+                  <ul className="space-y-0.5">
+                    {[...byType.entries()]
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([type, count]) => (
+                        <li key={type}>
                           <Link
-                            href={`/projects/${a.project.id}`}
-                            className="font-medium hover:text-primary hover:underline"
+                            href={`/projects?type=${type}`}
+                            className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent"
                           >
-                            {a.project.name}
+                            <span className="text-muted-foreground">
+                              {PROJECT_TYPE_LABELS[type]}
+                            </span>
+                            <span className="font-medium tabular-nums">{count}</span>
                           </Link>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(a.created_at), "d MMM yyyy, HH:mm")}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Activity className="size-4 text-primary" />
+                Recent activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {activity.length === 0 ? (
+                <p className="py-3 text-sm text-muted-foreground">No activity yet.</p>
+              ) : (
+                <ul className="space-y-2.5">
+                  {activity.map((a) => (
+                    <li key={a.id} className="flex gap-2.5 text-sm">
+                      <span className="mt-[7px] size-1.5 shrink-0 rounded-full bg-primary" />
+                      <div className="min-w-0">
+                        <p className="leading-snug">
+                          <span className="font-medium">
+                            {a.actor?.full_name ?? "Someone"}
+                          </span>{" "}
+                          <span className="text-muted-foreground">
+                            {ACTIVITY_LABELS[a.action] ?? a.action}
+                          </span>{" "}
+                          {a.project && (
+                            <Link
+                              href={`/projects/${a.project.id}`}
+                              className="hover:underline"
+                            >
+                              {a.project.name}
+                            </Link>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(a.created_at), "d MMM, HH:mm")}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
   PRIORITY_LABELS,
@@ -13,85 +12,107 @@ import type {
   TimelineStatus,
 } from "@/lib/database.types";
 
+/** Slim Supabase-style pill: tinted bg, subtle border, colored text. */
+function Pill({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border px-2 py-px text-[11px] leading-[18px] font-medium whitespace-nowrap",
+        className
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+const neutral =
+  "border-border bg-muted text-muted-foreground";
+const green =
+  "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
+const amber =
+  "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400";
+const sky =
+  "border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-400";
+const violet =
+  "border-violet-500/25 bg-violet-500/10 text-violet-700 dark:text-violet-400";
+const blue =
+  "border-blue-500/25 bg-blue-500/10 text-blue-700 dark:text-blue-400";
+const orange =
+  "border-orange-500/25 bg-orange-500/10 text-orange-700 dark:text-orange-400";
+const red =
+  "border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-400";
+
 const PROJECT_STATUS_CLASSES: Record<ProjectStatus, string> = {
-  not_started:
-    "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
-  in_progress:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  waiting_on_client:
-    "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  waiting_on_authority:
-    "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  drafting:
-    "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
-  submitted: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
-  approved: "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
-  completed:
-    "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
-  on_hold:
-    "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
-  at_risk: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
-  cancelled:
-    "bg-neutral-200 text-neutral-500 line-through dark:bg-neutral-800 dark:text-neutral-400",
+  not_started: neutral,
+  in_progress: green,
+  waiting_on_client: amber,
+  waiting_on_authority: sky,
+  drafting: violet,
+  submitted: blue,
+  approved: green,
+  completed: green,
+  on_hold: orange,
+  at_risk: red,
+  cancelled: cn(neutral, "line-through"),
 };
 
 const PRIORITY_CLASSES: Record<Priority, string> = {
-  low: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
-  medium: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  high: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  urgent: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
+  low: neutral,
+  medium: sky,
+  high: amber,
+  urgent: red,
 };
 
 const TIMELINE_STATUS_CLASSES: Record<TimelineStatus, string> = {
-  pending:
-    "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
-  in_progress:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  completed:
-    "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
-  skipped:
-    "bg-neutral-200 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400",
+  pending: neutral,
+  in_progress: green,
+  completed: green,
+  skipped: neutral,
 };
 
 const TASK_STATUS_CLASSES: Record<TaskStatus, string> = {
-  todo: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
-  in_progress:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-  waiting: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  review: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
-  done: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
+  todo: neutral,
+  in_progress: green,
+  waiting: amber,
+  review: violet,
+  done: green,
 };
-
-const badgeBase = "border-transparent font-medium";
 
 export function ProjectStatusBadge({ status }: { status: ProjectStatus }) {
   return (
-    <Badge className={cn(badgeBase, PROJECT_STATUS_CLASSES[status])}>
+    <Pill className={PROJECT_STATUS_CLASSES[status]}>
       {PROJECT_STATUS_LABELS[status]}
-    </Badge>
+    </Pill>
   );
 }
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
   return (
-    <Badge className={cn(badgeBase, PRIORITY_CLASSES[priority])}>
+    <Pill className={PRIORITY_CLASSES[priority]}>
       {PRIORITY_LABELS[priority]}
-    </Badge>
+    </Pill>
   );
 }
 
 export function TimelineStatusBadge({ status }: { status: TimelineStatus }) {
   return (
-    <Badge className={cn(badgeBase, TIMELINE_STATUS_CLASSES[status])}>
+    <Pill className={TIMELINE_STATUS_CLASSES[status]}>
       {TIMELINE_STATUS_LABELS[status]}
-    </Badge>
+    </Pill>
   );
 }
 
 export function TaskStatusBadge({ status }: { status: TaskStatus }) {
   return (
-    <Badge className={cn(badgeBase, TASK_STATUS_CLASSES[status])}>
+    <Pill className={TASK_STATUS_CLASSES[status]}>
       {TASK_STATUS_LABELS[status]}
-    </Badge>
+    </Pill>
   );
 }

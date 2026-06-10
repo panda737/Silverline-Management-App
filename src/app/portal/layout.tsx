@@ -41,17 +41,15 @@ export default async function PortalLayout({
   return (
     <div className="flex min-h-svh flex-col bg-muted/30">
       <header className="sticky top-0 z-20 border-b bg-background">
-        <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3 lg:px-8">
-          <Link href="/portal" className="flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Leaf className="size-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold leading-tight">Silverline</p>
-              <p className="text-[11px] leading-tight text-muted-foreground">
-                Client Portal
-              </p>
-            </div>
+        <div className="mx-auto flex h-12 w-full max-w-5xl items-center gap-4 px-4 lg:px-8">
+          <Link href="/portal" className="flex items-center gap-2">
+            <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Leaf className="size-3.5" />
+            </span>
+            <span className="text-[13px] font-medium">Silverline</span>
+            <span className="text-[13px] text-muted-foreground">
+              · Client Portal
+            </span>
           </Link>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
