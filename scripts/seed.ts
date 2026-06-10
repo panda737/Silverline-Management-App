@@ -87,7 +87,7 @@ async function main() {
   console.log("Users:");
   const adminId = await ensureUser({
     email: "admin@silverline.test",
-    fullName: "Sandra Mokoena",
+    fullName: "Juandre Cross",
     role: "admin",
   });
   const staff1Id = await ensureUser({

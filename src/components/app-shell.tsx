@@ -35,11 +35,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { USER_ROLE_LABELS } from "@/lib/labels";
 import type { UserRole } from "@/lib/database.types";
 
@@ -94,42 +89,42 @@ function sectionLabel(pathname: string) {
 
 function RailLink({ item, active }: { item: NavItem; active: boolean }) {
   return (
-    <Tooltip delayDuration={0}>
-      <TooltipTrigger asChild>
-        <Link
-          href={item.href}
-          className={cn(
-            "flex size-9 items-center justify-center rounded-md transition-colors",
-            active
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground"
-          )}
-        >
-          <item.icon className="size-[18px]" />
-          <span className="sr-only">{item.label}</span>
-        </Link>
-      </TooltipTrigger>
-      <TooltipContent side="right" sideOffset={6}>
+    <Link
+      href={item.href}
+      className={cn(
+        "flex h-9 items-center rounded-md transition-colors",
+        active
+          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+          : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground"
+      )}
+    >
+      <span className="flex size-9 shrink-0 items-center justify-center">
+        <item.icon className="size-[18px]" />
+      </span>
+      <span className="whitespace-nowrap pr-3 text-sm font-medium opacity-0 transition-opacity duration-200 group-hover/rail:opacity-100">
         {item.label}
-      </TooltipContent>
-    </Tooltip>
+      </span>
+    </Link>
   );
 }
 
-/** Slim icon rail, fixed under the header (desktop only). */
+/**
+ * Slim icon rail (desktop only) that smoothly expands to reveal labels on
+ * hover, then collapses back to icons when the pointer leaves.
+ */
 export function AppRail({ user }: { user: ShellUser }) {
   const pathname = usePathname();
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <aside className="fixed inset-y-0 top-12 left-0 z-30 hidden w-12 flex-col items-center justify-between border-r border-sidebar-border bg-sidebar py-2 md:flex">
-      <nav className="flex flex-col items-center gap-1">
+    <aside className="group/rail fixed inset-y-0 top-12 left-0 z-30 hidden w-12 flex-col justify-between overflow-hidden border-r border-sidebar-border bg-sidebar py-2 transition-[width] duration-300 ease-in-out hover:w-56 hover:shadow-xl md:flex">
+      <nav className="flex flex-col gap-1 px-1.5">
         {visibleItems(user).map((item) => (
           <RailLink key={item.href} item={item} active={isActive(item.href)} />
         ))}
       </nav>
-      <nav className="flex flex-col items-center gap-1">
+      <nav className="flex flex-col gap-1 px-1.5">
         {FOOTER_ITEMS.map((item) => (
           <RailLink key={item.href} item={item} active={isActive(item.href)} />
         ))}

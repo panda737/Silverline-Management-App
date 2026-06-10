@@ -9,13 +9,12 @@ import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { PriorityBadge, ProjectStatusBadge } from "@/components/status-badge";
 import { PROJECT_TYPE_LABELS } from "@/lib/labels";
 import { ProjectsFilters } from "./projects-filters";
@@ -134,63 +133,57 @@ export default async function ProjectsPage({
           )}
         </EmptyState>
       ) : (
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Project</TableHead>
-                <TableHead className="hidden md:table-cell">Client</TableHead>
-                <TableHead className="hidden lg:table-cell">Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden sm:table-cell">Priority</TableHead>
-                <TableHead className="hidden lg:table-cell">Manager</TableHead>
-                <TableHead className="w-36">Progress</TableHead>
-                <TableHead className="hidden xl:table-cell">Target</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="max-w-72 font-medium">
-                    <Link
-                      href={`/projects/${p.id}`}
-                      className="block truncate hover:text-primary hover:underline"
-                    >
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {projects.map((p) => (
+            <Link
+              key={p.id}
+              href={`/projects/${p.id}`}
+              className="group rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            >
+              <Card className="h-full gap-3 transition hover:ring-foreground/25">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="truncate text-sm group-hover:text-primary">
                       {p.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground md:table-cell">
-                    {p.client?.company_name ?? "—"}
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground lg:table-cell">
-                    {PROJECT_TYPE_LABELS[p.project_type]}
-                  </TableCell>
-                  <TableCell>
+                    </CardTitle>
                     <ProjectStatusBadge status={p.status} />
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <PriorityBadge priority={p.priority} />
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground lg:table-cell">
-                    {p.manager?.full_name ?? "—"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Progress value={p.progress} className="h-2 w-20" />
-                      <span className="text-xs text-muted-foreground tabular-nums">
+                  </div>
+                  <CardDescription className="truncate text-xs">
+                    {p.client?.company_name ?? "No client"} ·{" "}
+                    {PROJECT_TYPE_LABELS[p.project_type]}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <dl className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="space-y-0.5">
+                      <dt className="text-muted-foreground">Manager</dt>
+                      <dd className="truncate font-medium">
+                        {p.manager?.full_name ?? "—"}
+                      </dd>
+                    </div>
+                    <div className="space-y-0.5">
+                      <dt className="text-muted-foreground">Target</dt>
+                      <dd className="font-medium">
+                        {p.target_date
+                          ? format(new Date(p.target_date), "d MMM yyyy")
+                          : "—"}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-medium tabular-nums">
                         {p.progress}%
                       </span>
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground xl:table-cell">
-                    {p.target_date
-                      ? format(new Date(p.target_date), "d MMM yyyy")
-                      : "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <Progress value={p.progress} className="h-1.5" />
+                  </div>
+                  <PriorityBadge priority={p.priority} />
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
       )}
     </div>
