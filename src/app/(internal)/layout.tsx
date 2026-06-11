@@ -19,8 +19,8 @@ export default async function InternalLayout({
       <div className="min-h-svh">
         <AppHeader user={user} />
         <AppRail user={user} />
-        <main className="pt-12 md:pl-12">
-          <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8">
+        <main className="pt-12 md:pl-48">
+          <div className="w-full max-w-5xl px-4 py-6 md:px-6">
             {children}
           </div>
         </main>

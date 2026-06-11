@@ -5,9 +5,19 @@ import {
   TASK_STATUS_LABELS,
   TIMELINE_STATUS_LABELS,
 } from "@/lib/labels";
+import {
+  ACTIVITY_TRIGGERED_LABELS,
+  DEADLINE_STATUS_LABELS,
+  DOC_REQ_STATUS_LABELS,
+  RISK_LABELS,
+} from "@/lib/wml";
 import type {
+  ActivityTriggered,
+  DeadlineStatus,
+  DocReqStatus,
   Priority,
   ProjectStatus,
+  RiskLevel,
   TaskStatus,
   TimelineStatus,
 } from "@/lib/database.types";
@@ -113,6 +123,59 @@ export function TaskStatusBadge({ status }: { status: TaskStatus }) {
   return (
     <Pill className={TASK_STATUS_CLASSES[status]}>
       {TASK_STATUS_LABELS[status]}
+    </Pill>
+  );
+}
+
+// --- WML module badges ------------------------------------------------------
+const RISK_CLASSES: Record<RiskLevel, string> = {
+  low: green,
+  medium: amber,
+  high: orange,
+  critical: red,
+};
+
+const DOC_REQ_STATUS_CLASSES: Record<DocReqStatus, string> = {
+  missing: red,
+  uploaded: sky,
+  approved: green,
+  not_applicable: neutral,
+};
+
+const ACTIVITY_TRIGGERED_CLASSES: Record<ActivityTriggered, string> = {
+  yes: green,
+  no: neutral,
+  tbc: amber,
+};
+
+const DEADLINE_STATUS_CLASSES: Record<DeadlineStatus, string> = {
+  not_started: neutral,
+  running: sky,
+  due_soon: amber,
+  overdue: red,
+  completed: green,
+};
+
+export function RiskBadge({ level }: { level: RiskLevel }) {
+  return <Pill className={RISK_CLASSES[level]}>{RISK_LABELS[level]}</Pill>;
+}
+
+export function DocReqStatusBadge({ status }: { status: DocReqStatus }) {
+  return <Pill className={DOC_REQ_STATUS_CLASSES[status]}>{DOC_REQ_STATUS_LABELS[status]}</Pill>;
+}
+
+export function ActivityTriggeredBadge({ value }: { value: ActivityTriggered }) {
+  return (
+    <Pill className={ACTIVITY_TRIGGERED_CLASSES[value]}>
+      {ACTIVITY_TRIGGERED_LABELS[value]}
+    </Pill>
+  );
+}
+
+export function DeadlineStatusBadge({ status }: { status: DeadlineStatus }) {
+  return (
+    <Pill className={DEADLINE_STATUS_CLASSES[status]}>
+      {DEADLINE_STATUS_LABELS[status]}
     </Pill>
   );
 }

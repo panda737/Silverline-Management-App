@@ -118,7 +118,7 @@ export function AppRail({ user }: { user: ShellUser }) {
     pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <aside className="group/rail fixed inset-y-0 top-12 left-0 z-30 hidden w-12 flex-col justify-between overflow-hidden border-r border-sidebar-border bg-sidebar py-2 transition-[width] duration-300 ease-in-out hover:w-56 hover:shadow-xl md:flex">
+    <aside className="group/rail fixed inset-y-0 top-12 left-0 z-30 hidden w-12 flex-col justify-between overflow-hidden border-r border-sidebar-border bg-sidebar py-2 transition-[width] duration-300 ease-in-out hover:w-48 hover:shadow-xl md:flex">
       <nav className="flex flex-col gap-1 px-1.5">
         {visibleItems(user).map((item) => (
           <RailLink key={item.href} item={item} active={isActive(item.href)} />

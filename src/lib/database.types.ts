@@ -53,6 +53,22 @@ export type TaskStatus = "todo" | "in_progress" | "waiting" | "review" | "done";
 
 export type CommentVisibility = "internal" | "client";
 
+// --- Waste Management Licence (WML) module ---------------------------------
+export type WmlRoute = "category_a" | "category_b" | "category_c";
+
+export type RiskLevel = "low" | "medium" | "high" | "critical";
+
+export type DocReqStatus = "missing" | "uploaded" | "approved" | "not_applicable";
+
+export type ActivityTriggered = "yes" | "no" | "tbc";
+
+export type DeadlineStatus =
+  | "not_started"
+  | "running"
+  | "due_soon"
+  | "overdue"
+  | "completed";
+
 export type ProfileRow = {
   id: string;
   full_name: string;
@@ -103,6 +119,15 @@ export type ProjectRow = {
   client_summary: string | null;
   progress: number;
   created_by: string | null;
+  // WML module (null for non-WML projects)
+  route: WmlRoute | null;
+  applicant: string | null;
+  current_legal_stage: string | null;
+  current_step: string | null;
+  next_action: string | null;
+  risk_level: RiskLevel | null;
+  risk_reason: string | null;
+  due_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -139,6 +164,57 @@ export type ProjectTimelineItemRow = {
   client_visible: boolean;
   client_update_text: string | null;
   internal_notes: string | null;
+  sort_order: number;
+  // WML module
+  stage_key: string | null;
+  completion_requirements: string | null;
+  risk_flag: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectListedActivityRow = {
+  id: string;
+  project_id: string;
+  activity_number: string;
+  category: string | null;
+  description: string | null;
+  waste_stream: string | null;
+  threshold: string | null;
+  project_capacity: string | null;
+  triggered: ActivityTriggered;
+  notes: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectDocumentRequirementRow = {
+  id: string;
+  project_id: string;
+  doc_key: string | null;
+  name: string;
+  linked_stage_key: string | null;
+  required: boolean;
+  status: DocReqStatus;
+  na_reason: string | null;
+  upload_date: string | null;
+  notes: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectDeadlineRow = {
+  id: string;
+  project_id: string;
+  deadline_key: string | null;
+  name: string;
+  linked_stage_key: string | null;
+  trigger_date: string | null;
+  due_date: string | null;
+  status: DeadlineStatus;
+  notes: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -306,6 +382,14 @@ export type Database = {
         | "client_summary"
         | "progress"
         | "created_by"
+        | "route"
+        | "applicant"
+        | "current_legal_stage"
+        | "current_step"
+        | "next_action"
+        | "risk_level"
+        | "risk_reason"
+        | "due_date"
       >;
       project_members: TableType<ProjectMemberRow, CommonOptional | "role_on_project">;
       timeline_templates: TableType<
@@ -323,6 +407,45 @@ export type Database = {
         | "client_visible"
         | "client_update_text"
         | "internal_notes"
+        | "sort_order"
+        | "stage_key"
+        | "completion_requirements"
+        | "risk_flag"
+      >;
+      project_listed_activities: TableType<
+        ProjectListedActivityRow,
+        | CommonOptional
+        | "activity_number"
+        | "category"
+        | "description"
+        | "waste_stream"
+        | "threshold"
+        | "project_capacity"
+        | "triggered"
+        | "notes"
+        | "sort_order"
+      >;
+      project_document_requirements: TableType<
+        ProjectDocumentRequirementRow,
+        | CommonOptional
+        | "doc_key"
+        | "linked_stage_key"
+        | "required"
+        | "status"
+        | "na_reason"
+        | "upload_date"
+        | "notes"
+        | "sort_order"
+      >;
+      project_deadlines: TableType<
+        ProjectDeadlineRow,
+        | CommonOptional
+        | "deadline_key"
+        | "linked_stage_key"
+        | "trigger_date"
+        | "due_date"
+        | "status"
+        | "notes"
         | "sort_order"
       >;
       tasks: TableType<
