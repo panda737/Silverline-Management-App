@@ -65,6 +65,19 @@ export async function createTask(
   const input = parsed.data;
 
   const supabase = await createClient();
+
+  // Tasks are internal-only — reject assignment to client or deactivated profiles.
+  if (input.assigned_to) {
+    const { data: assignee } = await supabase
+      .from("profiles")
+      .select("id, role, active")
+      .eq("id", input.assigned_to)
+      .maybeSingle();
+    if (!assignee || assignee.role === "client" || !assignee.active) {
+      return { error: "Tasks can only be assigned to active internal users." };
+    }
+  }
+
   const { error } = await supabase.from("tasks").insert({
     title: input.title,
     project_id: input.project_id,

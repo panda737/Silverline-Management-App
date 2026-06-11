@@ -14,7 +14,11 @@ export async function GET(request: NextRequest) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
-  const next = searchParams.get("next");
+  // Only allow same-origin relative paths — "//evil.com" and absolute URLs
+  // would otherwise turn this into an open redirect on invite/recovery links.
+  const rawNext = searchParams.get("next");
+  const next =
+    rawNext && /^\/(?![/\\])/.test(rawNext) ? rawNext : null;
 
   const supabase = await createClient();
 

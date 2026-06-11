@@ -15,7 +15,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, initials } from "@/lib/utils";
 import { signOut } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -63,17 +63,6 @@ export type ShellUser = {
   email: string;
   role: UserRole;
 };
-
-function initials(name: string) {
-  return (
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase())
-      .join("") || "?"
-  );
-}
 
 function visibleItems(user: ShellUser) {
   return NAV_ITEMS.filter((i) => !i.adminOnly || user.role === "admin");

@@ -4,6 +4,7 @@ import {
   PROJECT_STATUS_LABELS,
   TASK_STATUS_LABELS,
   TIMELINE_STATUS_LABELS,
+  USER_ROLE_LABELS,
 } from "@/lib/labels";
 import {
   ACTIVITY_TRIGGERED_LABELS,
@@ -20,6 +21,7 @@ import type {
   RiskLevel,
   TaskStatus,
   TimelineStatus,
+  UserRole,
 } from "@/lib/database.types";
 
 /** Slim Supabase-style pill: tinted bg, subtle border, colored text. */
@@ -115,6 +117,24 @@ export function TimelineStatusBadge({ status }: { status: TimelineStatus }) {
   return (
     <Pill className={TIMELINE_STATUS_CLASSES[status]}>
       {TIMELINE_STATUS_LABELS[status]}
+    </Pill>
+  );
+}
+
+const USER_ROLE_CLASSES: Record<UserRole, string> = {
+  admin: violet,
+  staff: green,
+  client: sky,
+};
+
+export function UserRoleBadge({ role }: { role: UserRole }) {
+  return <Pill className={USER_ROLE_CLASSES[role]}>{USER_ROLE_LABELS[role]}</Pill>;
+}
+
+export function ActiveBadge({ active }: { active: boolean }) {
+  return (
+    <Pill className={active ? green : neutral}>
+      {active ? "Active" : "Deactivated"}
     </Pill>
   );
 }

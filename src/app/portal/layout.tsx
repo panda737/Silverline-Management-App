@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Leaf, LogOut } from "lucide-react";
 import { requireClient } from "@/lib/auth";
+import { initials } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -14,17 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-function initials(name: string) {
-  return (
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase())
-      .join("") || "?"
-  );
-}
 
 export default async function PortalLayout({
   children,

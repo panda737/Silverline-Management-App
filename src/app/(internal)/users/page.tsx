@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActiveBadge, UserRoleBadge } from "@/components/status-badge";
 import {
   Table,
   TableBody,
@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { USER_ROLE_LABELS } from "@/lib/labels";
 import { PageHeader } from "@/components/page-header";
 import { InviteDialog } from "./invite-dialog";
 import { setUserActive } from "./actions";
@@ -28,15 +27,6 @@ type UserRowData = {
   active: boolean;
   created_at: string;
   client: { company_name: string } | null;
-};
-
-const pillBase =
-  "rounded-full px-2 py-px text-[11px] leading-[18px] font-medium";
-
-const ROLE_BADGE: Record<UserRole, string> = {
-  admin: `${pillBase} border-violet-500/25 bg-violet-500/10 text-violet-700 dark:text-violet-400`,
-  staff: `${pillBase} border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`,
-  client: `${pillBase} border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-400`,
 };
 
 export default async function UsersPage() {
@@ -100,9 +90,7 @@ export default async function UsersPage() {
                   {u.email}
                 </TableCell>
                 <TableCell>
-                  <Badge className={ROLE_BADGE[u.role]}>
-                    {USER_ROLE_LABELS[u.role]}
-                  </Badge>
+                  <UserRoleBadge role={u.role} />
                 </TableCell>
                 <TableCell className="hidden text-muted-foreground lg:table-cell">
                   {u.client?.company_name ?? "—"}
@@ -111,17 +99,7 @@ export default async function UsersPage() {
                   {format(new Date(u.created_at), "d MMM yyyy")}
                 </TableCell>
                 <TableCell>
-                  {u.active ? (
-                    <Badge
-                      className={`${pillBase} border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`}
-                    >
-                      Active
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className={pillBase}>
-                      Deactivated
-                    </Badge>
-                  )}
+                  <ActiveBadge active={u.active} />
                 </TableCell>
                 <TableCell>
                   {u.id !== me.id && (
