@@ -1,33 +1,11 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { ActiveBadge, UserRoleBadge } from "@/components/status-badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PageHeader } from "@/components/page-header";
 import { InviteDialog } from "./invite-dialog";
-import { setUserActive } from "./actions";
-import type { UserRole } from "@/lib/database.types";
+import { UsersTabs, type UserRowData } from "./users-tabs";
 
 export const metadata: Metadata = { title: "Users" };
-
-type UserRowData = {
-  id: string;
-  full_name: string;
-  email: string;
-  role: UserRole;
-  active: boolean;
-  created_at: string;
-  client: { company_name: string } | null;
-};
 
 export default async function UsersPage() {
   const me = await requireAdmin();
@@ -47,6 +25,8 @@ export default async function UsersPage() {
   if (error) throw new Error(`Failed to load users: ${error.message}`);
 
   const users = (usersData ?? []) as unknown as UserRowData[];
+  const staffUsers = users.filter((u) => u.role === "admin" || u.role === "staff");
+  const clientUsers = users.filter((u) => u.role === "client");
 
   return (
     <div className="space-y-6">
@@ -62,74 +42,7 @@ export default async function UsersPage() {
         />
       </PageHeader>
 
-      <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead className="hidden lg:table-cell">Company</TableHead>
-              <TableHead className="hidden sm:table-cell">Joined</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-28" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((u) => (
-              <TableRow key={u.id} className={!u.active ? "opacity-60" : ""}>
-                <TableCell className="font-medium">
-                  {u.full_name || "—"}
-                  {u.id === me.id && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (you)
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground md:table-cell">
-                  {u.email}
-                </TableCell>
-                <TableCell>
-                  <UserRoleBadge role={u.role} />
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground lg:table-cell">
-                  {u.client?.company_name ?? "—"}
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground sm:table-cell">
-                  {format(new Date(u.created_at), "d MMM yyyy")}
-                </TableCell>
-                <TableCell>
-                  <ActiveBadge active={u.active} />
-                </TableCell>
-                <TableCell>
-                  {u.id !== me.id && (
-                    <form action={setUserActive}>
-                      <input type="hidden" name="user_id" value={u.id} />
-                      <input
-                        type="hidden"
-                        name="active"
-                        value={u.active ? "false" : "true"}
-                      />
-                      <Button
-                        type="submit"
-                        variant="ghost"
-                        size="sm"
-                        className={
-                          u.active
-                            ? "text-destructive hover:text-destructive"
-                            : ""
-                        }
-                      >
-                        {u.active ? "Deactivate" : "Reactivate"}
-                      </Button>
-                    </form>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <UsersTabs staff={staffUsers} clients={clientUsers} currentUserId={me.id} />
     </div>
   );
 }

@@ -143,10 +143,12 @@ export default async function ProjectsPage({
               <Card className="h-full gap-3 transition hover:ring-foreground/25">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="truncate text-sm group-hover:text-primary">
+                    <CardTitle className="line-clamp-2 min-w-0 flex-1 text-sm group-hover:text-primary">
                       {p.name}
                     </CardTitle>
-                    <ProjectStatusBadge status={p.status} />
+                    <span className="shrink-0">
+                      <ProjectStatusBadge status={p.status} />
+                    </span>
                   </div>
                   <CardDescription className="truncate text-xs">
                     {p.client?.company_name ?? "No client"} ·{" "}
