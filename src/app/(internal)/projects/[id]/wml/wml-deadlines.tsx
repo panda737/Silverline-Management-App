@@ -5,13 +5,6 @@ import { format } from "date-fns";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,25 +56,19 @@ export function WmlDeadlines({
   deadlines: ProjectDeadlineRow[];
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <CardTitle>Deadlines</CardTitle>
-            <CardDescription>
-              Statutory and process deadlines. Dates are editable.
-            </CardDescription>
-          </div>
-          <DeadlineDialog projectId={projectId} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        {deadlines.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No deadlines yet.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
+    <div className="space-y-4">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm text-muted-foreground">
+          Statutory and process deadlines. Dates are editable.
+        </p>
+        <DeadlineDialog projectId={projectId} />
+      </div>
+      {deadlines.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          No deadlines yet.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -130,8 +117,7 @@ export function WmlDeadlines({
             </Table>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 

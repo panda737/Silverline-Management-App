@@ -4,13 +4,6 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,26 +49,23 @@ export function WmlListedActivities({
   activities: ProjectListedActivityRow[];
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <CardTitle>Listed Activities</CardTitle>
-            <CardDescription>
-              NEMWA listed activities triggered by this project.
-            </CardDescription>
-          </div>
-          <ActivityDialog projectId={projectId} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        {activities.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No listed activities captured. At least one is required before Legal
-            Activity Screening can be completed.
+    <div className="space-y-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1">
+          <h3 className="font-heading text-base font-medium">Listed Activities</h3>
+          <p className="text-sm text-muted-foreground">
+            NEMWA listed activities triggered by this project.
           </p>
-        ) : (
-          <div className="overflow-x-auto">
+        </div>
+        <ActivityDialog projectId={projectId} />
+      </div>
+      {activities.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          No listed activities captured. At least one is required before Legal
+          Activity Screening can be completed.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -124,8 +114,7 @@ export function WmlListedActivities({
             </Table>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 

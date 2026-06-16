@@ -5,13 +5,6 @@ import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -56,20 +49,16 @@ export function WmlDocuments({
   docReqs: ProjectDocumentRequirementRow[];
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Documents</CardTitle>
-        <CardDescription>
-          Checklist of documents expected for this route, linked to timeline stages.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {docReqs.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No documents yet — set a route to generate the checklist.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Checklist of documents expected for this route, linked to timeline stages.
+      </p>
+      {docReqs.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          No documents yet — set a route to generate the checklist.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -89,8 +78,7 @@ export function WmlDocuments({
             </Table>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 

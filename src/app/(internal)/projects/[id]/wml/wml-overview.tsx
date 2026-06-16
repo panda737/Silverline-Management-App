@@ -5,12 +5,6 @@ import { format } from "date-fns";
 import { Loader2, Pencil, Route as RouteIcon, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -54,7 +48,7 @@ import {
 } from "@/lib/wml";
 import type { RiskLevel, WmlRoute } from "@/lib/database.types";
 import { assignRoute, updateWmlOverview, type FormState } from "../wml-actions";
-import type { WmlProject } from "./wml-project-detail";
+import type { ProjectWithRelations } from "../project-detail";
 
 const initialState: FormState = {};
 
@@ -85,7 +79,7 @@ export function WmlOverview({
   riskReason,
   riskIsManual,
 }: {
-  project: WmlProject;
+  project: ProjectWithRelations;
   riskLevel: RiskLevel;
   riskReason: string;
   riskIsManual: boolean;
@@ -97,23 +91,17 @@ export function WmlOverview({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle>Overview</CardTitle>
-          <div className="flex items-center gap-1.5">
-            <ChangeRouteButton projectId={project.id} currentRoute={route} />
-            <EditOverviewDialog
-              project={project}
-              route={route}
-              riskLevel={riskLevel}
-              riskIsManual={riskIsManual}
-            />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <div>
+    <div className="space-y-5">
+      <div className="flex items-center justify-end gap-1.5">
+        <ChangeRouteButton projectId={project.id} currentRoute={route} />
+        <EditOverviewDialog
+          project={project}
+          route={route}
+          riskLevel={riskLevel}
+          riskIsManual={riskIsManual}
+        />
+      </div>
+      <div>
           <div className="mb-1.5 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Progress</span>
             <span className="font-medium tabular-nums">{project.progress}%</span>
@@ -171,8 +159,7 @@ export function WmlOverview({
             <dd className="text-sm">{riskReason}</dd>
           </div>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 
@@ -190,16 +177,13 @@ function RoutePicker({ projectId }: { projectId: string }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Select application route</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          Choose the WML application route. This generates the correct timeline
-          stages, document checklist and deadlines.
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      <h3 className="font-heading text-base font-medium">Select application route</h3>
+      <p className="text-sm text-muted-foreground">
+        Choose the WML application route. This generates the correct timeline
+        stages, document checklist and deadlines.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
           <Select value={route} onValueChange={(v) => setRoute(v as WmlRoute)}>
             <SelectTrigger className="w-full sm:w-96">
               <SelectValue placeholder="Select a route" />
@@ -217,11 +201,10 @@ function RoutePicker({ projectId }: { projectId: string }) {
             Generate timeline
           </Button>
         </div>
-        {route && WML_ROUTES[route].note && (
-          <p className="text-xs text-muted-foreground">{WML_ROUTES[route].note}</p>
-        )}
-      </CardContent>
-    </Card>
+      {route && WML_ROUTES[route].note && (
+        <p className="text-xs text-muted-foreground">{WML_ROUTES[route].note}</p>
+      )}
+    </div>
   );
 }
 
@@ -303,7 +286,7 @@ function EditOverviewDialog({
   riskLevel,
   riskIsManual,
 }: {
-  project: WmlProject;
+  project: ProjectWithRelations;
   route: WmlRoute;
   riskLevel: RiskLevel;
   riskIsManual: boolean;

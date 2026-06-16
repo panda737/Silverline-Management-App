@@ -13,13 +13,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,21 +78,17 @@ export function WmlTimeline({
     staff.find((s) => s.id === id)?.full_name ?? null;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Timeline</CardTitle>
-        <CardDescription>
-          Route-generated stages. A stage cannot be completed while a required
-          document is missing.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {items.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No timeline stages yet.
-          </p>
-        ) : (
-          <ol className="space-y-0">
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Route-generated stages. A stage cannot be completed while a required
+        document is missing.
+      </p>
+      {items.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          No timeline stages yet.
+        </p>
+      ) : (
+        <ol className="space-y-0">
             {items.map((item, idx) => {
               const stageDocs = docReqs.filter(
                 (d) => d.linked_stage_key === item.stage_key
@@ -190,8 +179,7 @@ export function WmlTimeline({
             })}
           </ol>
         )}
-      </CardContent>
-    </Card>
+      </div>
   );
 }
 

@@ -213,6 +213,72 @@ export async function updateWmlOverview(
 }
 
 // ---------------------------------------------------------------------------
+// Overview edit — non-WML projects (no route / legal stage / risk derivation)
+// ---------------------------------------------------------------------------
+const genericOverviewSchema = z.object({
+  applicant: optionalText,
+  status: z.enum(PROJECT_STATUSES as [string, ...string[]]),
+  priority: z.enum(PRIORITIES as [string, ...string[]]),
+  progress: z.coerce.number().int().min(0).max(100),
+  current_step: optionalText,
+  next_action: optionalText,
+  start_date: optionalDate,
+  target_date: optionalDate,
+  due_date: optionalDate,
+  client_summary: optionalText,
+  description: optionalText,
+});
+
+export async function updateGenericOverview(
+  projectId: string,
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const profile = await requireEditor();
+  if (!profile) return { error: "You do not have permission to edit this project." };
+
+  const parsed = genericOverviewSchema.safeParse({
+    applicant: formData.get("applicant") ?? "",
+    status: formData.get("status"),
+    priority: formData.get("priority"),
+    progress: formData.get("progress") ?? "0",
+    current_step: formData.get("current_step") ?? "",
+    next_action: formData.get("next_action") ?? "",
+    start_date: formData.get("start_date") ?? "",
+    target_date: formData.get("target_date") ?? "",
+    due_date: formData.get("due_date") ?? "",
+    client_summary: formData.get("client_summary") ?? "",
+    description: formData.get("description") ?? "",
+  });
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors as FormState["fieldErrors"] };
+  }
+  const input = parsed.data;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({
+      applicant: input.applicant,
+      status: input.status as never,
+      priority: input.priority as never,
+      progress: input.progress,
+      current_step: input.current_step,
+      next_action: input.next_action,
+      start_date: input.start_date,
+      target_date: input.target_date,
+      due_date: input.due_date,
+      client_summary: input.client_summary,
+      description: input.description,
+    })
+    .eq("id", projectId);
+  if (error) return { error: `Could not save: ${error.message}` };
+
+  revalidatePath(`/projects/${projectId}`);
+  return { success: "Overview updated." };
+}
+
+// ---------------------------------------------------------------------------
 // Timeline stage status (with completion gating)
 // ---------------------------------------------------------------------------
 export async function setStageStatus(

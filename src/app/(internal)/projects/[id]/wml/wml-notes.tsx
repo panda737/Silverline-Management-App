@@ -5,13 +5,6 @@ import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -49,15 +42,11 @@ export function WmlNotes({
   }, [state]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Notes / Activity</CardTitle>
-        <CardDescription>
-          Internal notes and client-visible updates for this project.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <form ref={formRef} action={formAction} className="space-y-2">
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Internal notes and client-visible updates for this project.
+      </p>
+      <form ref={formRef} action={formAction} className="space-y-2">
           <Textarea name="body" rows={2} placeholder="Add a note…" required />
           {state.fieldErrors?.body && (
             <p className="text-sm text-destructive">{state.fieldErrors.body[0]}</p>
@@ -103,7 +92,6 @@ export function WmlNotes({
             </li>
           ))}
         </ul>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
