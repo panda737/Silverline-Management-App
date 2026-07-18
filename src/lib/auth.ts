@@ -1,9 +1,17 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ProfileRow } from "@/lib/database.types";
 
-/** Current user's profile, or null when not signed in. */
-export async function getProfile(): Promise<ProfileRow | null> {
+/**
+ * Current user's profile, or null when not signed in.
+ *
+ * Wrapped in React `cache()` so it runs at most ONCE per request: the layout and
+ * the page both guard with requireInternal(), and without this each would repeat
+ * the getUser() round-trip + profiles query. Deduped, a navigation makes one
+ * auth call here instead of two+.
+ */
+export const getProfile = cache(async (): Promise<ProfileRow | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -16,7 +24,7 @@ export async function getProfile(): Promise<ProfileRow | null> {
     .eq("id", user.id)
     .maybeSingle();
   return (data as ProfileRow | null) ?? null;
-}
+});
 
 /** Guard for internal pages: must be an active admin or staff member. */
 export async function requireInternal(): Promise<ProfileRow> {
