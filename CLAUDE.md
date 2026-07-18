@@ -18,8 +18,8 @@ so clients see only their own project's progress.
 
 ## Second Brain sync
 Juandre keeps a Second Brain vault (Obsidian + git) at
-`C:\Users\juand\OneDrive\Projects\Second Brain\Second Brain` — this app's project file
-lives at `Projects\Silverline Management Portal.md` there. At the end of a work
+`C:\Users\juand\dev\second-brain` (moved out of OneDrive 2026-07-05) — this app's project
+file lives at `Projects\Silverline Management Portal.md` there. At the end of a work
 session, or after finishing a meaningful chunk: append what was done / what's left to
 `MOC\In Progress.md` in that vault, then `git commit` + `git push` **that repo too**
 (it's a separate git repo on the same machine — different folder, own remote). Keep it
