@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Project tracking and client portal for Silverline environmental compliance."
+    />
+    <title>Silverline Management Portal</title>
+    <!-- Pre-paint theme: next-themes runs after hydration; without SSR this script
+         prevents a light-mode flash for dark/system-dark users. -->
+    <script>
+      try {
+        var t = localStorage.getItem("theme");
+        if (
+          t === "dark" ||
+          ((!t || t === "system") &&
+            matchMedia("(prefers-color-scheme: dark)").matches)
+        )
+          document.documentElement.classList.add("dark");
+      } catch (e) {}
+    </script>
+  </head>
+  <body class="antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
