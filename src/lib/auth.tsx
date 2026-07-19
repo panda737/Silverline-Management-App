@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { queryClient } from "@/lib/query-client";
 import type { ProfileRow } from "@/lib/database.types";
 import { InternalLayout } from "@/components/internal-layout";
+import { PortalLayout } from "@/components/portal-layout";
 
 /**
  * SPA auth: session state + profile query + route guards.
@@ -124,7 +125,11 @@ export function RequireClient() {
   if (!profile || !profile.active) return <SignOutAndLogin />;
   if (profile.role !== "client") return <Navigate to="/dashboard" replace />;
 
-  return <Outlet context={profile} />;
+  return (
+    <PortalLayout profile={profile}>
+      <Outlet context={profile} />
+    </PortalLayout>
+  );
 }
 
 /** "/" — mirror of the old RootPage: route to the role's home. */

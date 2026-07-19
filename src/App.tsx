@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import {
   RequireAdmin,
   RequireClient,
@@ -9,13 +9,26 @@ import {
 import LoginPage from "@/pages/login";
 import AuthConfirmPage from "@/pages/auth/confirm";
 import SetPasswordPage from "@/pages/auth/set-password";
+import DashboardPage from "@/pages/dashboard";
+import ProjectsPage from "@/pages/projects";
+import NewProjectPage from "@/pages/projects/new";
+import ProjectDetailPage from "@/pages/projects/detail";
+import ClientsPage from "@/pages/clients";
+import ClientDetailPage from "@/pages/clients/detail";
+import TasksPage from "@/pages/tasks";
+import DocumentsPage from "@/pages/documents";
+import UsersPage from "@/pages/users";
+import SettingsPage from "@/pages/settings";
+import PortalDashboardPage from "@/pages/portal";
 
-/** Temporary Phase-2 stub — every internal page gets its real port in Phase 3. */
-function Stub({ name }: { name: string }) {
+function NotFound() {
   return (
-    <p className="py-10 text-center text-sm text-muted-foreground">
-      {name} — porting in progress
-    </p>
+    <div className="flex min-h-svh flex-col items-center justify-center gap-3">
+      <p className="text-sm text-muted-foreground">Page not found.</p>
+      <Link to="/" className="text-sm text-primary underline">
+        Go home
+      </Link>
+    </div>
   );
 }
 
@@ -37,33 +50,26 @@ export default function App() {
 
         {/* Internal shell — mirror of the (internal) route group */}
         <Route element={<RequireInternal />}>
-          <Route path="/dashboard" element={<Stub name="Dashboard" />} />
-          <Route path="/projects" element={<Stub name="Projects" />} />
-          <Route path="/projects/new" element={<Stub name="New project" />} />
-          <Route path="/projects/:id" element={<Stub name="Project" />} />
-          <Route path="/clients" element={<Stub name="Clients" />} />
-          <Route path="/clients/:id" element={<Stub name="Client" />} />
-          <Route path="/tasks" element={<Stub name="Tasks" />} />
-          <Route path="/documents" element={<Stub name="Documents" />} />
-          <Route path="/settings" element={<Stub name="Settings" />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/new" element={<NewProjectPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/clients" element={<ClientsPage />} />
+          <Route path="/clients/:id" element={<ClientDetailPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route element={<RequireAdmin />}>
-            <Route path="/users" element={<Stub name="Users" />} />
+            <Route path="/users" element={<UsersPage />} />
           </Route>
         </Route>
 
         {/* Client portal */}
         <Route element={<RequireClient />}>
-          <Route path="/portal" element={<Stub name="Client portal" />} />
+          <Route path="/portal" element={<PortalDashboardPage />} />
         </Route>
 
-        <Route
-          path="*"
-          element={
-            <div className="flex min-h-svh items-center justify-center">
-              <p className="text-sm text-muted-foreground">Page not found.</p>
-            </div>
-          }
-        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
