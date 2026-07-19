@@ -1,0 +1,9 @@
+/* Geist variable fonts, self-hosted via @fontsource-variable (imported in main.tsx).
+   globals.css maps --font-sans/--font-mono to these variables — same var names the
+   Next `geist` package used, so the design tokens resolve unchanged. */
+:root {
+  --font-geist-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, "Cascadia Mono", monospace;
+}
