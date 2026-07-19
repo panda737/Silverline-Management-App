@@ -576,3 +576,44 @@ export async function addProjectNote(
   invalidateProject(projectId);
   return { success: "Note added." };
 }
+
+// ---------------------------------------------------------------------------
+// Stage status + an attached comment (recorded as a project note)
+// ---------------------------------------------------------------------------
+const STATUS_VERB = {
+  pending: "Reset",
+  in_progress: "Started",
+  completed: "Completed",
+  skipped: "Skipped",
+} as const;
+
+export async function updateStageStatusWithComment(
+  projectId: string,
+  itemId: string,
+  status: "pending" | "in_progress" | "completed" | "skipped",
+  comment?: string
+): Promise<ActionResult> {
+  // Reuse the gated status change (required docs / listed-activity rules).
+  const res = await setStageStatus(projectId, itemId, status);
+  if (!res.ok) return res;
+
+  const note = comment?.trim();
+  if (note) {
+    const profile = await getActionProfile();
+    if (profile) {
+      const { data: item } = await supabase
+        .from("project_timeline_items")
+        .select("stage_name")
+        .eq("id", itemId)
+        .maybeSingle();
+      await supabase.from("project_comments").insert({
+        project_id: projectId,
+        author_id: profile.id,
+        body: `${STATUS_VERB[status]} "${item?.stage_name ?? "stage"}" — ${note}`,
+        visibility: "internal" as never,
+      });
+      invalidateProject(projectId);
+    }
+  }
+  return { ok: true };
+}

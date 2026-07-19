@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const TAB_KEYS = ["overview", "timeline", "documents", "deadlines", "activity"] as const;
+const TAB_KEYS = ["overview", "documents", "deadlines", "activity", "customer"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 const TAB_LABELS: Record<TabKey, string> = {
   overview: "Overview",
-  timeline: "Timeline",
   documents: "Documents",
   deadlines: "Deadlines",
   activity: "Activity",
+  customer: "Client View",
 };
 
 /**
