@@ -1,20 +1,44 @@
 # Silverline Management App — Claude guide
 
 Project-tracking portal for [[Silverline]] (environmental compliance consultancy) —
-cross-project progress, "what's next" per engagement, and a client login planned
-so clients see only their own project's progress.
+cross-project progress, "what's next" per engagement, and a client portal where
+clients see only their own project's progress.
 
-**Stack:** Next.js 15 (App Router) + React 19 + TypeScript · Supabase (`@supabase/ssr` +
-`supabase-js`) · Tailwind 4 · shadcn/radix-ui · Zod.
+**Stack (since 2026-07-19, `vite-spa` rebuild):** Vite 7 + React 19 + TypeScript SPA ·
+react-router-dom 7 · TanStack Query 5 · Supabase (`supabase-js`, browser client —
+**security lives entirely in RLS**; clients read only the `portal_*` views) ·
+Tailwind 4 · shadcn/radix-ui ("radix-nova" style — copy `src/components/ui/*`
+verbatim, never regenerate) · Zod.
+
+Was Next.js 15 SSR; rebuilt as a SPA because every SSR navigation paid
+SA→US function + serial Supabase round-trips (~1s/click in prod). Client-side
+navigation is instant; data caches via TanStack Query.
 
 ## Commands
 | Command | What |
 |---|---|
-| `npm run dev` | Local dev server |
+| `npm run dev` | Vite dev server (port 3000) |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run build` | `next build` |
+| `npm run build` | typecheck + `vite build` |
 | `npm run lint` | eslint |
-| `npm run seed:demo` | `tsx scripts/seed.ts` — seed demo data |
+| `npm run seed:demo` | `tsx scripts/seed.ts` — seed demo data (adds demo users/companies — avoid on prod data) |
+| `npx tsx scripts/rls-smoke-test.ts` | RLS leak-prevention suite (needs the seed users to exist) |
+
+## Architecture notes
+- `src/lib/supabase.ts` — the one browser client. `src/lib/auth.tsx` — AuthProvider,
+  `useProfile()`, and the route guards (RequireInternal/RequireAdmin/RequireClient)
+  mirroring the old server guards. Guards do routing UX only; **RLS enforces.**
+- Actions are plain async functions next to their pages (`src/pages/*/actions.ts`),
+  same `(prevState, formData)` signatures — `useActionState` components unchanged.
+  `revalidatePath` became `queryClient.invalidateQueries` (keys: projects, project/id,
+  clients, client/id, tasks, documents, users, staff, dashboard, profile, portal/*).
+- **The one service-role operation** is user invitation:
+  `supabase/functions/invite-user` (edge function; verifies caller is an active
+  admin, then GoTrue invite + `app_metadata` stamp). Deploy:
+  `supabase functions deploy invite-user` + secret `SITE_URL`.
+- Vercel: `vercel.json` pins framework=vite + SPA rewrite. Env vars
+  `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` only — the service key must
+  never be a Vercel env var again.
 
 ## Second Brain sync
 Juandre keeps a Second Brain vault (Obsidian + git) at
