@@ -14,9 +14,10 @@ import type {
   RiskLevel,
 } from "@/lib/database.types";
 import { ProjectTabs } from "./project-tabs";
+import { StageStepper } from "./stage-stepper";
+import { CustomerView } from "./customer-view";
 import { GenericOverview } from "./generic-overview";
 import { WmlOverview } from "./wml/wml-overview";
-import { WmlTimeline } from "./wml/wml-timeline";
 import { WmlDocuments } from "./wml/wml-documents";
 import { WmlListedActivities } from "./wml/wml-listed-activities";
 import { WmlDeadlines } from "./wml/wml-deadlines";
@@ -93,12 +94,12 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
   if (!query.data) return null;
   const { items, docReqs, deadlines, comments, staff, activities } = query.data;
 
-  let overview: ReactNode;
+  let body: ReactNode;
   if (isWml) {
     const suggested = computeRisk(project.status, deadlines, docReqs);
     const riskLevel: RiskLevel = project.risk_level ?? suggested.level;
     const riskReason = project.risk_reason ?? suggested.reason;
-    overview = (
+    body = (
       <>
         <WmlOverview
           project={project}
@@ -111,15 +112,22 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
       </>
     );
   } else {
-    overview = <GenericOverview project={project} items={items} />;
+    body = <GenericOverview project={project} items={items} />;
   }
+
+  // Fused Overview: the timeline as a stepper bar up top, then the overview body.
+  const overview = (
+    <>
+      <StageStepper projectId={projectId} items={items} docReqs={docReqs} staff={staff} progress={project.progress} />
+      <Separator />
+      {body}
+    </>
+  );
 
   return (
     <ProjectTabs
       overview={overview}
-      timeline={
-        <WmlTimeline projectId={projectId} items={items} docReqs={docReqs} staff={staff} />
-      }
+      customer={<CustomerView project={project} items={items} comments={comments} />}
       documents={
         <WmlDocuments projectId={projectId} route={project.route} docReqs={docReqs} />
       }

@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,14 +79,6 @@ export function GenericOverview({
     <div className="space-y-5">
       <div className="flex items-center justify-end gap-1.5">
         <EditGenericDialog project={project} />
-      </div>
-
-      <div>
-        <div className="mb-1.5 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium tabular-nums">{project.progress}%</span>
-        </div>
-        <Progress value={project.progress} className="h-2.5" />
       </div>
 
       <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">

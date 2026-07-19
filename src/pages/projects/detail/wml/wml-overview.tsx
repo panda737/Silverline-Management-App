@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { Loader2, Pencil, Route as RouteIcon, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,14 +98,6 @@ export function WmlOverview({
           riskIsManual={riskIsManual}
         />
       </div>
-      <div>
-          <div className="mb-1.5 flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium tabular-nums">{project.progress}%</span>
-          </div>
-          <Progress value={project.progress} className="h-2.5" />
-        </div>
-
         <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Client" value={project.client?.company_name} />
           <Field label="Applicant" value={project.applicant} />
