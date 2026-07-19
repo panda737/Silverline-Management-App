@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Leaf, LogOut } from "lucide-react";
 import { initials } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { signOut } from "@/pages/login/actions";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export function PortalLayout({
   profile: ProfileRow;
   children: ReactNode;
 }) {
+  const { pathname } = useLocation();
   const { data: company } = useQuery({
     queryKey: ["portal", "company"],
     queryFn: async () => {
@@ -87,7 +89,7 @@ export function PortalLayout({
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 lg:px-8">
-        {children}
+        <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
       </main>
       <footer className="border-t bg-background py-4">
         <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground lg:px-8">

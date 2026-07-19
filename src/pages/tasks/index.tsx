@@ -64,10 +64,14 @@ export default function TasksPage() {
     },
   });
 
-  // Dropdown lists for the dialog — shared ["staff"] key so user-management
-  // actions can invalidate them.
+  // Dropdown lists for the dialog. This returns { projects, staff } — a DIFFERENT
+  // shape from the bare Profile[] the projects pages store under ["staff"]. Sharing
+  // the exact key made TanStack hand this page the array from a cached projects
+  // visit, so `const { projects } = listsQuery.data` was undefined → blank page.
+  // Distinct key, still under the ["staff"] prefix so user-management / settings
+  // invalidations (queryKey: ["staff"]) refresh it by prefix match.
   const listsQuery = useQuery({
-    queryKey: ["staff"],
+    queryKey: ["staff", "task-form-lists"],
     queryFn: async () => {
       const [{ data: projects }, { data: staff }] = await Promise.all([
         supabase
@@ -87,6 +91,7 @@ export default function TasksPage() {
   });
 
   if (tasksQuery.error) throw tasksQuery.error;
+  if (listsQuery.error) throw listsQuery.error;
   if (!tasksQuery.data || !listsQuery.data || !profile) return null;
 
   const tasks = tasksQuery.data;

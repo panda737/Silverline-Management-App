@@ -89,6 +89,7 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
     },
   });
 
+  if (query.error) throw query.error;
   if (!query.data) return null;
   const { items, docReqs, deadlines, comments, staff, activities } = query.data;
 

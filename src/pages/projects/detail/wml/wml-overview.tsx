@@ -112,7 +112,7 @@ export function WmlOverview({
           <Field label="Applicant" value={project.applicant} />
           <Field label="Project manager" value={project.manager?.full_name ?? "Unassigned"} />
           <Field label="Project type" value={PROJECT_TYPE_LABELS[project.project_type]} />
-          <Field label="Route" value={WML_ROUTES[route].label} />
+          <Field label="Route" value={WML_ROUTES[route]?.label ?? route} />
           <Field label="Status" value={<ProjectStatusBadge status={project.status} />} />
         </dl>
 

@@ -1,4 +1,5 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "@/components/error-boundary";
 import {
   RequireAdmin,
   RequireClient,
@@ -35,6 +36,7 @@ function NotFound() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ErrorBoundary>
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         <Route
@@ -71,6 +73,7 @@ export default function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

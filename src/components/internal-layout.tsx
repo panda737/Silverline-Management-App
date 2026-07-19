@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { AppHeader, AppRail } from "@/components/app-shell";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { ProfileRow } from "@/lib/database.types";
 
@@ -16,6 +18,7 @@ export function InternalLayout({
     email: profile.email,
     role: profile.role,
   };
+  const { pathname } = useLocation();
 
   return (
     <TooltipProvider>
@@ -23,7 +26,9 @@ export function InternalLayout({
         <AppHeader user={user} />
         <AppRail user={user} />
         <main className="pt-12 md:pl-48">
-          <div className="w-full max-w-5xl px-4 py-6 md:px-6">{children}</div>
+          <div className="w-full max-w-5xl px-4 py-6 md:px-6">
+            <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
+          </div>
         </main>
       </div>
     </TooltipProvider>

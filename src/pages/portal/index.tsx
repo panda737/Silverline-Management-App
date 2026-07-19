@@ -55,7 +55,7 @@ export default function PortalDashboardPage() {
   useDocumentTitle("Client Portal");
   const { data: profile } = useProfile();
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, error } = useQuery({
     queryKey: ["portal", "dashboard"],
     queryFn: async () => {
       const [
@@ -98,6 +98,7 @@ export default function PortalDashboardPage() {
     },
   });
 
+  if (error) throw error;
   if (isPending || !data || !profile) return <PortalLoading />;
 
   const { company, projects, updates, stages } = data;
