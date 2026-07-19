@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import {
   Building2,
   CheckSquare,
@@ -16,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
-import { signOut } from "@/app/login/actions";
+import { signOut } from "@/pages/login/actions";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -79,7 +76,7 @@ function sectionLabel(pathname: string) {
 function RailLink({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
-      href={item.href}
+      to={item.href}
       className={cn(
         "flex h-9 items-center rounded-md transition-colors",
         active
@@ -102,7 +99,7 @@ function RailLink({ item, active }: { item: NavItem; active: boolean }) {
  * hover, then collapses back to icons when the pointer leaves.
  */
 export function AppRail({ user }: { user: ShellUser }) {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
@@ -123,7 +120,7 @@ export function AppRail({ user }: { user: ShellUser }) {
 }
 
 function MobileNav({ user }: { user: ShellUser }) {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
@@ -148,7 +145,7 @@ function MobileNav({ user }: { user: ShellUser }) {
           {[...visibleItems(user), ...FOOTER_ITEMS].map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              to={item.href}
               className={cn(
                 "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
                 isActive(item.href)
@@ -168,13 +165,13 @@ function MobileNav({ user }: { user: ShellUser }) {
 
 /** Slim top header: brand, breadcrumb, theme + account controls. */
 export function AppHeader({ user }: { user: ShellUser }) {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const section = sectionLabel(pathname);
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-2 border-b bg-background px-3">
       <MobileNav user={user} />
-      <Link href="/dashboard" className="flex items-center gap-2">
+      <Link to="/dashboard" className="flex items-center gap-2">
         <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <Leaf className="size-3.5" />
         </span>
@@ -207,7 +204,7 @@ export function AppHeader({ user }: { user: ShellUser }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/settings">
+              <Link to="/settings">
                 <Settings className="size-4" />
                 Settings
               </Link>
