@@ -6,12 +6,12 @@ import {
   FileText,
   FolderKanban,
   Home,
-  Leaf,
   LogOut,
   Menu,
   Settings,
   Users,
 } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 import { cn, initials } from "@/lib/utils";
 import { signOut } from "@/pages/login/actions";
 import { Button } from "@/components/ui/button";
@@ -135,9 +135,7 @@ function MobileNav({ user }: { user: ShellUser }) {
       <SheetContent side="left" className="w-60 p-0">
         <SheetHeader className="border-b px-4 py-3">
           <SheetTitle className="flex items-center gap-2 text-sm">
-            <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Leaf className="size-3.5" />
-            </span>
+            <BrandMark className="size-6" />
             Silverline
           </SheetTitle>
         </SheetHeader>
@@ -172,9 +170,7 @@ export function AppHeader({ user }: { user: ShellUser }) {
     <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-2 border-b bg-background px-3">
       <MobileNav user={user} />
       <Link to="/dashboard" className="flex items-center gap-2">
-        <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <Leaf className="size-3.5" />
-        </span>
+        <BrandMark className="size-6" />
         <span className="text-[13px] font-medium">Silverline</span>
       </Link>
       {section && (

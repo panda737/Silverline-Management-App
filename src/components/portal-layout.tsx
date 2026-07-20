@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Leaf, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 import { initials } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { signOut } from "@/pages/login/actions";
@@ -44,9 +45,7 @@ export function PortalLayout({
       <header className="sticky top-0 z-20 border-b bg-background">
         <div className="mx-auto flex h-12 w-full max-w-5xl items-center gap-4 px-4 lg:px-8">
           <Link to="/portal" className="flex items-center gap-2">
-            <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Leaf className="size-3.5" />
-            </span>
+            <BrandMark className="size-6" />
             <span className="text-[13px] font-medium">Silverline</span>
             <span className="text-[13px] text-muted-foreground">
               · Client Portal
