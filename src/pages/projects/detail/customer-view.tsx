@@ -13,7 +13,7 @@ import type {
   ProjectCommentRow,
   ProjectTimelineItemRow,
 } from "@/lib/database.types";
-import { ProjectTimeline } from "./stage-stepper";
+import { ProjectTimeline } from "@/components/project-timeline";
 import type { ProjectWithRelations } from "./project-detail";
 
 type CommentWithAuthor = ProjectCommentRow & { author: { full_name: string } | null };

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -146,7 +147,12 @@ export default function PortalDashboardPage() {
                 (s) => s.status !== "completed" && s.status !== "skipped"
               );
               return (
-                <Card key={p.id}>
+                <Link
+                  key={p.id}
+                  to={`/portal/projects/${p.id}`}
+                  className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  <Card className="h-full transition hover:ring-1 hover:ring-primary/30">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-base leading-snug">
@@ -200,7 +206,8 @@ export default function PortalDashboardPage() {
                       )}
                     </div>
                   </CardContent>
-                </Card>
+                  </Card>
+                </Link>
               );
             })}
           </div>

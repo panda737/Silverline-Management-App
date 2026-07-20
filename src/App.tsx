@@ -21,6 +21,7 @@ import DocumentsPage from "@/pages/documents";
 import UsersPage from "@/pages/users";
 import SettingsPage from "@/pages/settings";
 import PortalDashboardPage from "@/pages/portal";
+import PortalProjectPage from "@/pages/portal/project";
 
 function NotFound() {
   return (
@@ -69,6 +70,7 @@ export default function App() {
         {/* Client portal */}
         <Route element={<RequireClient />}>
           <Route path="/portal" element={<PortalDashboardPage />} />
+          <Route path="/portal/projects/:id" element={<PortalProjectPage />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
