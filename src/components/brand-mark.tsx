@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The Silverline signature-S mark. The source artwork is a square PNG with a
- * dark background, so it is always rendered circular — matching the logo and
- * the (circularly clipped) favicon.
+ * The Silverline signature-S mark — the same artwork as the favicon. The PNG
+ * already carries its own rounded-square silhouette and transparent corners,
+ * so it must NOT be clipped (rounded-full would slice the tile into a circle).
  */
 export function BrandMark({ className }: { className?: string }) {
   return (
@@ -11,7 +11,7 @@ export function BrandMark({ className }: { className?: string }) {
       src="/favicon.png"
       alt=""
       aria-hidden
-      className={cn("shrink-0 rounded-full object-cover", className)}
+      className={cn("shrink-0 object-contain", className)}
     />
   );
 }

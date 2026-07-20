@@ -35,7 +35,12 @@ navigation is instant; data caches via TanStack Query.
 - **The one service-role operation** is user invitation:
   `supabase/functions/invite-user` (edge function; verifies caller is an active
   admin, then GoTrue invite + `app_metadata` stamp). Deploy:
-  `supabase functions deploy invite-user` + secret `SITE_URL`.
+  `supabase functions deploy invite-user` + secret
+  `SITE_URL=https://silverline-management.co.za`.
+- **Production domain:** `https://silverline-management.co.za` (www redirects to
+  the apex; the `*.vercel.app` URL still resolves). Auth emails follow Supabase's
+  **Authentication → URL Configuration**, not the app — keep Site URL and the
+  Redirect URLs list pointed at this domain.
 - Vercel: `vercel.json` pins framework=vite + SPA rewrite. Env vars
   `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` only — the service key must
   never be a Vercel env var again.
