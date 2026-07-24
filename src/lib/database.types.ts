@@ -345,6 +345,8 @@ export type PortalUpdateRow = {
   project_name: string;
 }
 
+import type { LicenceAuditRow } from "./licence-audit";
+
 type TableType<Row, Optional extends keyof Row> = {
   Row: Row;
   Insert: Omit<Row, Optional> & Partial<Pick<Row, Optional>>;
@@ -471,6 +473,27 @@ export type Database = {
         CommonOptional | "project_id" | "actor_id" | "details"
       >;
       notifications: TableType<NotificationRow, CommonOptional | "payload" | "read_at">;
+      licence_audits: TableType<
+        LicenceAuditRow,
+        | CommonOptional
+        | "created_by"
+        | "client_id"
+        | "file_name"
+        | "storage_path"
+        | "page_count"
+        | "processing_status"
+        | "processing_note"
+        | "error_message"
+        | "doc_type"
+        | "doc_type_label"
+        | "doc_summary"
+        | "metadata"
+        | "sections"
+        | "audit_status"
+        | "auditor_name"
+        | "audit_date"
+        | "exec_summary"
+      >;
     };
     Views: {
       portal_company: { Row: PortalCompanyRow; Relationships: [] };

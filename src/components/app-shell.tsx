@@ -3,6 +3,7 @@ import {
   Building2,
   CheckSquare,
   ChevronRight,
+  ClipboardCheck,
   FileText,
   FolderKanban,
   Home,
@@ -48,6 +49,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/documents", label: "Documents", icon: FileText },
+  { href: "/licence-audits", label: "Licence Audits", icon: ClipboardCheck },
   { href: "/users", label: "Users", icon: Users, adminOnly: true },
 ];
 

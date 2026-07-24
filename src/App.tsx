@@ -18,6 +18,9 @@ import ClientsPage from "@/pages/clients";
 import ClientDetailPage from "@/pages/clients/detail";
 import TasksPage from "@/pages/tasks";
 import DocumentsPage from "@/pages/documents";
+import LicenceAuditsPage from "@/pages/licence-audits";
+import LicenceAuditDetailPage from "@/pages/licence-audits/detail";
+import LicenceAuditReportPage from "@/pages/licence-audits/report";
 import UsersPage from "@/pages/users";
 import SettingsPage from "@/pages/settings";
 import PortalDashboardPage from "@/pages/portal";
@@ -61,6 +64,12 @@ export default function App() {
           <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/licence-audits" element={<LicenceAuditsPage />} />
+          <Route path="/licence-audits/:id" element={<LicenceAuditDetailPage />} />
+          <Route
+            path="/licence-audits/:id/report"
+            element={<LicenceAuditReportPage />}
+          />
           <Route path="/settings" element={<SettingsPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="/users" element={<UsersPage />} />
