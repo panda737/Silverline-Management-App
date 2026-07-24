@@ -14,6 +14,7 @@ import type {
   RiskLevel,
 } from "@/lib/database.types";
 import { ProjectTabs } from "./project-tabs";
+import { ProjectFiles } from "./project-files";
 import { StageStepper } from "./stage-stepper";
 import { CustomerView } from "./customer-view";
 import { GenericOverview } from "./generic-overview";
@@ -129,7 +130,11 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
       overview={overview}
       customer={<CustomerView project={project} items={items} comments={comments} />}
       documents={
-        <WmlDocuments projectId={projectId} route={project.route} docReqs={docReqs} />
+        <>
+          <ProjectFiles projectId={projectId} />
+          <Separator />
+          <WmlDocuments projectId={projectId} route={project.route} docReqs={docReqs} />
+        </>
       }
       deadlines={<WmlDeadlines projectId={projectId} deadlines={deadlines} />}
       activity={<WmlNotes projectId={projectId} comments={comments} />}

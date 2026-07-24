@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Building2,
   CheckSquare,
-  ChevronRight,
   ClipboardCheck,
   FileText,
   FolderKanban,
@@ -67,57 +66,32 @@ function visibleItems(user: ShellUser) {
   return NAV_ITEMS.filter((i) => !i.adminOnly || user.role === "admin");
 }
 
-function sectionLabel(pathname: string) {
-  const all = [...NAV_ITEMS, ...FOOTER_ITEMS];
-  const match = all.find(
-    (i) => pathname === i.href || pathname.startsWith(`${i.href}/`)
-  );
-  return match?.label ?? null;
-}
-
-function RailLink({ item, active }: { item: NavItem; active: boolean }) {
-  return (
-    <Link
-      to={item.href}
-      className={cn(
-        "flex h-9 items-center rounded-md transition-colors",
-        active
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground"
-      )}
-    >
-      <span className="flex size-9 shrink-0 items-center justify-center">
-        <item.icon className="size-[18px]" />
-      </span>
-      <span className="whitespace-nowrap pr-3 text-sm font-medium opacity-0 transition-opacity duration-200 group-hover/rail:opacity-100">
-        {item.label}
-      </span>
-    </Link>
-  );
-}
-
 /**
- * Slim icon rail (desktop only) that smoothly expands to reveal labels on
- * hover, then collapses back to icons when the pointer leaves.
+ * Horizontal nav tabs in the header (desktop). Active section gets an
+ * underline indicator, GitHub-style; overflow scrolls without a scrollbar.
  */
-export function AppRail({ user }: { user: ShellUser }) {
+function TopTabs({ user }: { user: ShellUser }) {
   const { pathname } = useLocation();
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <aside className="group/rail fixed inset-y-0 top-12 left-0 z-30 hidden w-12 flex-col justify-between overflow-hidden border-r border-sidebar-border bg-sidebar py-2 transition-[width] duration-300 ease-in-out hover:w-48 hover:shadow-xl md:flex">
-      <nav className="flex flex-col gap-1 px-1.5">
-        {visibleItems(user).map((item) => (
-          <RailLink key={item.href} item={item} active={isActive(item.href)} />
-        ))}
-      </nav>
-      <nav className="flex flex-col gap-1 px-1.5">
-        {FOOTER_ITEMS.map((item) => (
-          <RailLink key={item.href} item={item} active={isActive(item.href)} />
-        ))}
-      </nav>
-    </aside>
+    <nav className="ml-4 hidden h-12 items-center gap-1 overflow-x-auto [scrollbar-width:none] md:flex [&::-webkit-scrollbar]:hidden">
+      {visibleItems(user).map((item) => (
+        <Link
+          key={item.href}
+          to={item.href}
+          className={cn(
+            "relative flex h-12 shrink-0 items-center px-3 text-[13px] font-medium transition-colors",
+            isActive(item.href)
+              ? "text-foreground after:absolute after:inset-x-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-primary"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {item.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -163,11 +137,8 @@ function MobileNav({ user }: { user: ShellUser }) {
   );
 }
 
-/** Slim top header: brand, breadcrumb, theme + account controls. */
+/** Top header: brand, horizontal nav tabs, theme + account controls. */
 export function AppHeader({ user }: { user: ShellUser }) {
-  const { pathname } = useLocation();
-  const section = sectionLabel(pathname);
-
   return (
     <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-2 border-b bg-background px-3">
       <MobileNav user={user} />
@@ -175,12 +146,7 @@ export function AppHeader({ user }: { user: ShellUser }) {
         <BrandMark className="size-6" />
         <span className="text-[13px] font-medium">Silverline</span>
       </Link>
-      {section && (
-        <span className="flex items-center gap-2 text-[13px] text-muted-foreground">
-          <ChevronRight className="size-3.5 text-muted-foreground/50" />
-          {section}
-        </span>
-      )}
+      <TopTabs user={user} />
       <div className="ml-auto flex items-center gap-1">
         <ThemeToggle />
         <DropdownMenu>

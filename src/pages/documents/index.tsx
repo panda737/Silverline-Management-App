@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { FileText } from "lucide-react";
+import { Download, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { getProjectDocumentUrl } from "@/pages/projects/detail/files-actions";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   Table,
@@ -22,11 +25,21 @@ type DocumentRowData = {
   id: string;
   name: string;
   doc_type: DocType;
+  storage_path: string;
   version: number;
   client_visible: boolean;
   created_at: string;
   project: { id: string; name: string; client: { company_name: string } | null } | null;
 };
+
+async function download(doc: DocumentRowData) {
+  const result = await getProjectDocumentUrl(doc);
+  if (result.error || !result.url) {
+    toast.error(result.error ?? "Could not create a download link.");
+    return;
+  }
+  window.open(result.url, "_blank");
+}
 
 export default function DocumentsPage() {
   useDocumentTitle("Documents");
@@ -37,7 +50,7 @@ export default function DocumentsPage() {
       const { data, error } = await supabase
         .from("documents")
         .select(
-          "id, name, doc_type, version, client_visible, created_at, project:projects(id, name, client:clients(company_name))"
+          "id, name, doc_type, storage_path, version, client_visible, created_at, project:projects(id, name, client:clients(company_name))"
         )
         .order("created_at", { ascending: false });
       if (error) throw new Error(`Failed to load documents: ${error.message}`);
@@ -60,7 +73,7 @@ export default function DocumentsPage() {
         <EmptyState
           icon={FileText}
           title="No documents yet"
-          description="Documents are uploaded from a project and can be marked client-visible to appear in the client portal. Secure upload and download ship in the next phase."
+          description="Upload files from a project's Documents tab. Files marked client-visible appear in the client portal; everything else stays internal."
         />
       ) : (
         <div className="rounded-lg border">
@@ -73,6 +86,9 @@ export default function DocumentsPage() {
                 <TableHead className="hidden lg:table-cell">Client</TableHead>
                 <TableHead>Visibility</TableHead>
                 <TableHead className="hidden sm:table-cell">Added</TableHead>
+                <TableHead className="w-12 text-right">
+                  <span className="sr-only">Download</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -122,6 +138,16 @@ export default function DocumentsPage() {
                   </TableCell>
                   <TableCell className="hidden text-muted-foreground sm:table-cell">
                     {format(new Date(d.created_at), "d MMM yyyy")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => download(d)}
+                      title="Download"
+                    >
+                      <Download className="size-3.5" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
