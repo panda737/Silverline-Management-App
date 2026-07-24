@@ -54,3 +54,4 @@ next-env.d.ts
 # Import manifests (contain local file paths, regenerate with scripts/import-documents.ts)
 import-manifest.csv
 email-inventory.csv
+test-manifest.csv
