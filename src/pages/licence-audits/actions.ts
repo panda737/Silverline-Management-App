@@ -68,7 +68,19 @@ export async function startLicenceReview(auditId: string): Promise<string | null
     body: { audit_id: auditId },
   });
   if (error) {
-    return `Could not start the AI review: ${error.message}`;
+    // FunctionsHttpError carries the response — surface the function's own
+    // error message instead of the generic "non-2xx status code".
+    let detail = error.message;
+    const context = (error as { context?: Response }).context;
+    if (context) {
+      try {
+        const body = await context.json();
+        if (body?.error) detail = String(body.error);
+      } catch {
+        // keep the generic message
+      }
+    }
+    return `Could not start the AI review: ${detail}`;
   }
   if (data && typeof data === "object" && "error" in data && data.error) {
     return String(data.error);
