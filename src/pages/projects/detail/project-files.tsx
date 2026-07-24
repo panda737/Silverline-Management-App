@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
+  ChevronRight,
   Download,
   Eye,
   EyeOff,
@@ -78,7 +79,7 @@ type DocWithUploader = DocumentRow & {
 const UNFILED = "__unfiled__";
 
 /**
- * One row in the folder list. Module-level (not nested in ProjectFiles) so its
+ * One row in the folder tree. Module-level (not nested in ProjectFiles) so its
  * component identity is stable — a redefined component remounts on every parent
  * render and would close an open folder menu.
  */
@@ -88,30 +89,58 @@ function FolderButton({
   count,
   active,
   folder,
+  depth = 0,
+  expandable,
+  expanded,
+  onToggle,
   onSelect,
   onRename,
   onDelete,
+  onAddSub,
 }: {
   label: string;
   icon: typeof Folder;
   count: number;
   active: boolean;
   folder?: ProjectFolderRow;
+  depth?: number;
+  expandable?: boolean;
+  expanded?: boolean;
+  onToggle?: () => void;
   onSelect: () => void;
   onRename?: (folder: ProjectFolderRow) => void;
   onDelete?: (folder: ProjectFolderRow) => void;
+  onAddSub?: (folder: ProjectFolderRow) => void;
 }) {
   return (
     <div
       className={cn(
-        "group/folder flex items-center gap-1 rounded-md pr-1 transition-colors",
+        "group/folder flex items-center rounded-md pr-1 transition-colors",
         active ? "bg-accent" : "hover:bg-accent/60"
       )}
+      style={{ paddingLeft: depth * 14 }}
     >
+      {expandable ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+          aria-label={expanded ? "Collapse" : "Expand"}
+        >
+          <ChevronRight
+            className={cn(
+              "size-3.5 transition-transform",
+              expanded && "rotate-90"
+            )}
+          />
+        </button>
+      ) : (
+        <span className="w-[18px] shrink-0" />
+      )}
       <button
         type="button"
         onClick={onSelect}
-        className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
+        className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pr-1 pl-1 text-left"
       >
         <Icon
           className={cn(
@@ -142,7 +171,13 @@ function FolderButton({
               <span className="sr-only">Folder options</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent align="end" className="w-44">
+            {onAddSub && (
+              <DropdownMenuItem onClick={() => onAddSub(folder)}>
+                <FolderPlus className="size-3.5" />
+                Add subfolder
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => onRename(folder)}>
               <Pencil className="size-3.5" />
               Rename
@@ -173,6 +208,10 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
   const [uploading, setUploading] = useState(false);
   const [newFolderOpen, setNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderParent, setNewFolderParent] = useState<ProjectFolderRow | null>(
+    null
+  );
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [renaming, setRenaming] = useState<ProjectFolderRow | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [busy, setBusy] = useState(false);
@@ -203,6 +242,23 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
     },
   });
 
+  const roots = useMemo(
+    () => (folders ?? []).filter((f) => !f.parent_id),
+    [folders]
+  );
+
+  const childrenOf = useMemo(() => {
+    const map = new Map<string, ProjectFolderRow[]>();
+    for (const folder of folders ?? []) {
+      if (!folder.parent_id) continue;
+      const list = map.get(folder.parent_id) ?? [];
+      list.push(folder);
+      map.set(folder.parent_id, list);
+    }
+    return map;
+  }, [folders]);
+
+  /** Direct file count per folder. */
   const counts = useMemo(() => {
     const map = new Map<string, number>();
     for (const doc of docs ?? []) {
@@ -212,19 +268,65 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
     return map;
   }, [docs]);
 
+  /** Root folders show their own files plus everything in their subfolders. */
+  const rollupCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const root of roots) {
+      const own = counts.get(root.id) ?? 0;
+      const kids = (childrenOf.get(root.id) ?? []).reduce(
+        (sum, child) => sum + (counts.get(child.id) ?? 0),
+        0
+      );
+      map.set(root.id, own + kids);
+    }
+    return map;
+  }, [roots, childrenOf, counts]);
+
   const unfiledCount = counts.get(UNFILED) ?? 0;
 
   const visibleDocs = useMemo(() => {
     if (!docs) return [];
     if (selected === null) return docs;
     if (selected === UNFILED) return docs.filter((d) => !d.folder_id);
-    return docs.filter((d) => d.folder_id === selected);
-  }, [docs, selected]);
+    // Selecting a root folder includes its subfolders' files.
+    const subIds = new Set(
+      (childrenOf.get(selected) ?? []).map((child) => child.id)
+    );
+    return docs.filter(
+      (d) => d.folder_id === selected || (d.folder_id && subIds.has(d.folder_id))
+    );
+  }, [docs, selected, childrenOf]);
 
   const selectedFolder =
     selected && selected !== UNFILED
       ? (folders ?? []).find((f) => f.id === selected)
       : undefined;
+
+  /** Flat list of folders with depth, for the move and upload pickers. */
+  const folderOptions = useMemo(() => {
+    const out: { folder: ProjectFolderRow; depth: number }[] = [];
+    for (const root of roots) {
+      out.push({ folder: root, depth: 0 });
+      for (const child of childrenOf.get(root.id) ?? []) {
+        out.push({ folder: child, depth: 1 });
+      }
+    }
+    return out;
+  }, [roots, childrenOf]);
+
+  const toggleExpanded = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const openNewFolder = (parent: ProjectFolderRow | null) => {
+    setNewFolderParent(parent);
+    setNewFolderName("");
+    setNewFolderOpen(true);
+  };
 
   const openUpload = () => {
     setUploadFolder(selected && selected !== UNFILED ? selected : UNFILED);
@@ -262,14 +364,17 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
 
   const addFolder = async () => {
     setBusy(true);
-    const error = await createProjectFolder(projectId, newFolderName);
+    const parentId = newFolderParent?.id ?? null;
+    const error = await createProjectFolder(projectId, newFolderName, parentId);
     setBusy(false);
     if (error) {
       toast.error(error);
       return;
     }
+    if (parentId) setExpanded((prev) => new Set(prev).add(parentId));
     setNewFolderOpen(false);
     setNewFolderName("");
+    setNewFolderParent(null);
   };
 
   const submitRename = async () => {
@@ -285,12 +390,22 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
   };
 
   const removeFolder = async (folder: ProjectFolderRow) => {
-    const count = counts.get(folder.id) ?? 0;
-    const message =
-      count > 0
-        ? `Delete the folder "${folder.name}"? Its ${count} file${count === 1 ? "" : "s"} will move to Unfiled — no files are deleted.`
-        : `Delete the folder "${folder.name}"?`;
-    if (!window.confirm(message)) return;
+    const subs = childrenOf.get(folder.id) ?? [];
+    const count =
+      (counts.get(folder.id) ?? 0) +
+      subs.reduce((sum, s) => sum + (counts.get(s.id) ?? 0), 0);
+    const parts = [`Delete the folder "${folder.name}"?`];
+    if (subs.length > 0) {
+      parts.push(
+        `Its ${subs.length} subfolder${subs.length === 1 ? "" : "s"} will be deleted too.`
+      );
+    }
+    if (count > 0) {
+      parts.push(
+        `${count} file${count === 1 ? "" : "s"} will move to Unfiled — no files are deleted.`
+      );
+    }
+    if (!window.confirm(parts.join(" "))) return;
     const error = await deleteProjectFolder(folder);
     if (error) {
       toast.error(error);
@@ -341,19 +456,43 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
             onSelect={() => setSelected(null)}
           />
           <div className="my-1 border-t" />
-          {(folders ?? []).map((folder) => (
-            <FolderButton
-              key={folder.id}
-              label={folder.name}
-              icon={Folder}
-              count={counts.get(folder.id) ?? 0}
-              active={selected === folder.id}
-              folder={folder}
-              onSelect={() => setSelected(folder.id)}
-              onRename={startRename}
-              onDelete={removeFolder}
-            />
-          ))}
+          {roots.map((folder) => {
+            const subs = childrenOf.get(folder.id) ?? [];
+            const isExpanded = expanded.has(folder.id);
+            return (
+              <div key={folder.id}>
+                <FolderButton
+                  label={folder.name}
+                  icon={Folder}
+                  count={rollupCounts.get(folder.id) ?? 0}
+                  active={selected === folder.id}
+                  folder={folder}
+                  expandable={subs.length > 0}
+                  expanded={isExpanded}
+                  onToggle={() => toggleExpanded(folder.id)}
+                  onSelect={() => setSelected(folder.id)}
+                  onRename={startRename}
+                  onDelete={removeFolder}
+                  onAddSub={openNewFolder}
+                />
+                {isExpanded &&
+                  subs.map((sub) => (
+                    <FolderButton
+                      key={sub.id}
+                      label={sub.name}
+                      icon={Folder}
+                      count={counts.get(sub.id) ?? 0}
+                      active={selected === sub.id}
+                      folder={sub}
+                      depth={1}
+                      onSelect={() => setSelected(sub.id)}
+                      onRename={startRename}
+                      onDelete={removeFolder}
+                    />
+                  ))}
+              </div>
+            );
+          })}
           {unfiledCount > 0 && (
             <FolderButton
               label="Unfiled"
@@ -365,8 +504,8 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
           )}
           <button
             type="button"
-            onClick={() => setNewFolderOpen(true)}
-            className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+            onClick={() => openNewFolder(null)}
+            className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 pl-[26px] text-[13px] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
           >
             <FolderPlus className="size-4 shrink-0" />
             New folder
@@ -383,6 +522,10 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
                 : (selectedFolder?.name ?? "")}
             {" · "}
             {visibleDocs.length} file{visibleDocs.length === 1 ? "" : "s"}
+            {selectedFolder &&
+              !selectedFolder.parent_id &&
+              (childrenOf.get(selectedFolder.id) ?? []).length > 0 &&
+              " (including subfolders)"}
           </p>
 
           {visibleDocs.length === 0 ? (
@@ -505,10 +648,11 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
                                 Move to folder
                               </DropdownMenuLabel>
                               <div className="max-h-64 overflow-y-auto">
-                                {(folders ?? []).map((folder) => (
+                                {folderOptions.map(({ folder, depth }) => (
                                   <DropdownMenuItem
                                     key={folder.id}
                                     disabled={doc.folder_id === folder.id}
+                                    style={{ paddingLeft: 8 + depth * 14 }}
                                     onClick={async () => {
                                       const error = await moveDocumentToFolder(
                                         doc,
@@ -572,9 +716,11 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(folders ?? []).map((folder) => (
+                  {folderOptions.map(({ folder, depth }) => (
                     <SelectItem key={folder.id} value={folder.id}>
-                      {folder.name}
+                      <span style={{ paddingLeft: depth * 12 }}>
+                        {depth > 0 ? `↳ ${folder.name}` : folder.name}
+                      </span>
                     </SelectItem>
                   ))}
                   <SelectItem value={UNFILED}>Unfiled</SelectItem>
@@ -632,10 +778,15 @@ export function ProjectFiles({ projectId }: { projectId: string }) {
       <Dialog open={newFolderOpen} onOpenChange={setNewFolderOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>New folder</DialogTitle>
+            <DialogTitle>
+              {newFolderParent
+                ? `New subfolder in ${newFolderParent.name}`
+                : "New folder"}
+            </DialogTitle>
             <DialogDescription>
-              For anything the standard set doesn&apos;t cover — e.g.
-              &ldquo;Submission – Amendment Aug 2026&rdquo;.
+              {newFolderParent
+                ? "One per actual event, so everything that went out together stays together — e.g. “Submission 1 – Licence Application”."
+                : "For anything the standard set doesn’t cover."}
             </DialogDescription>
           </DialogHeader>
           <Input

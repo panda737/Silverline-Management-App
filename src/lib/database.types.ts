@@ -267,6 +267,8 @@ export type ProjectFolderRow = {
   project_id: string;
   name: string;
   folder_key: string | null;
+  /** null = root folder. Nesting is capped at one level deep. */
+  parent_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -488,7 +490,7 @@ export type Database = {
       >;
       project_folders: TableType<
         ProjectFolderRow,
-        CommonOptional | "folder_key" | "sort_order"
+        CommonOptional | "folder_key" | "sort_order" | "parent_id"
       >;
       project_comments: TableType<ProjectCommentRow, CommonOptional | "author_id" | "visibility">;
       activity_log: TableType<

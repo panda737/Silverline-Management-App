@@ -133,28 +133,33 @@ export async function moveDocumentToFolder(
 
 export async function createProjectFolder(
   projectId: string,
-  name: string
+  name: string,
+  parentId: string | null = null
 ): Promise<string | null> {
   const trimmed = name.trim();
   if (trimmed.length < 2) return "Give the folder a name.";
 
-  // Put new folders after the seeded set unless one is explicitly reordered.
-  const { data: last } = await supabase
+  // New folders sort after their siblings (root folders after the seeded set).
+  const siblings = supabase
     .from("project_folders")
     .select("sort_order")
     .eq("project_id", projectId)
     .order("sort_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(1);
+  const { data: last } = await (parentId
+    ? siblings.eq("parent_id", parentId)
+    : siblings.is("parent_id", null)
+  ).maybeSingle();
 
   const { error } = await supabase.from("project_folders").insert({
     project_id: projectId,
     name: trimmed,
+    parent_id: parentId,
     sort_order: (last?.sort_order ?? 0) + 10,
   });
   if (error) {
     return error.code === "23505"
-      ? "A folder with that name already exists on this project."
+      ? "A folder with that name already exists here."
       : error.message;
   }
   await invalidate(projectId);
