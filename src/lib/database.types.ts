@@ -256,6 +256,18 @@ export type DocumentRow = {
   client_visible: boolean;
   uploaded_by: string | null;
   notes: string | null;
+  folder_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Per-project document folder. `folder_key` is set on the seeded standard set. */
+export type ProjectFolderRow = {
+  id: string;
+  project_id: string;
+  name: string;
+  folder_key: string | null;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }
@@ -465,7 +477,18 @@ export type Database = {
       task_comments: TableType<TaskCommentRow, CommonOptional | "author_id">;
       documents: TableType<
         DocumentRow,
-        CommonOptional | "doc_type" | "version" | "status" | "client_visible" | "uploaded_by" | "notes"
+        | CommonOptional
+        | "doc_type"
+        | "version"
+        | "status"
+        | "client_visible"
+        | "uploaded_by"
+        | "notes"
+        | "folder_id"
+      >;
+      project_folders: TableType<
+        ProjectFolderRow,
+        CommonOptional | "folder_key" | "sort_order"
       >;
       project_comments: TableType<ProjectCommentRow, CommonOptional | "author_id" | "visibility">;
       activity_log: TableType<

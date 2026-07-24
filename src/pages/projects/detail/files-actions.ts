@@ -16,6 +16,9 @@ const invalidate = async (projectId: string) => {
   await queryClient.invalidateQueries({
     queryKey: ["project", projectId, "documents"],
   });
+  await queryClient.invalidateQueries({
+    queryKey: ["project", projectId, "folders"],
+  });
   await queryClient.invalidateQueries({ queryKey: ["documents"] });
 };
 
@@ -24,6 +27,7 @@ export async function uploadProjectDocument(input: {
   file: File;
   docType: DocType;
   clientVisible: boolean;
+  folderId: string | null;
   notes?: string;
 }): Promise<string | null> {
   const profile = await getActionProfile();
@@ -52,6 +56,7 @@ export async function uploadProjectDocument(input: {
     storage_path: storagePath,
     client_visible: input.clientVisible,
     uploaded_by: profile.id,
+    folder_id: input.folderId,
     notes: input.notes?.trim() ? input.notes.trim() : null,
   });
   if (insertError) {
@@ -107,5 +112,84 @@ export async function deleteProjectDocument(
   // Row deletion passed RLS, so the caller may also remove the object.
   await supabase.storage.from("project-documents").remove([doc.storage_path]);
   await invalidate(doc.project_id);
+  return null;
+}
+
+/** Move a file into another folder (null = unfiled). */
+export async function moveDocumentToFolder(
+  doc: Pick<DocumentRow, "id" | "project_id">,
+  folderId: string | null
+): Promise<string | null> {
+  const { error } = await supabase
+    .from("documents")
+    .update({ folder_id: folderId })
+    .eq("id", doc.id);
+  if (error) return error.message;
+  await invalidate(doc.project_id);
+  return null;
+}
+
+// --- Folders ---------------------------------------------------------------
+
+export async function createProjectFolder(
+  projectId: string,
+  name: string
+): Promise<string | null> {
+  const trimmed = name.trim();
+  if (trimmed.length < 2) return "Give the folder a name.";
+
+  // Put new folders after the seeded set unless one is explicitly reordered.
+  const { data: last } = await supabase
+    .from("project_folders")
+    .select("sort_order")
+    .eq("project_id", projectId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { error } = await supabase.from("project_folders").insert({
+    project_id: projectId,
+    name: trimmed,
+    sort_order: (last?.sort_order ?? 0) + 10,
+  });
+  if (error) {
+    return error.code === "23505"
+      ? "A folder with that name already exists on this project."
+      : error.message;
+  }
+  await invalidate(projectId);
+  return null;
+}
+
+export async function renameProjectFolder(
+  folder: { id: string; project_id: string },
+  name: string
+): Promise<string | null> {
+  const trimmed = name.trim();
+  if (trimmed.length < 2) return "Give the folder a name.";
+  const { error } = await supabase
+    .from("project_folders")
+    .update({ name: trimmed })
+    .eq("id", folder.id);
+  if (error) {
+    return error.code === "23505"
+      ? "A folder with that name already exists on this project."
+      : error.message;
+  }
+  await invalidate(folder.project_id);
+  return null;
+}
+
+/** Files in the folder are NOT deleted — they become unfiled. */
+export async function deleteProjectFolder(folder: {
+  id: string;
+  project_id: string;
+}): Promise<string | null> {
+  const { error } = await supabase
+    .from("project_folders")
+    .delete()
+    .eq("id", folder.id);
+  if (error) return error.message;
+  await invalidate(folder.project_id);
   return null;
 }
