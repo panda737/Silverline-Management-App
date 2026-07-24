@@ -149,6 +149,7 @@ function FolderButton({
           )}
         />
         <span
+          title={label}
           className={cn(
             "flex-1 truncate text-[13px]",
             active ? "font-medium" : "text-muted-foreground"
