@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { queryClient } from "@/lib/query-client";
 import { getActionProfile } from "@/lib/action-profile";
 import { PRIORITIES, PROJECT_STATUSES, PROJECT_TYPES } from "@/lib/labels";
+import type { ProjectStatus } from "@/lib/database.types";
 
 const optionalDate = z
   .string()
@@ -133,4 +134,47 @@ export async function createProject(
   queryClient.invalidateQueries({ queryKey: ["projects"] });
   queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   return { redirectTo: `/projects/${project.id}` };
+}
+
+/**
+ * Inline status change from a list row. RLS (`can_edit_project`) is the real
+ * boundary; the role check here just fails fast with a readable message.
+ */
+export async function updateProjectStatus(
+  projectId: string,
+  status: ProjectStatus
+): Promise<{ error?: string }> {
+  const profile = await getActionProfile();
+  if (!profile || profile.role === "client" || !profile.active) {
+    return { error: "You do not have permission to change a project's status." };
+  }
+  if (!PROJECT_STATUSES.includes(status)) {
+    return { error: `Unknown status: ${status}` };
+  }
+
+  const { data: before } = await supabase
+    .from("projects")
+    .select("status")
+    .eq("id", projectId)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ status: status as never })
+    .eq("id", projectId);
+  if (error) {
+    return { error: `Could not update the status: ${error.message}` };
+  }
+
+  await supabase.from("activity_log").insert({
+    project_id: projectId,
+    actor_id: profile.id,
+    action: "status_changed",
+    details: { from: before?.status ?? null, to: status },
+  });
+
+  queryClient.invalidateQueries({ queryKey: ["projects"] });
+  queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+  queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+  return {};
 }

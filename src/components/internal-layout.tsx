@@ -25,7 +25,7 @@ export function InternalLayout({
       <div className="min-h-svh">
         <AppHeader user={user} />
         <main className="pt-12">
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6">
+          <div className="mx-auto w-full max-w-[90rem] px-4 py-6 md:px-6">
             <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
           </div>
         </main>
