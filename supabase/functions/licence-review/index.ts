@@ -18,7 +18,7 @@
 //
 // Deploy: supabase functions deploy licence-review
 //         supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk";
 import { encodeBase64 } from "jsr:@std/encoding/base64";
 
@@ -225,7 +225,7 @@ function toChecklist(sections: ExtractedSection[]) {
 // ---------------------------------------------------------------------------
 
 async function processAudit(
-  db: ReturnType<typeof createClient>,
+  db: SupabaseClient,
   auditId: string,
   storagePath: string,
 ) {

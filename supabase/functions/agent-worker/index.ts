@@ -45,6 +45,8 @@ const NEEDS_DOCUMENTS = new Set([
 ]);
 const MAX_DOCS = 6;
 const MAX_DOC_BYTES = 25 * 1024 * 1024;
+// The private bucket project files are uploaded to (see 20260610000002_storage.sql).
+const DOCUMENTS_BUCKET = "project-documents";
 
 interface Finding {
   title: string;
@@ -77,20 +79,32 @@ async function fingerprint(
 
 /** Recently-updated project documents, as native PDF blocks for the model. */
 async function documentBlocks(db: SupabaseClient, projectId: string) {
-  const { data: docs } = await db
+  // `documents` stores no MIME type — only doc_type, which is a category
+  // (application form, scoping report, …) rather than a format. PDF-ness comes
+  // off the stored filename, the same thing the upload path writes.
+  const { data: docs, error: queryError } = await db
     .from("documents")
-    .select("id, name, storage_path, mime_type")
+    .select("id, name, storage_path")
     .eq("project_id", projectId)
     .order("created_at", { ascending: false })
     .limit(MAX_DOCS);
+
+  // A failed lookup must not read as "this project has no documents" — that
+  // silently tells the specialist everything is unverifiable and the task still
+  // completes green.
+  if (queryError) {
+    throw new Error(`Could not list project documents: ${queryError.message}`);
+  }
 
   const blocks: unknown[] = [];
   const names: string[] = [];
 
   for (const doc of docs ?? []) {
     const path = doc.storage_path as string | null;
-    if (!path || doc.mime_type !== "application/pdf") continue;
-    const { data: blob, error } = await db.storage.from("documents").download(path);
+    if (!path || !path.toLowerCase().endsWith(".pdf")) continue;
+    const { data: blob, error } = await db.storage
+      .from(DOCUMENTS_BUCKET)
+      .download(path);
     if (error || !blob) continue;
     const bytes = new Uint8Array(await blob.arrayBuffer());
     if (bytes.byteLength > MAX_DOC_BYTES) continue;

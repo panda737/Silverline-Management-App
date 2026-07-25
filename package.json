@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
+    "check:functions": "npx --yes deno@2 check --node-modules-dir=none --no-lock supabase/functions/invite-user/index.ts supabase/functions/licence-review/index.ts supabase/functions/licence-audit-assist/index.ts supabase/functions/agent-supervisor/index.ts supabase/functions/agent-worker/index.ts",
+    "check": "npm run typecheck && npm run lint && npm run check:functions",
     "seed:demo": "tsx scripts/seed.ts"
   },
   "dependencies": {

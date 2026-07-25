@@ -123,13 +123,26 @@ export function daysBetween(from: string, to: string): number {
 
 // --- The seven acceptance conditions ---------------------------------------
 
-export const ACCEPTANCE_CONDITIONS = [
+/**
+ * `done` is unused today — all seven conditions are still outstanding — but the
+ * Brief counts the ones that are *not* done, so the state has to exist for that
+ * count to stay honest as they are discharged.
+ */
+export type ConditionStatus = "open" | "blocker" | "done";
+
+export const ACCEPTANCE_CONDITIONS: {
+  n: number;
+  title: string;
+  quote: string;
+  status: ConditionStatus;
+  note: string;
+}[] = [
   {
     n: 1,
     title: "Align the project title across every document",
     quote:
       "The Department recommends that project titles on both application form and the reports must not be different. Because inconsistent project titles may create uncertainty regarding whether all documents provided relate to the same proposed development.",
-    status: "open" as const,
+    status: "open",
     note:
       "At least five different titles are in the official record, including two used by DFFE itself.",
   },
@@ -138,7 +151,7 @@ export const ACCEPTANCE_CONDITIONS = [
     title: "Specify exactly which waste streams will be received",
     quote:
       "The draft Environmental Impact Assessment Report (EIAR) must clearly specify exactly which waste streams will be received for processing on the proposed site. Because waste streams such as compatible waste types and containerized waste streams are not sufficient to make an informed decision.",
-    status: "open" as const,
+    status: "open",
     note:
       "No SAWIS or waste classification codes appear anywhere in the technical pack.",
   },
@@ -147,7 +160,7 @@ export const ACCEPTANCE_CONDITIONS = [
     title: "Rezone the site before any waste management use",
     quote:
       "The applicant must note that the site cannot be used for waste management activities prior to the rezoning of the site.",
-    status: "blocker" as const,
+    status: "blocker",
     note:
       "The site is zoned AGRICULTURE. Registration under the storage Norms and Standards does not change that. This is the longest-lead item on the file and it sits with the municipality, not the Department.",
   },
@@ -156,7 +169,7 @@ export const ACCEPTANCE_CONDITIONS = [
     title: "Identify and assess alternatives per Appendix 2",
     quote:
       "The Department recommends that alternatives be identified and assessed in accordance with appendix 2.",
-    status: "open" as const,
+    status: "open",
     note:
       "No alternative site was provided in the FSR; a reasoned motivation is required if none is assessed.",
   },
@@ -165,7 +178,7 @@ export const ACCEPTANCE_CONDITIONS = [
     title: "Include the public participation records in the draft EIAR",
     quote:
       "The department recommends that the draft EIAR must include the public participation records.",
-    status: "open" as const,
+    status: "open",
     note:
       "Appendix C of the FSR was filed with placeholder text while a populated register and a comments-and-responses report existed separately.",
   },
@@ -174,7 +187,7 @@ export const ACCEPTANCE_CONDITIONS = [
     title: "Circulate the draft EIAR to the Department during the 30-day PPP",
     quote:
       "Prior to the submission of the final EIAR, the draft EIAR must be submitted to the Department for comments as part of the 30-day public participation process.",
-    status: "open" as const,
+    status: "open",
     note:
       "This puts the Department inside the participation window — the draft must be ready meaningfully before the submission date.",
   },
@@ -183,7 +196,7 @@ export const ACCEPTANCE_CONDITIONS = [
     title: "Include a draft EMPr complying with Appendix 4",
     quote:
       "The EIAR must include the draft Environmental Management Programme (EMPr). The draft EMPr to be developed must comply with Appendix 4 of Government Notice R 982 of the EIA Regulations 2014 (as amended).",
-    status: "open" as const,
+    status: "open",
     note: "",
   },
 ];

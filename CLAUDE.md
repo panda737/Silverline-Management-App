@@ -21,8 +21,16 @@ navigation is instant; data caches via TanStack Query.
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run build` | typecheck + `vite build` |
 | `npm run lint` | eslint |
+| `npm run check:functions` | `deno check` over `supabase/functions/*` — **`tsc` does not see them** (they are outside the tsconfig `include` and are Deno, not Node) |
+| `npm run check` | typecheck + lint + check:functions — the full gate before pushing |
 | `npm run seed:demo` | `tsx scripts/seed.ts` — seed demo data (adds demo users/companies — avoid on prod data) |
 | `npx tsx scripts/rls-smoke-test.ts` | RLS leak-prevention suite (needs the seed users to exist) |
+
+`check:functions` runs Deno via `npx deno@2` (no system install) and passes
+`--node-modules-dir=none` — **keep that flag**: without it Deno walks up to the
+root `package.json` and takes over the app's `node_modules`, which breaks the
+Vite build until you reinstall. It is deliberately *not* part of `npm run build`,
+so Vercel never has to download a Deno binary to ship the SPA.
 
 ## Architecture notes
 - `src/lib/supabase.ts` — the one browser client. `src/lib/auth.tsx` — AuthProvider,

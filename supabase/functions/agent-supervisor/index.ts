@@ -412,9 +412,18 @@ async function runCycle(db: SupabaseClient, runId: string, projectId: string) {
       const { data: current } = await db.from("agent_tasks").select(
         "id, agent_key, status, output, error_message",
       ).in("id", taskIds);
-      settled = current ?? [];
-      if (settled.every((t) => ["complete", "error", "skipped"].includes(t.status as string))) {
-        break;
+      // Keep the last good read on a failed poll. `[].every()` is true, so
+      // treating a dropped query as an empty task list would end the wait
+      // immediately and collate while the workers are still writing.
+      if (current && current.length === taskIds.length) {
+        settled = current;
+        if (
+          settled.every((t) =>
+            ["complete", "error", "skipped"].includes(t.status as string)
+          )
+        ) {
+          break;
+        }
       }
       await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
     }
