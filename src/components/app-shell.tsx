@@ -8,6 +8,7 @@ import {
   Home,
   LogOut,
   Menu,
+  Radar,
   Settings,
   Users,
 } from "lucide-react";
@@ -49,6 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/licence-audits", label: "Licence Audits", icon: ClipboardCheck },
+  { href: "/demo", label: "Demo", icon: Radar },
   { href: "/users", label: "Users", icon: Users, adminOnly: true },
 ];
 
