@@ -21,6 +21,7 @@ import DocumentsPage from "@/pages/documents";
 import LicenceAuditsPage from "@/pages/licence-audits";
 import LicenceAuditDetailPage from "@/pages/licence-audits/detail";
 import LicenceAuditReportPage from "@/pages/licence-audits/report";
+import ChatPage from "@/pages/chat";
 import AgentsPage from "@/pages/agents";
 import UsersPage from "@/pages/users";
 import SettingsPage from "@/pages/settings";
@@ -71,6 +72,7 @@ export default function App() {
             path="/licence-audits/:id/report"
             element={<LicenceAuditReportPage />}
           />
+          <Route path="/chat" element={<ChatPage />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route element={<RequireAdmin />}>

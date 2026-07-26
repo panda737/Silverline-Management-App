@@ -13,6 +13,7 @@ import type {
   ProjectTimelineItemRow,
   RiskLevel,
 } from "@/lib/database.types";
+import { ChatPanel } from "@/pages/chat/chat-panel";
 import { ProjectTabs } from "./project-tabs";
 import { ProjectFiles } from "./project-files";
 import { StageStepper } from "./stage-stepper";
@@ -138,6 +139,9 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
       }
       deadlines={<WmlDeadlines projectId={projectId} deadlines={deadlines} />}
       activity={<WmlNotes projectId={projectId} comments={comments} />}
+      // Fixed height rather than growing with the conversation: the composer has
+      // to stay reachable without scrolling the whole project page past it.
+      assistant={<ChatPanel projectId={projectId} className="h-[32rem]" />}
     />
   );
 }

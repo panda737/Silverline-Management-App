@@ -359,6 +359,42 @@ export type PortalUpdateRow = {
   project_name: string;
 }
 
+// --- Project chat -----------------------------------------------------------
+export type ChatMessageRole = "user" | "assistant";
+
+export type ChatThreadRow = {
+  id: string;
+  owner_id: string;
+  /** null = a portfolio-wide conversation; set = pinned to one project. */
+  project_id: string | null;
+  title: string;
+  last_message_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** One tool the assistant ran for a turn, kept so an answer can be traced back
+ *  to the records behind it. */
+export type ChatToolCall = {
+  name: string;
+  input: Json;
+  summary: string;
+}
+
+export type ChatMessageRow = {
+  id: string;
+  thread_id: string;
+  role: ChatMessageRole;
+  content: string;
+  tool_calls: ChatToolCall[];
+  error_message: string | null;
+  model: string | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  cache_read_tokens: number | null;
+  created_at: string;
+}
+
 import type { LicenceAuditRow } from "./licence-audit";
 
 type TableType<Row, Optional extends keyof Row> = {
@@ -519,6 +555,22 @@ export type Database = {
         | "audit_date"
         | "exec_summary"
       >;
+      chat_threads: TableType<
+        ChatThreadRow,
+        CommonOptional | "project_id" | "title" | "last_message_at"
+      >;
+      chat_messages: TableType<
+        ChatMessageRow,
+        | "id"
+        | "created_at"
+        | "content"
+        | "tool_calls"
+        | "error_message"
+        | "model"
+        | "input_tokens"
+        | "output_tokens"
+        | "cache_read_tokens"
+      >;
     };
     Views: {
       portal_company: { Row: PortalCompanyRow; Relationships: [] };
@@ -542,6 +594,7 @@ export type Database = {
       timeline_status: TimelineStatus;
       task_status: TaskStatus;
       comment_visibility: CommentVisibility;
+      chat_message_role: ChatMessageRole;
     };
     CompositeTypes: Record<string, never>;
   };

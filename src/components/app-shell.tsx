@@ -10,6 +10,7 @@ import {
   Menu,
   Radar,
   Settings,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
@@ -50,6 +51,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/licence-audits", label: "Licence Audits", icon: ClipboardCheck },
+  { href: "/chat", label: "Assistant", icon: Sparkles },
   { href: "/agents", label: "Agents", icon: Radar },
   { href: "/users", label: "Users", icon: Users, adminOnly: true },
 ];

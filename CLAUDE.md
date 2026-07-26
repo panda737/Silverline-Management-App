@@ -40,6 +40,17 @@ so Vercel never has to download a Deno binary to ship the SPA.
   same `(prevState, formData)` signatures — `useActionState` components unchanged.
   `revalidatePath` became `queryClient.invalidateQueries` (keys: projects, project/id,
   clients, client/id, tasks, documents, users, staff, dashboard, profile, portal/*).
+- **Assistant (`/chat`)** — conversational surface over the portal's own records,
+  plus the same panel on an "Assistant" project tab. `supabase/functions/chat`
+  streams SSE and grounds answers with six tools (`get_dashboard`,
+  `search_projects`, `get_project`, `list_tasks`, `search_documents`,
+  `read_document`). **Every tool queries through a client built from the caller's
+  own JWT, so RLS scopes what the assistant can see to what that person can see —
+  the service-role key is deliberately never read in that file.** Thinking stays
+  on (adaptive) with cost controlled by `ANTHROPIC_EFFORT`, because with thinking
+  disabled Opus 5 sometimes writes a tool call into visible text and the lookup
+  silently never runs. Call it with plain `fetch` — `functions.invoke` buffers, so
+  it would turn a streamed answer into a long silence.
 - **The one service-role operation** is user invitation:
   `supabase/functions/invite-user` (edge function; verifies caller is an active
   admin, then GoTrue invite + `app_metadata` stamp). Deploy:
