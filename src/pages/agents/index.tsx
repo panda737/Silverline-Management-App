@@ -1,5 +1,5 @@
 /**
- * Demo — WML Mission Control.
+ * Agents — WML Mission Control.
  *
  * The command centre for a live waste management licence application, built on
  * the real Dilex Inland Elandsfontein file. Everything shown is read out of the
@@ -141,8 +141,8 @@ function FindingCard({ finding }: { finding: DemoFinding }) {
   );
 }
 
-export default function DemoPage() {
-  useDocumentTitle("Demo — WML Mission Control");
+export default function AgentsPage() {
+  useDocumentTitle("Agents — WML Mission Control");
 
   const eirDue = TIMELINE.find((t) => t.kind === "due");
   const daysToEir = eirDue ? daysBetween(DILEX_AS_AT, eirDue.date) : null;
@@ -157,7 +157,7 @@ export default function DemoPage() {
     <div className="space-y-6">
       <PageHeader
         title="WML Mission Control"
-        description={`Demo — running the ${PROJECT.facility} licence application. Every figure is read from the actual submission pack.`}
+        description={`Running the ${PROJECT.facility} licence application. Every figure is read from the actual submission pack.`}
       >
         <Badge variant="outline" className="rounded-full">
           {PROJECT.routeLabel}
@@ -222,17 +222,18 @@ export default function DemoPage() {
               <p>
                 The larger exposure is procedural rather than technical. The
                 Final Scoping Report was submitted on 3 June 2026, before the
-                thirty-day comment period had closed; no organ of state was
-                notified; and the cover letter told the Department that
-                organ-of-state comments had been received and responded to. An
-                adjacent landowner has already reserved the right to appeal and
-                to take legal action.
+                thirty-day comment period had closed; three organs of state were
+                cc'd on the notice but none was served directly and the register
+                records none of them; and the cover letter told the Department
+                that organ-of-state comments had been received and responded to,
+                when none were received at all. An adjacent landowner has
+                already reserved the right to appeal and to take legal action.
               </p>
               <p className="text-foreground">
                 The strongest move available is to treat the EIR participation
-                round as the opportunity to cure the scoping round — notify
-                properly, acknowledge everyone, close the window before
-                submitting, and put the organ-of-state proof on the record.
+                round as the opportunity to cure the scoping round — serve every
+                authority directly, acknowledge everyone, close the window
+                before submitting, and put the proof of service on the record.
               </p>
             </CardContent>
           </Card>

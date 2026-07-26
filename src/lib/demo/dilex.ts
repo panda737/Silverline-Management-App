@@ -316,15 +316,43 @@ export const FINDINGS: DemoFinding[] = [
   {
     agent: "doc-completeness",
     severity: "high",
-    title: "Pyrolysis was removed from the Scoping Report but is still in the filed procedures",
+    title: "The accepted Scoping Report does not contain the tyre pyrolysis plant the project is designed around",
     detail:
-      "The Draft Scoping Report included pyrolysis and thermal treatment. The Final Scoping Report removed every trace of it. But SOP-TCW001, filed as a technical annexure, still routes out-of-specification waste to a pyrolysis plant and describes excess gas being scrubbed and expelled to atmosphere. Nothing in the application authorises a thermal process, and no NEM:AQA listed activity or Atmospheric Emission Licence is referenced. An authority reading the annexures will see a combustion process the application does not cover.",
+      "This is a scope mismatch, not a leftover. Technical Annex Section 4.10 Rev 03, dated 29 May 2026, states in terms that pyrolysis is included within the scope of this licence application, and specifies the plant: a Henan Mingjie MLL-30T fully continuous waste tyre pyrolysis line taking up to 47 t/day of whole tyres. An AEL application for it is already drafted. The Final Scoping Report DFFE accepted on 16 July contains none of it. So the Department authorised an EIA process for a project description that omits a second waste stream, a thermal process, a stack, and a NEM:AQA listed activity. Waste tyres are general waste, not hazardous — the GN 921 Category B activities cited do not reach them, and thermal treatment triggers its own listing plus an AEL. The Screening Tool report was also run against the narrower description, so the fifteen assessments it identified were scoped without the pyrolysis plant in the project.",
     action:
-      "Decide whether pyrolysis is in scope. If it is out, remove it from SOP-TCW001 before the EIAR annexures are compiled. If it is in, it needs its own listed-activity screening and an AEL pathway — which connects directly to the AEL already in progress.",
+      "Decide the scope question before anything else is drafted, because it governs the waste streams, the listed activities, the AEL and the air quality assessment. If pyrolysis is in, raise it with Cynthia Baloyi in writing now rather than letting the EIAR be the first place the Department sees it — an amended Plan of Study is far cheaper than an EIAR the authority says was never scoped. If it is out, strip it from Section 4.10 and SOP-TCW001 and apply separately.",
     evidence: [
-      { source: "SOP-TCW001", locator: "PF1 step 7", quote: "are treated and processed in the pyrolysis plant for complete destruction" },
-      { source: "SOP-TCW001", locator: "PF1P step 7", quote: "excess gas channelled through a four stage scrubber and expelled" },
+      { source: "Technical Annex Section 4.10 Rev 03", locator: "29 May 2026, opening line", quote: "Pyrolysis is included within the scope of the Elandsfontein waste management licence application." },
+      { source: "Technical Annex Section 4.10", locator: "§4.10.2", quote: "Feed capacity — whole tyres: 47 tonnes per day" },
       { source: "Final Scoping Report", locator: "whole document", quote: "" },
+    ],
+  },
+  {
+    agent: "doc-completeness",
+    severity: "critical",
+    title: "Two different thermal plants are described, and the one for hazardous liquids has no emission evidence",
+    detail:
+      "Section 4.10.3 excludes hazardous waste from the MLL-30T feed in terms: hazardous waste streams, mixed municipal solid waste and non-tyre rubber are not permissible feed unless separately authorised. SOP-TCW001 Process Flow 1P does the opposite — it routes all non-recyclable hazardous liquid wastes to \"the pyrolysis plant\" for complete destruction, with excess gas scrubbed and expelled. Either there are two thermal plants or one document is wrong, and nothing on the file says which. The consequence is regulatory, not editorial: thermal destruction of hazardous liquid waste is NEM:AQA Subcategory 8.1, whose minimum emission standards require dioxins and furans, HCl, HF, Cd+Tl, Hg, the antimony-to-vanadium metals group and total organic compounds. The only emission evidence on the file is SGS report SHE19-07368 R3, which measured particulates, SO2, NOx, Hg, CO, H2S and Ringelmann on a Chinese reference plant in 2019 — no dioxins, no HCl, no HF, no metals group. Chlorinated liquids at 300–500 degrees through a scrubber is the textbook dioxin formation window, and it is the first thing a reviewing air quality specialist will ask about.",
+    action:
+      "Settle whether hazardous liquid thermal treatment is in scope. If it is, it needs its own emission evidence — the tyre plant's test report does not transfer — and an AEL with Subcategory 8.1 limits. If it is not, delete Process Flow 1P from SOP-TCW001 before the annexures are compiled and route non-recyclable residue to a licensed third party. Either is defensible; the present position is not.",
+    evidence: [
+      { source: "SOP-TCW001", locator: "Process Flow 1P, step 7", quote: "Any excess gas is channeled through the four stage scrubber and expelled." },
+      { source: "Technical Annex Section 4.10", locator: "§4.10.3", quote: "Hazardous waste streams, mixed municipal solid waste, and non-tyre rubber products are excluded from the permissible feed materials" },
+      { source: "SGS Report SHE19-07368 R3", locator: "December 2019, parameter list", quote: "" },
+    ],
+  },
+  {
+    agent: "doc-completeness",
+    severity: "high",
+    title: "The waste streams in the procedure pack are far wider than the application declares",
+    detail:
+      "Acceptance condition 2 requires the EIAR to specify exactly which waste streams will be received, because \"compatible waste types\" is not enough to decide on. The procedure pack answers that question already, and the answer is broad: used oil and hydrocarbon streams, effluent water, used oil filters, waste plastic, and — under SOP-BWP001 — glycols including MEG, DEG and TEG, solvents including xylene and toluene, and caustic. The overall process flow diagram of 7 August 2023 adds waste plastic to fuel oil. The EMIs separately observed ethanol on site. None of these appear in the Final Scoping Report, and no SAWIS or waste classification code appears anywhere in the pack. Xylene and toluene also carry a VOC emission profile from blending and tank breathing that no study currently covers.",
+    action:
+      "Build the classification table condition 2 asks for from the procedure pack rather than from scratch: stream, SAWIS code, hazard classification, annual tonnage, process route, product or residue. It closes condition 2, feeds the air quality scope, and doubles as the waste-to-value table for the need and desirability case.",
+    evidence: [
+      { source: "SOP-BWP001", locator: "step 5", quote: "MEG, DEG, and TEG fall under Glycols while products such as Xylene and Toluene are categorized as Solvents" },
+      { source: "Dilex Purification Overall Processing Flow", locator: "7 August 2023", quote: "" },
+      { source: "DFFE s31L pre-compliance notice", locator: "Table 1", quote: "containing used oil and ethanol were observed onsite" },
     ],
   },
   {
@@ -358,28 +386,44 @@ export const FINDINGS: DemoFinding[] = [
   {
     agent: "ppp-registrar",
     severity: "critical",
-    title: "No organ of state was notified, and the cover letter told DFFE otherwise",
+    title: "The register and the cover letter both misstate the organ-of-state position",
     detail:
-      "The register records 21 I&APs and zero organs of state: no City of Ekurhuleni department, no DWS, no provincial environmental authority, no heritage authority, no ward councillor. The Final Scoping Report itself lists all of them as parties requiring written notice. Meanwhile the submission cover letter states that comments from \"authorities and organs of state have been recorded, considered and responded to\". No such comments exist. Two objectors also addressed their objections to a provincial department rather than to DFFE, and were not redirected, so those objections are only on the DFFE record via the responses register.",
+      "Three organs of state were notified: DFFE's own case officer, Gauteng provincial environment and the City of Ekurhuleni were cc'd on the 6 May stakeholder notice with the notice letter attached. None of them responded. The defect is in the recording and the representation, not the notification. The I&AP register records 21 I&APs and zero organs of state, while the submission cover letter told the Department that comments from \"authorities and organs of state have been recorded, considered and responded to\" — no such comments exist. Two caveats matter: the three were cc'd on a notice addressed to private companies rather than served directly, which is weaker than the Regulation 41 standard the Final Scoping Report itself sets out, and the 31 May copy to the provincial department bounced undeliverable.",
     action:
-      "Notify every organ of state properly in the EIR round with retained proof of service, and correct the representation made in the cover letter rather than leaving it standing on the record.",
+      "Correct the cover-letter representation and the register rather than leaving either standing on the record, and in the EIR round serve every organ of state with jurisdiction directly and individually, with retained proof of service, instead of by cc.",
     evidence: [
+      { source: "Stakeholder Notice email", locator: "6 May 2026, 11:02", quote: "cc CBALOYI@dffe.gov.za · environmentsue@gauteng.gov.za · edmund.vanwyk@ekurhuleni.gov.za" },
       { source: "I&AP Register, 3 June 2026", locator: "Category column", quote: "Government Department: 0 · Municipality: 0" },
       { source: "Silverline cover letter to DFFE", locator: "§1", quote: "Comments received from Interested and Affected Parties, authorities and organs of state have been recorded, considered and responded to in the Comments and Responses Register." },
-      { source: "Final Scoping Report", locator: "§11.3", quote: "Notice to councillor and municipal environmental, planning, roads, fire and waste departments" },
+      { source: "Delivery failure notice", locator: "31 May 2026, 11:35", quote: "gdard@gauteng.gov.za — undeliverable" },
     ],
   },
   {
-    agent: "ppp-registrar",
-    severity: "high",
-    title: "An active DFFE compliance investigation into this site is not on the project file",
+    agent: "doc-completeness",
+    severity: "critical",
+    title: "The enforcement file tells DFFE the facility is not operating; the licence file describes one that is",
     detail:
-      "Erika Taljaard's submission cites a DFFE letter dated 30 March 2026 recording that a complaint of alleged unlawful oil storage on Portion 45 was formally investigated, that Environmental Management Inspectors conducted a joint inspection with the City of Ekurhuleni, that compliance concerns were identified, and that the matter remains under assessment with enforcement action still possible. Four other objectors independently allege an unlicensed operation running three years and four SAPS visits. That letter is not in the project folder, and the response treated the whole matter as outside the scope of participation.",
+      "Both statements are now in front of the same Department. On 13 May 2026 the Enforcement directorate issued a s31L pre-compliance notice (EDMS272675/PCN/Dilex Purification) after a 13 March joint EMI and Ekurhuleni inspection, intending to order operations to cease within 10 days and all hazardous waste removed within 14. Silverline's response of 13 June answers that the site was an auction property, that the tanks, drums and liquid-handling plant are the previous owner's legacy items, and — repeatedly — that nothing is in use: the treatment equipment in Warehouse 1 is \"not yet used as the Waste Management Licence application is being applied for\", and of the eight 40 000 L tanks, \"no storage has taken place\". Matjelele Phaladi, the Director: Licensing who signed the FSR acceptance, was copied on that letter. Meanwhile the licence application describes 100 t/day and ±600 000 L. Read together the two files say the facility both is and is not operating. Handled openly the contradiction is an asset — it establishes the activity has not unlawfully commenced, which is exactly what an applicant wants on record. Left unreconciled it is the first thing an appellant will put side by side.",
     action:
-      "Obtain the 30 March 2026 letter from DFFE directly and establish the status of the enforcement matter. Compliance history bears on need and desirability and on baseline contamination, and an authority that already holds this letter will expect the EIAR to deal with it.",
+      "Reconcile the two descriptions explicitly in the EIAR: inherited infrastructure that exists versus an activity that has not commenced and will not until the licence is issued. State it in those terms rather than letting the reader find the gap. Also confirm in writing whether DFFE accepted the June representations — no decision is on the file, so the intended cease-operations instruction is neither withdrawn nor served.",
     evidence: [
-      { source: "Erika Taljaard comment", locator: "12 May 2026", quote: "the matter remains under assessment with regulatory and/or enforcement action still possible" },
-      { source: "Project document folder", locator: "", quote: "" },
+      { source: "Silverline DFFE Response, 13 June 2026", locator: "Table 1, Warehouse 1 equipment", quote: "They are not yet used as the Waste Management License application is being applied for." },
+      { source: "Silverline DFFE Response, 13 June 2026", locator: "Table 1, eight 40 000 L tanks", quote: "These tanks are going to be used for storage of oil, but no storage has taken place." },
+      { source: "DFFE s31L pre-compliance notice", locator: "13 May 2026, §8.1", quote: "cease with all operations and activities at the site" },
+    ],
+  },
+  {
+    agent: "specialist-studies",
+    severity: "critical",
+    title: "An EMI has already recorded groundwater and soil contamination risk on this site, in writing",
+    detail:
+      "This is why geohydrology cannot be motivated out, and the reason is commercial before it is regulatory. The s31L notice records hazardous waste stored in unlined and unroofed areas, in places without bund walls or interception trenches, with \"not enough mitigation measures in place to prevent the impacts from spillages\", and expressly finds potential to contaminate \"particularly surface and ground water, and the soil\". Dilex's own response accepted that framing and undertook to line, roof, bund and drain. Separately, the site was bought at auction from an owner who dealt in waste oil, and that material sat in those same unlined areas for an unknown period. Under the contaminated-land provisions of NEM:WA the current owner carries historical contamination unless it can show what it inherited. A dated baseline is the only thing that separates the previous owner's plume from Dilex's, and it is far cheaper than a remediation directive. Non-disturbance of the land is no answer here: the pathway is a leak through a floor, not an excavation.",
+    action:
+      "Commission a Phase 1 desk study plus a limited intrusive baseline — a small number of boreholes and soil samples, targeted at the tank farm, Warehouse 1 and 2 floors and the historic transfer point. Frame it to the client as liability protection, not compliance cost. The 6–8 m water table the neighbours rely on for potable supply makes this the finding most likely to sink the EIAR if it is absent.",
+    evidence: [
+      { source: "DFFE s31L pre-compliance notice", locator: "13 May 2026, Table 2 Finding 1(b)", quote: "not all the areas were surrounded by bund walls or an interception trench, and therefore there was not enough mitigation measures in place to prevent the impacts from spillages" },
+      { source: "DFFE s31L pre-compliance notice", locator: "Table 2, impact", quote: "particularly surface and ground water, and the soil" },
+      { source: "Maxie Gunter comment", locator: "3 June 2026", quote: "" },
     ],
   },
   {
@@ -554,7 +598,7 @@ export const ESCALATIONS = [
       "Holds a DFFE letter dated 30 March 2026 recording that a complaint of alleged unlawful oil storage on Portion 45 was formally investigated by Environmental Management Inspectors jointly with the City of Ekurhuleni, that compliance concerns were identified, and that the matter remains under assessment with enforcement still possible. Requested an extension of the comment period.",
     response: "27 May 2026 — extension refused; the compliance matter treated as outside the participation process.",
     risk:
-      "The strongest factual foundation for a procedural-fairness challenge. That DFFE letter is not in the project file.",
+      "The strongest factual foundation for a procedural-fairness challenge. The enforcement pack is now in hand — s31L notice of 13 May, Silverline's response of 13 June — and it corroborates her: an EMI did inspect jointly with Ekurhuleni and did identify compliance concerns. Her own 30 March letter, as complainant, is still not on the file.",
   },
   {
     who: "The 44 Moonlight Road cluster — Maxie, Jacobus and Quiza Gunter",

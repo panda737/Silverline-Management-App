@@ -21,7 +21,7 @@ import DocumentsPage from "@/pages/documents";
 import LicenceAuditsPage from "@/pages/licence-audits";
 import LicenceAuditDetailPage from "@/pages/licence-audits/detail";
 import LicenceAuditReportPage from "@/pages/licence-audits/report";
-import DemoPage from "@/pages/demo";
+import AgentsPage from "@/pages/agents";
 import UsersPage from "@/pages/users";
 import SettingsPage from "@/pages/settings";
 import PortalDashboardPage from "@/pages/portal";
@@ -71,7 +71,7 @@ export default function App() {
             path="/licence-audits/:id/report"
             element={<LicenceAuditReportPage />}
           />
-          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/agents" element={<AgentsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="/users" element={<UsersPage />} />
