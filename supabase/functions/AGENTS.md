@@ -13,7 +13,7 @@ remembering it.
 | **The six prompts** | `supabase/functions/agent-worker/prompts.ts` | Where the specialists actually differ. Edit here to change behaviour |
 | **Roster** | `agent_definitions` table | Which agents exist, which routes and stages they apply to, dispatch order, on/off |
 | **State** | `agent_runs`, `agent_tasks`, `agent_findings` tables | Migration `20260725000001_agent_fleet.sql` |
-| **UI** | `src/pages/demo/index.tsx` → Fleet tab | Currently the demo view; graduates to a per-project tab |
+| **UI** | `src/pages/agents/index.tsx` → Fleet tab | The Agents tab, still reading a static fixture; graduates to a per-project tab |
 
 Nothing runs on a laptop. The agents are Supabase edge functions next to
 `licence-review`, which they deliberately mirror: model call, structured output,

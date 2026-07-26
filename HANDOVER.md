@@ -8,8 +8,9 @@ smoke-tested on the main PC.
 
 - `npm run check` passes — typecheck, lint, and `deno check` over the edge
   functions.
-- `/demo` renders; all seven tabs verified in the browser, no console or server
-  errors.
+- `/agents` renders; all seven tabs verified in the browser, no console or server
+  errors. (The tab was `/demo` when this branch was written — renamed to
+  **Agents** on 26 July, route, directory and title together.)
 - Migration `20260725000001_agent_fleet.sql` applied to `vdycgxxdirscvnrqiizg`.
   Four tables live, RLS confirmed readable by an internal user, all seven roster
   rows seeded.
@@ -23,7 +24,7 @@ smoke-tested on the main PC.
 
 Four bugs, none of which `tsc` could have caught on its own:
 
-1. `src/pages/demo/index.tsx` filtered acceptance conditions on `!== "done"`
+1. `src/pages/agents/index.tsx` (then `demo/`) filtered acceptance conditions on `!== "done"`
    against a `"open" | "blocker"` union — a filter that could never exclude
    anything, so the "N of 7" stat could never go down. `done` added to the type.
 2. `agent-worker` selected `documents.mime_type`, **which does not exist**.
@@ -62,7 +63,7 @@ Vercel never downloads a Deno binary to ship the SPA.
 - **The fleet has never been run end to end.** Everything above proves it
   compiles, deploys and guards correctly — not that a cycle produces a sensible
   brief. First real run should be against one project, watched.
-- No UI beyond the Demo tab's Fleet panel — no run button, no findings inbox on
+- No UI beyond the Agents tab's Fleet panel — no run button, no findings inbox on
   a real project.
 - No scheduler. Run it manually, read a week of briefs, then decide whether it
   earns a `pg_cron` job.

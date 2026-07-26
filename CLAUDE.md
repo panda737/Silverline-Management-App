@@ -45,13 +45,24 @@ so Vercel never has to download a Deno binary to ship the SPA.
   admin, then GoTrue invite + `app_metadata` stamp). Deploy:
   `supabase functions deploy invite-user` + secret
   `SITE_URL=https://silverline-management.co.za`.
-- **Production domain:** `https://silverline-management.co.za` (www redirects to
-  the apex; the `*.vercel.app` URL still resolves). Auth emails follow Supabase's
+- **Production domain:** `https://silverline-management.co.za` — but the apex
+  **308s to `www.`** (verified 26 July 2026), not the other way round as this file
+  previously said; the `*.vercel.app` URL still resolves. Auth emails follow Supabase's
   **Authentication → URL Configuration**, not the app — keep Site URL and the
   Redirect URLs list pointed at this domain.
 - Vercel: `vercel.json` pins framework=vite + SPA rewrite. Env vars
   `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` only — the service key must
   never be a Vercel env var again.
+- **Deploys are Git-integration only** — there is no Vercel CLI and no `.vercel`
+  directory in this repo. **Production tracks `main`; every other branch gets a
+  Preview deployment and nothing else**, so work sitting on a feature branch never
+  reaches the live domain no matter how many times it builds. `npm run build` runs
+  `tsc` first, so *any* type error fails the Vercel build — the branch is the place
+  to catch it, with `npm run check`.
+- Deploy status is readable from here without the Vercel CLI, via GitHub:
+  `gh api repos/panda737/Silverline-Management-App/deployments?per_page=10` then
+  `gh api .../deployments/<id>/statuses`. Quote the `--jq` argument through **Bash,
+  not PowerShell** — PS 5.1 splits it on spaces.
 
 ## Second Brain sync
 Juandre keeps a Second Brain vault (Obsidian + git) at
