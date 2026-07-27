@@ -7,7 +7,7 @@
  *
  * Static fixture, no Supabase, no client data — safe to open in front of anyone.
  */
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -30,7 +30,7 @@ import {
   SPECIALIST_STUDIES,
   TIMELINE,
 } from "@/lib/demo/dilex";
-import { FindingCard, Stat } from "./shared";
+import { FindingCard, MissionTabs, Stat } from "./shared";
 
 const TABS = [
   { value: "brief", label: "Brief" },
@@ -56,16 +56,7 @@ export function DilexMission() {
   return (
 
       <Tabs defaultValue="brief" className="gap-0">
-        <TabsList
-          variant="line"
-          className="h-auto gap-5 overflow-x-auto bg-transparent p-0"
-        >
-          {TABS.map((t) => (
-            <TabsTrigger key={t.value} value={t.value} className="shrink-0">
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <MissionTabs tabs={TABS} />
 
         {/* ---------------------------------------------------------------- */}
         <TabsContent value="brief" className="space-y-5 pt-6">

@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 /**
@@ -26,6 +27,38 @@ const SEVERITY_STYLES: Record<Severity, string> = {
   low: "bg-muted text-muted-foreground border-border",
   info: "bg-muted text-muted-foreground border-border",
 };
+
+/**
+ * The tab strip for a mission.
+ *
+ * Deliberately wraps rather than scrolls. The base TabsList is `inline-flex
+ * w-fit h-8`, which on a seven-tab strip overflows and turns into a horizontal
+ * scroll box — so tabs past the fold are invisible until you scroll sideways,
+ * and you cannot see what the mission covers at a glance. Wrapping costs a
+ * second line on a narrow window and shows everything from the outset.
+ *
+ * `flex-none` on the triggers matters: the base sets `flex-1`, which is
+ * harmless while the strip overflows but would stretch each tab to fill the row
+ * once it wraps.
+ */
+export function MissionTabs({
+  tabs,
+}: {
+  tabs: { value: string; label: string }[];
+}) {
+  return (
+    <TabsList
+      variant="line"
+      className="h-auto w-full flex-wrap justify-start gap-x-5 gap-y-2.5 bg-transparent p-0"
+    >
+      {tabs.map((t) => (
+        <TabsTrigger key={t.value} value={t.value} className="flex-none">
+          {t.label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
+  );
+}
 
 export function SeverityBadge({ severity }: { severity: Severity }) {
   return (

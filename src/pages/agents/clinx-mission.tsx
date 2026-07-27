@@ -6,7 +6,7 @@
  * been issued, representations already made, and a standing reporting obligation
  * with no end date. The tabs follow that shape rather than the WML one.
  */
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ import {
   TIMELINE,
   UNFILED_DOCUMENTS,
 } from "@/lib/demo/clinx";
-import { FindingCard, Stat, daysBetween } from "./shared";
+import { FindingCard, MissionTabs, Stat, daysBetween } from "./shared";
 
 const TABS = [
   { value: "brief", label: "Brief" },
@@ -52,16 +52,7 @@ export function ClinxMission() {
 
   return (
     <Tabs defaultValue="brief" className="gap-0">
-      <TabsList
-        variant="line"
-        className="h-auto gap-5 overflow-x-auto bg-transparent p-0"
-      >
-        {TABS.map((t) => (
-          <TabsTrigger key={t.value} value={t.value} className="shrink-0">
-            {t.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <MissionTabs tabs={TABS} />
 
       {/* ------------------------------------------------------------------ */}
       <TabsContent value="brief" className="space-y-5 pt-6">
