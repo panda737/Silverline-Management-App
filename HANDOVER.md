@@ -2,7 +2,35 @@
 
 Branch: **`feat/wml-demo-agents`**. Written on a work laptop with no Node.js, so
 nothing had ever been compiled. It has now been compiled, fixed, deployed and
-smoke-tested on the main PC.
+smoke-tested on the main PC. **All of it is merged to `main` and live** — as is
+the Assistant that came after it (see below).
+
+## Picking this up on another machine
+
+Everything needed is in the repo except the one file that cannot be: `.env.local`
+is gitignored, because it holds the service-role key. Copy it across by hand (or
+rebuild it from `.env.example` — the values are in Supabase → Settings → API),
+then:
+
+```
+npm install
+npm run check     # typecheck + lint + deno check over the edge functions
+npm run dev
+```
+
+Nothing else needs doing on the new machine. The migrations are already applied
+to the live project and the edge functions are already deployed — both are
+per-project, not per-checkout, so `supabase db push` and `functions deploy` would
+find nothing to do.
+
+## The Assistant (`/chat`)
+
+Added after the fleet and now on `main`: a chat over the portal's own records,
+at `/chat` and on an Assistant tab on every project. `supabase/functions/chat`
+streams answers and grounds them with six tools. **Every tool queries through a
+client built from the caller's own JWT, so RLS scopes the assistant to what that
+person can already see — the service-role key is never read in that file, and
+that is the property to preserve if you change it.** Detail in `CLAUDE.md`.
 
 ## Done
 
