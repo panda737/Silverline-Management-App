@@ -72,10 +72,43 @@ const MAX_DOC_BYTES = 12 * 1024 * 1024;
 //
 // Strict JSON schema throughout, matching the convention already used in
 // licence-review: additionalProperties false, every property required, and
-// "absent" expressed as an empty string rather than an omitted key. Strict mode
-// guarantees the input validates, so no tool below has to defend against a
-// missing field.
+// "absent" expressed as an empty string rather than an omitted key.
+//
+// STRICT MODE CONSTRAINS SHAPE, NOT MEANING. It guarantees a required string is
+// present; it does not guarantee that string is a valid enum member or a uuid.
+// An early run proved the point — the model put a fragment of its own tool-call
+// syntax into `status`, which went straight into `.eq()` and came back as
+// `invalid input value for enum project_status`. So:
+//
+//   1. Every closed value set is declared as a JSON Schema `enum` (with "" for
+//      "any"), which makes an invalid value unrepresentable rather than merely
+//      discouraged in prose.
+//   2. Every id argument is checked against UUID_RE before it reaches a query,
+//      because an id cannot be enumerated and a malformed one otherwise
+//      surfaces as a Postgres syntax error instead of something the model can
+//      act on.
 // ---------------------------------------------------------------------------
+
+const PROJECT_STATUSES = [
+  "not_started",
+  "in_progress",
+  "waiting_on_client",
+  "waiting_on_authority",
+  "drafting",
+  "submitted",
+  "approved",
+  "completed",
+  "on_hold",
+  "at_risk",
+  "cancelled",
+] as const;
+
+const RISK_LEVELS = ["low", "medium", "high", "critical"] as const;
+
+const TASK_STATUSES = ["todo", "in_progress", "waiting", "review", "done"] as const;
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const TOOLS = [
   {
@@ -107,13 +140,13 @@ const TOOLS = [
         },
         status: {
           type: "string",
-          description:
-            "Exact project status to filter by, or empty string for any. One of: not_started, in_progress, waiting_on_client, waiting_on_authority, drafting, submitted, approved, completed, on_hold, at_risk, cancelled.",
+          enum: ["", ...PROJECT_STATUSES],
+          description: "Project status to filter by. Empty string for any.",
         },
         risk_level: {
           type: "string",
-          description:
-            "Exact risk level to filter by, or empty string for any. One of: low, medium, high, critical.",
+          enum: ["", ...RISK_LEVELS],
+          description: "Risk level to filter by. Empty string for any.",
         },
       },
     },
@@ -148,8 +181,9 @@ const TOOLS = [
         },
         status: {
           type: "string",
+          enum: ["", ...TASK_STATUSES],
           description:
-            "Exact task status, or empty string for all still-open tasks (everything except done). One of: todo, in_progress, waiting, review, done.",
+            "Task status to filter by. Empty string for all still-open tasks (everything except done).",
         },
         mine_only: {
           type: "boolean",
@@ -217,6 +251,21 @@ const fail = (message: string): ToolOutcome => ({
   summary: message,
   isError: true,
 });
+
+/** Reject a malformed id before it becomes a Postgres syntax error. Returns the
+ *  failure to hand back, or null when the id is usable. Blank is allowed where
+ *  the caller treats empty as "no filter". */
+function badId(
+  value: string,
+  label: string,
+  allowBlank = false
+): ToolOutcome | null {
+  if (allowBlank && !value) return null;
+  if (UUID_RE.test(value)) return null;
+  return fail(
+    `"${value}" is not a valid ${label}. Use the id returned by a search tool rather than a name or a guess.`
+  );
+}
 
 /** PostgREST wildcards are literal inside `ilike`, so a user typing `%` or `_`
  *  would otherwise silently widen their own search. Escape both, and the
@@ -306,8 +355,25 @@ async function searchProjects(
     .select(
       "id, name, status, priority, progress, route, current_legal_stage, next_action, risk_level, due_date, applicant, clients(company_name)"
     );
-  if (input.status) q = q.eq("status", input.status);
-  if (input.risk_level) q = q.eq("risk_level", input.risk_level);
+  // Checked here as well as in the schema enum. The enum makes a bad value
+  // unrepresentable only for as long as strict mode holds; this keeps the
+  // invariant next to the query that depends on it.
+  if (input.status) {
+    if (!(PROJECT_STATUSES as readonly string[]).includes(input.status)) {
+      return fail(
+        `"${input.status}" is not a project status. Valid values: ${PROJECT_STATUSES.join(", ")} — or an empty string for any.`
+      );
+    }
+    q = q.eq("status", input.status);
+  }
+  if (input.risk_level) {
+    if (!(RISK_LEVELS as readonly string[]).includes(input.risk_level)) {
+      return fail(
+        `"${input.risk_level}" is not a risk level. Valid values: ${RISK_LEVELS.join(", ")} — or an empty string for any.`
+      );
+    }
+    q = q.eq("risk_level", input.risk_level);
+  }
 
   const { data, error } = await q.order("name");
   if (error) return fail(`Project search failed: ${error.message}`);
@@ -351,6 +417,9 @@ async function getProject(
   input: { project_id: string }
 ): Promise<ToolOutcome> {
   const id = input.project_id;
+  const invalid = badId(id, "project id");
+  if (invalid) return invalid;
+
   const { data: project, error } = await db
     .from("projects")
     .select("*, clients(id, company_name, industry)")
@@ -440,14 +509,25 @@ async function listTasks(
   input: { project_id: string; status: string; mine_only: boolean },
   userId: string
 ): Promise<ToolOutcome> {
+  const invalid = badId(input.project_id, "project id", true);
+  if (invalid) return invalid;
+
   let q = db
     .from("tasks")
     .select(
       "id, project_id, title, description, status, priority, due_date, assigned_to, projects(name)"
     );
   if (input.project_id) q = q.eq("project_id", input.project_id);
-  if (input.status) q = q.eq("status", input.status);
-  else q = q.neq("status", "done");
+  if (input.status) {
+    if (!(TASK_STATUSES as readonly string[]).includes(input.status)) {
+      return fail(
+        `"${input.status}" is not a task status. Valid values: ${TASK_STATUSES.join(", ")} — or an empty string for all open tasks.`
+      );
+    }
+    q = q.eq("status", input.status);
+  } else {
+    q = q.neq("status", "done");
+  }
   if (input.mine_only) q = q.eq("assigned_to", userId);
 
   const { data, error } = await q.order("due_date", {
@@ -478,6 +558,9 @@ async function searchDocuments(
   db: SupabaseClient,
   input: { project_id: string; query: string }
 ): Promise<ToolOutcome> {
+  const invalid = badId(input.project_id, "project id", true);
+  if (invalid) return invalid;
+
   let q = db
     .from("documents")
     .select(
@@ -515,6 +598,9 @@ async function readDocument(
   db: SupabaseClient,
   input: { document_id: string }
 ): Promise<ToolOutcome> {
+  const invalid = badId(input.document_id, "document id");
+  if (invalid) return invalid;
+
   const { data: doc, error } = await db
     .from("documents")
     .select("id, name, storage_path, doc_type, project_id")
@@ -566,7 +652,9 @@ async function runTool(
   name: string,
   rawInput: unknown
 ): Promise<ToolOutcome> {
-  // strict:true guarantees the shape, so these casts are safe rather than hopeful.
+  // strict:true guarantees these fields are present and are strings. It does NOT
+  // guarantee the values mean anything, so each tool validates enums and ids
+  // itself before querying.
   const input = (rawInput ?? {}) as Record<string, never>;
   try {
     switch (name) {
