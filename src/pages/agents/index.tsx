@@ -29,6 +29,7 @@ import { useDocumentTitle } from "@/hooks/use-document-title";
 import { cn } from "@/lib/utils";
 import { DilexMission, DILEX_HEADER } from "./dilex-mission";
 import { ClinxMission, CLINX_HEADER } from "./clinx-mission";
+import { VerdexMission, VERDEX_HEADER } from "./verdex-mission";
 
 type Mission = {
   id: string;
@@ -57,6 +58,14 @@ const MISSIONS: Mission[] = [
     header: CLINX_HEADER,
     render: () => <ClinxMission />,
   },
+  {
+    id: "verdex",
+    project: "Verdex – Waste Management Licence",
+    client: "Verdex (Pty) Ltd",
+    kind: "S24G rectification",
+    header: VERDEX_HEADER,
+    render: () => <VerdexMission />,
+  },
 ];
 
 /** Projects that have a record in the portal but no mission built yet. Listed
@@ -64,7 +73,6 @@ const MISSIONS: Mission[] = [
  *  obvious which files are being watched and which are not. */
 const NOT_YET_BUILT = [
   "Spill Tech – Norms & Standards Application Gauteng",
-  "Verdex – Waste Management Licence",
   "Smet Jet – Secunda Hazardous Waste Facility",
   "Tshenolo – Norms & Standards Registration",
   "Dilex Randfontein – Norms & Standards",
