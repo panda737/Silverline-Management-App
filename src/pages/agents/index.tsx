@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { DilexMission, DILEX_HEADER } from "./dilex-mission";
 import { ClinxMission, CLINX_HEADER } from "./clinx-mission";
 import { VerdexMission, VERDEX_HEADER } from "./verdex-mission";
+import { HillsideMission, HILLSIDE_HEADER } from "./hillside-mission";
 
 type Mission = {
   id: string;
@@ -66,6 +67,14 @@ const MISSIONS: Mission[] = [
     header: VERDEX_HEADER,
     render: () => <VerdexMission />,
   },
+  {
+    id: "hillside",
+    project: "Hillside Complex – Section 24G Fine Appeal",
+    client: "Hillside Complex (Pty) Ltd",
+    kind: "Appeal + enforcement",
+    header: HILLSIDE_HEADER,
+    render: () => <HillsideMission />,
+  },
 ];
 
 /** Projects that have a record in the portal but no mission built yet. Listed
@@ -76,7 +85,6 @@ const NOT_YET_BUILT = [
   "Smet Jet – Secunda Hazardous Waste Facility",
   "Tshenolo – Norms & Standards Registration",
   "Dilex Randfontein – Norms & Standards",
-  "Hillside Complex – Section 24G Fine Appeal",
   "Centurion Cleaning – GWIS Registration",
 ];
 
