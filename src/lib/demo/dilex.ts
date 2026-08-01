@@ -265,9 +265,9 @@ export const FINDINGS: DemoFinding[] = [
     severity: "critical",
     title: "The EIR submission period is running and no date is recorded on the file",
     detail:
-      "The Department accepted the Final Scoping Report on 16 July 2026 and authorised the EIA process, but its letter sets no submission date. Regulation 23 of GN R982 allows 106 days from acceptance, which would fall on 30 October 2026 — 97 days from today. No deadline is currently anchored on the project record, so nothing is counting down. Every remaining specialist study, the draft EIAR, a 30-day public participation round and the Department's own review inside that round all have to fit inside that window.",
+      "The Department accepted the Final Scoping Report on 16 July 2026 and authorised the EIA process, but its letter sets no submission date. Regulation 23 of GN R982 allows 106 days from acceptance, which would fall on 30 October 2026. The project record now carries that date as a derived deadline (anchored 1 August 2026), but it remains unconfirmed by the authority. Every remaining specialist study, the draft EIAR, a 30-day public participation round and the Department's own review inside that round all have to fit inside that window.",
     action:
-      "Confirm the applicable period in writing with Cynthia Baloyi, then anchor the deadline to 16 July 2026 and work the draft EIAR date backwards from the 30-day participation window rather than from the final submission date.",
+      "Confirm the applicable period in writing with Cynthia Baloyi — the project record carries 30 October 2026 as a derived date — and work the draft EIAR date backwards from the 30-day participation window rather than from the final submission date.",
     evidence: [
       { source: "FSR Acceptance Letter", locator: "16 July 2026", quote: "You may proceed with the Environmental Impact Assessment process in accordance with the tasks contemplated in the Plan of Study" },
       { source: "Acceptance letter, condition 6", locator: "", quote: "Prior to the submission of the final EIAR, the draft EIAR must be submitted to the Department for comments as part of the 30-day public participation process." },

@@ -18,13 +18,12 @@ import {
   ENTITY_NAMES,
   FINDINGS,
   FINE,
-  HILLSIDE_AS_AT,
   PEOPLE,
   PROJECT,
   S31L,
   TIMELINE,
 } from "@/lib/demo/hillside";
-import { FindingCard, MissionTabs, Stat, daysBetween } from "./shared";
+import { FindingCard, MissionTabs, Stat, daysSince } from "./shared";
 
 const TABS = [
   { value: "brief", label: "Brief" },
@@ -62,10 +61,10 @@ export function HillsideMission() {
   const critical = FINDINGS.filter((f) => f.severity === "critical");
   const high = FINDINGS.filter((f) => f.severity === "high");
 
-  const daysSinceRequest = daysBetween("2026-07-17", HILLSIDE_AS_AT);
-  const daysSinceEscalation = daysBetween("2026-04-08", HILLSIDE_AS_AT);
-  const daysSinceAppeal = daysBetween("2026-02-11", HILLSIDE_AS_AT);
-  const daysPastPayment = daysBetween("2026-03-22", HILLSIDE_AS_AT);
+  const daysSinceRequest = daysSince("2026-07-17");
+  const daysSinceEscalation = daysSince("2026-04-08");
+  const daysSinceAppeal = daysSince("2026-02-11");
+  const daysPastPayment = daysSince("2026-03-22");
 
   return (
     <Tabs defaultValue="brief" className="gap-0">

@@ -21,9 +21,8 @@ import {
   OUTSTANDING,
   PROJECT,
   TIMELINE,
-  VERDEX_AS_AT,
 } from "@/lib/demo/verdex";
-import { FindingCard, MissionTabs, Stat, daysBetween } from "./shared";
+import { FindingCard, MissionTabs, Stat, daysUntil } from "./shared";
 
 const TABS = [
   { value: "brief", label: "Brief" },
@@ -48,7 +47,7 @@ export function VerdexMission() {
   const high = FINDINGS.filter((f) => f.severity === "high");
   const blocking = LEGAL_QUESTIONS.filter((q) => q.state === "blocking");
   const chase = TIMELINE.find((t) => t.kind === "due");
-  const daysToChase = chase ? daysBetween(VERDEX_AS_AT, chase.date) : null;
+  const daysToChase = chase ? daysUntil(chase.date) : null;
 
   return (
     <Tabs defaultValue="brief" className="gap-0">
@@ -79,7 +78,13 @@ export function VerdexMission() {
             label="Mandate"
             value="Live"
             tone="good"
-            note={`Phase 1 paid · chase in ${daysToChase} days`}
+            note={
+              daysToChase === null
+                ? "Phase 1 paid"
+                : daysToChase > 0
+                  ? `Phase 1 paid · chase in ${daysToChase} days`
+                  : "Phase 1 paid · chase now"
+            }
           />
         </div>
 

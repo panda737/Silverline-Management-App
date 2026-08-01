@@ -17,8 +17,6 @@ import {
   AGENTS,
   CAPACITY,
   COMMENT_THEMES,
-  DILEX_AS_AT,
-  daysBetween,
   ESCALATIONS,
   FINDINGS,
   IAP_CATEGORIES,
@@ -30,7 +28,7 @@ import {
   SPECIALIST_STUDIES,
   TIMELINE,
 } from "@/lib/demo/dilex";
-import { FindingCard, MissionTabs, Stat } from "./shared";
+import { FindingCard, MissionTabs, Stat, daysUntil } from "./shared";
 
 const TABS = [
   { value: "brief", label: "Brief" },
@@ -45,7 +43,7 @@ const TABS = [
 export function DilexMission() {
 
   const eirDue = TIMELINE.find((t) => t.kind === "due");
-  const daysToEir = eirDue ? daysBetween(DILEX_AS_AT, eirDue.date) : null;
+  const daysToEir = eirDue ? daysUntil(eirDue.date) : null;
   const critical = FINDINGS.filter((f) => f.severity === "critical");
   const high = FINDINGS.filter((f) => f.severity === "high");
   const studyGaps = SPECIALIST_STUDIES.filter((s) => s.state === "gap");
@@ -64,7 +62,13 @@ export function DilexMission() {
             <Stat
               label="Days to the EIR submission"
               value={daysToEir === null ? "—" : String(daysToEir)}
-              tone={daysToEir !== null && daysToEir < 120 ? "warn" : undefined}
+              tone={
+                daysToEir !== null && daysToEir < 30
+                  ? "bad"
+                  : daysToEir !== null && daysToEir < 120
+                    ? "warn"
+                    : undefined
+              }
               note="Derived from Reg. 23, not stated by DFFE"
             />
             <Stat
@@ -164,7 +168,9 @@ export function DilexMission() {
                     <span className="font-medium">{e.label}</span>
                     {e.kind === "due" && daysToEir !== null && (
                       <Badge variant="destructive" className="rounded-full">
-                        {daysToEir} days
+                        {daysToEir >= 0
+                          ? `${daysToEir} days`
+                          : `${-daysToEir} days over`}
                       </Badge>
                     )}
                   </div>

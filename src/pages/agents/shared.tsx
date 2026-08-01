@@ -155,3 +155,21 @@ export function daysBetween(from: string, to: string) {
     (new Date(to).getTime() - new Date(from).getTime()) / 86_400_000
   );
 }
+
+/**
+ * Day counts on the missions run from the local calendar date, not from the
+ * fixture's AS_AT snapshot — a countdown frozen at authoring time reads as
+ * more runway than actually exists.
+ */
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function daysUntil(to: string) {
+  return daysBetween(todayIso(), to);
+}
+
+export function daysSince(from: string) {
+  return daysBetween(from, todayIso());
+}

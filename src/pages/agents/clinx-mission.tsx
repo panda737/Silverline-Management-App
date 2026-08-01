@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   ACTION_PLAN,
-  CLINX_AS_AT,
   DIRECTOR_QUESTIONS,
   DISPUTED_NCR,
   FINDINGS,
@@ -23,7 +22,7 @@ import {
   TIMELINE,
   UNFILED_DOCUMENTS,
 } from "@/lib/demo/clinx";
-import { FindingCard, MissionTabs, Stat, daysBetween } from "./shared";
+import { FindingCard, MissionTabs, Stat, daysSince, daysUntil } from "./shared";
 
 const TABS = [
   { value: "brief", label: "Brief" },
@@ -47,8 +46,8 @@ export function ClinxMission() {
   const critical = FINDINGS.filter((f) => f.severity === "critical");
   const high = FINDINGS.filter((f) => f.severity === "high");
   const openQuestions = DIRECTOR_QUESTIONS.filter((q) => q.state === "open");
-  const daysSinceRequest = daysBetween("2026-06-30", CLINX_AS_AT);
-  const daysToNextReport = daysBetween(CLINX_AS_AT, REPORTING.next);
+  const daysSinceRequest = daysSince("2026-06-30");
+  const daysToNextReport = daysUntil(REPORTING.next);
 
   return (
     <Tabs defaultValue="brief" className="gap-0">
@@ -79,7 +78,13 @@ export function ClinxMission() {
             label="Monthly reports submitted"
             value={String(REPORTING.submitted.length)}
             tone="good"
-            note={`No gaps · next due in ${daysToNextReport} days`}
+            note={`No gaps · ${
+              daysToNextReport > 0
+                ? `next due in ${daysToNextReport} days`
+                : daysToNextReport === 0
+                  ? "next due today"
+                  : `next was due ${-daysToNextReport} days ago`
+            }`}
           />
         </div>
 
