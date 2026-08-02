@@ -1,12 +1,23 @@
 /**
  * Demo dataset — Dilex Inland Elandsfontein WML & S&EIR.
  *
- * Every figure, date, reference and condition below was read out of the actual
- * submission pack in
- *   OneDrive\Projects\Silverline\Elandsfontein EIA Dialex\Dilex Inland WML
- * so the Demo section shows the tool working on a real file rather than on
- * invented data. Nothing here is estimated unless it is explicitly marked
- * `derived` or `toConfirm`.
+ * ┌───────────────────────────────────────────────────────────────────────────┐
+ * │ THIS FILE IS NOT A SOURCE OF TRUTH. IT IS A SNAPSHOT.                      │
+ * │                                                                           │
+ * │ The record lives in the licence repository:                               │
+ * │   panda737/silverline-licence-work                                        │
+ * │   → Elandsfontein EIA Dialex/Dilex Inland WML/00 - FACTS.md               │
+ * │                                                                           │
+ * │ Never quote this file to a client, an authority or a colleague. Never fix │
+ * │ a contradiction by editing the licence repo to match this screen — the    │
+ * │ arrow only runs the other way. Change the fact in 00 - FACTS.md first,    │
+ * │ then update the snapshot here and move DILEX_AS_AT.                       │
+ * │                                                                           │
+ * │ Drift is what this header exists to stop. In August 2026 this file        │
+ * │ carried an extent of 4,5 ha (the title deed says 8,5654), a deadline of   │
+ * │ 30 October (Reg 3 makes it 2 November) and a scope that still included    │
+ * │ tyre pyrolysis (excluded 2 August). All three were shown to a client.     │
+ * └───────────────────────────────────────────────────────────────────────────┘
  *
  * It is a static fixture on purpose: the Demo section must render for anyone
  * who logs in, without seeding a database and without touching live client
@@ -14,7 +25,8 @@
  * Supabase.
  */
 
-export const DILEX_AS_AT = "2026-07-25";
+/** Snapshot date. Bump this whenever the file is re-synced from 00 - FACTS.md. */
+export const DILEX_AS_AT = "2026-08-02";
 
 // --- The file itself --------------------------------------------------------
 
@@ -24,7 +36,9 @@ export const PROJECT = {
   description:
     "Hazardous waste treatment, recovery, recycling and transfer facility",
   applicant: "Dilex Inland (Pty) Ltd",
-  applicantContact: "Hamish Miller (also the registered landowner)",
+  applicantContact: "Hamish Miller",
+  landowner:
+    "Spring Romance Properties 38 (Pty) Ltd, reg 2003/010704/07 — NOT the applicant. Deeds search, 1 August 2026.",
   eap: "Mpanyana Lucas Mahlangu — EAPASA 2021/4461, expires 31 March 2027",
   eapFirm: "Silverline (Pty) Ltd",
   authority: "DFFE — Directorate: Licensing",
@@ -36,7 +50,7 @@ export const PROJECT = {
   sgCode: "T0JR00000000041200045 · SG Diagram 4301/48",
   municipality: "City of Ekurhuleni Metropolitan Municipality · Ward 25",
   zoning: "AGRICULTURE — outside the Urban Development Boundary",
-  extent: "4.5 ha",
+  extent: "8,5654 ha (85 654 m²) — title deed T29725/2004",
   route: "category_b" as const,
   routeLabel: "Category B — Scoping and EIR",
   stage: "EIA / EIR phase",
@@ -111,7 +125,8 @@ export const TIMELINE: ClockEvent[] = [
   { date: "2026-06-03", label: "Final Scoping Report submitted", detail: "FSR and Plan of Study for EIA submitted; I&AP register of the same date filed with it.", source: "DFFE acknowledgement 08/06/2026", kind: "done" },
   { date: "2026-06-08", label: "FSR receipt acknowledged", detail: "Department undertakes to comment within 30 days of receipt.", source: "DFFE acknowledgement", kind: "done" },
   { date: "2026-07-16", label: "FSR ACCEPTED — with 7 conditions", detail: "Department satisfied the FSR meets Appendix 2. Authorises the EIA process per the accepted Plan of Study. Took 43 days against its own stated 30.", source: "Acceptance letter, signed M. Phaladi", kind: "done" },
-  { date: "2026-10-30", label: "Draft + Final EIAR due", detail: "DERIVED, NOT STATED BY DFFE: Regulation 23 of GN R982 allows 106 days from acceptance of the Scoping Report to submit the EIR. Measured from 16 July 2026 that falls on 30 October 2026. The acceptance letter sets no date of its own — confirm the applicable period with the case officer rather than relying on this.", source: "Regulation 23, GN R982 — derived", kind: "due" },
+  { date: "2026-08-02", label: "Screening Tool re-run with the footprint", detail: "The original screening report of 6 April recorded \"No development footprint(s) specified\", so every sensitivity in it was computed at landscape scale. Re-run with seven footprint vertices supplied. The procedural defect is cured — but the ratings barely moved: Agriculture and Terrestrial Biodiversity are still VERY HIGH over the operational yard itself. Animal Species fell to Medium; Plant Species rose to Medium. Fifteen specialist assessments in both reports.", source: "Screening Report re-run, 2 August 2026", kind: "done" },
+  { date: "2026-11-02", label: "Draft + Final EIAR due", detail: "OUR ARITHMETIC, NOT STATED BY DFFE. Regulation 23(1) allows 106 days from acceptance. From 17 July that is 30 October — but Reg 3(5) extends the period by the public holidays inside it (10 August, 24 September), giving 1 November, and Reg 3(1) rolls a Sunday deadline to the next working day. Hence Monday 2 November 2026. The file previously carried 30 October, which is wrong by three days. Reg 23(1)(b) offers 156 days (~11 January 2027) on written notification with a stated basis.", source: "Reg 23(1) read with Reg 3 — Silverline's calculation", kind: "due" },
 ];
 
 /** Whole days between two ISO dates. */
@@ -211,9 +226,9 @@ export const SPECIALIST_STUDIES: {
   route: string;
   note: string;
 }[] = [
-  { name: "Site sensitivity verification", state: "available", route: "Attach; basis for specialist routing", note: "Must carry photographic evidence and professional sign-off; also has to correct the missing development footprint." },
-  { name: "DFFE Screening Report", state: "available", route: "Attach and summarise", note: "Records \"No development footprint(s) specified\" — the sensitivity outputs are property-wide, not footprint-specific." },
-  { name: "Fire Risk Assessment", state: "available", route: "Update against final inventory", note: "Already completed; needs realignment to the final hazardous inventory." },
+  { name: "Site sensitivity verification", state: "committed", route: "Drafted 2 Aug 2026; awaiting inspection record and signature", note: "The FSR cited it six times as \"available\" and it did not exist. Now drafted: four themes downgrade-motivated, three not verifiable, palaeontology blocked on founding depth." },
+  { name: "DFFE Screening Report", state: "available", route: "Attach both, and summarise", note: "Original of 6 April records \"No development footprint(s) specified\". Re-run 2 August with the footprint — the defect is cured but Agriculture and Terrestrial Biodiversity remain VERY HIGH." },
+  { name: "Fire Risk Assessment", state: "gap", route: "—", note: "FSR §14 states one has been completed. No such document exists on the file or in the mailbox. This is a correction owed to DFFE, not a study to be updated." },
   { name: "Final project description and footprint", state: "committed", route: "Technical", note: "Must reconcile 9 000 m² against 11 945 m²." },
   { name: "Air quality / odour", state: "committed", route: "Focused assessment or screening", note: "VOCs, tank vents, solvent blending, petrol/diesel dewatering, loading and offloading." },
   { name: "MHI screening", state: "committed", route: "Competent-person screening", note: "Against the dangerous-substance inventory, per the MHI Regulations 2022." },
