@@ -55,3 +55,9 @@ next-env.d.ts
 import-manifest.csv
 email-inventory.csv
 test-manifest.csv
+
+# The licence repository is a SEPARATE git repo that happens to sit inside this
+# working tree. It holds client-confidential material - title deeds, enforcement
+# correspondence, CIPC reports. It must never be committed into the app repo.
+# Source of truth: panda737/silverline-licence-work
+/silverline-licence-work/
