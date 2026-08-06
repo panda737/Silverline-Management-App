@@ -54,7 +54,7 @@ export type TaskStatus = "todo" | "in_progress" | "waiting" | "review" | "done";
 export type CommentVisibility = "internal" | "client";
 
 // --- Waste Management Licence (WML) module ---------------------------------
-export type WmlRoute = "category_a" | "category_b" | "category_c";
+export type WmlRoute = "category_a" | "category_b" | "category_c" | "section_24g";
 
 export type RiskLevel = "low" | "medium" | "high" | "critical";
 
