@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "@/components/error-boundary";
 import {
@@ -24,11 +25,31 @@ import LicenceAuditsPage from "@/pages/licence-audits";
 import LicenceAuditDetailPage from "@/pages/licence-audits/detail";
 import LicenceAuditReportPage from "@/pages/licence-audits/report";
 import ChatPage from "@/pages/chat";
-import AgentsPage from "@/pages/agents";
+/*
+  Mission Control is LAZY on purpose, and it is the one route where that is not
+  a performance decision.
+
+  Its fixtures carry Silverline's own working analysis — the section 24G fine
+  exposure, which arguments we think will hold, corrections to our own record.
+  Every other page is imported eagerly, which put all of that in the single
+  1.8 MB bundle that every signed-in browser downloads, client browsers
+  included. RequireInternal decides what RENDERS; it has never decided what
+  ships. So a client with a login could read the internal file in devtools
+  without ever visiting the page.
+
+  Splitting it out means the chunk is only fetched when an internal user opens
+  the route. That is defence in depth, NOT access control — the chunk is still
+  served to anyone who requests its URL. The real fix is to move this content
+  into Supabase behind RLS, as the rest of the portal already is. Until then,
+  do not make this import eager again, and do not import these fixtures from
+  any page a client can reach.
+*/
+const AgentsPage = lazy(() => import("@/pages/agents"));
 import UsersPage from "@/pages/users";
 import SettingsPage from "@/pages/settings";
 import PortalDashboardPage from "@/pages/portal";
 import PortalProjectPage from "@/pages/portal/project";
+import PortalVerdexPage from "@/pages/portal/verdex";
 
 function NotFound() {
   return (
@@ -77,7 +98,18 @@ export default function App() {
             element={<LicenceAuditReportPage />}
           />
           <Route path="/chat" element={<ChatPage />} />
-          <Route path="/agents" element={<AgentsPage />} />
+          <Route
+            path="/agents"
+            element={
+              <Suspense
+                fallback={
+                  <div className="h-64 animate-pulse rounded-xl bg-muted/40" />
+                }
+              >
+                <AgentsPage />
+              </Suspense>
+            }
+          />
           <Route path="/settings" element={<SettingsPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="/users" element={<UsersPage />} />
@@ -88,6 +120,13 @@ export default function App() {
         <Route element={<RequireClient />}>
           <Route path="/portal" element={<PortalDashboardPage />} />
           <Route path="/portal/projects/:id" element={<PortalProjectPage />} />
+          {/*
+            A hand-built page for one engagement, because the generic portal
+            reads project stages and this is an application with a shape of its
+            own. It renders a written fixture, so unlike the rest of the portal
+            there is no RLS behind it — see the note in verdex-client.ts.
+          */}
+          <Route path="/portal/verdex" element={<PortalVerdexPage />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

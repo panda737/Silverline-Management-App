@@ -35,13 +35,22 @@ async function main() {
 
   if (!email || !fullName) {
     console.error(
-      'Usage: npx tsx scripts/create-staff-user.ts <email> "<Full Name>" [staff|admin]'
+      'Usage: npx tsx scripts/create-staff-user.ts <email> "<Full Name>" [staff|admin|client]'
     );
     process.exit(1);
   }
-  if (role !== "staff" && role !== "admin") {
-    console.error("Role must be staff or admin (client accounts need a company).");
+  if (role !== "staff" && role !== "admin" && role !== "client") {
+    console.error("Role must be staff, admin or client.");
     process.exit(1);
+  }
+  // A client account with no company sees an empty portal: the portal_* views
+  // scope every row to the signed-in user's company. Fine for checking a page
+  // renders, wrong for anything a real client will use.
+  if (role === "client") {
+    console.warn(
+      "Creating a CLIENT account. Link it to a company before giving it to anyone —\n" +
+        "without one the portal views return nothing.\n"
+    );
   }
 
   const { data: existing } = await db
