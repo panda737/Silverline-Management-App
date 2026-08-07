@@ -18,6 +18,7 @@ import {
   FEEDSTOCK,
   FINDINGS,
   LEGAL_QUESTIONS,
+  LISTED_ACTIVITIES,
   OUTSTANDING,
   PROJECT,
   TIMELINE,
@@ -137,11 +138,60 @@ export function VerdexMission() {
           answers to these without a documented legal assessment and authority
           engagement.
         </p>
+        {/*
+          The activities themselves, quoted from the gazette. Everything else on
+          this tab argues about these words, so they belong on the page rather
+          than in someone's memory of them.
+        */}
+        <Card>
+          <CardContent className="space-y-3 p-4">
+            <div>
+              <p className="text-sm font-medium">The listed activities</p>
+              <p className="text-xs text-muted-foreground">
+                GN 921 in GG 37083 of 29 November 2013, as amended to GN 1757 of
+                11 February 2022 · GN 893 under NEM:AQA s21
+              </p>
+            </div>
+            {LISTED_ACTIVITIES.map((a) => (
+              <div
+                key={a.citation}
+                className={cn(
+                  "rounded-md border p-3",
+                  a.bearing === "applies" && "border-destructive/40 bg-destructive/5",
+                  a.bearing === "excluded-question" && "border-amber-500/40 bg-amber-500/5",
+                  a.bearing === "not-a-licence" && "border-border bg-muted/40",
+                  a.bearing === "does-not-apply" && "border-border opacity-70"
+                )}
+              >
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs font-medium">
+                    {a.citation}
+                  </span>
+                  <Badge variant="outline" className="rounded-full text-[11px]">
+                    {a.bearing === "applies"
+                      ? "Applies"
+                      : a.bearing === "excluded-question"
+                        ? "Applies unless the exclusion holds"
+                        : a.bearing === "not-a-licence"
+                          ? "Listed, but no licence"
+                          : "Threshold not met"}
+                  </Badge>
+                </div>
+                <p className="mb-1 text-sm italic text-muted-foreground">
+                  “{a.wording}”
+                </p>
+                <p className="text-sm">{a.note}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
         {LEGAL_QUESTIONS.map((q, i) => (
           <Card
             key={i}
             className={cn(
-              q.state === "blocking" && "border-destructive/40 bg-destructive/5"
+              q.state === "blocking" && "border-destructive/40 bg-destructive/5",
+              q.state === "decided" && "border-emerald-600/40 bg-emerald-500/5"
             )}
           >
             <CardContent className="space-y-2 p-4">
@@ -151,14 +201,30 @@ export function VerdexMission() {
                   variant="outline"
                   className={cn(
                     "shrink-0 rounded-full text-[11px]",
-                    q.state === "blocking"
-                      ? "border-destructive/40 text-destructive"
-                      : "border-amber-500/40 text-amber-700 dark:text-amber-400"
+                    q.state === "blocking" &&
+                      "border-destructive/40 text-destructive",
+                    q.state === "open" &&
+                      "border-amber-500/40 text-amber-700 dark:text-amber-400",
+                    q.state === "decided" &&
+                      "border-emerald-600/40 text-emerald-700 dark:text-emerald-400"
                   )}
                 >
-                  {q.state === "blocking" ? "Blocking" : "Open"}
+                  {q.state === "blocking"
+                    ? "Blocking"
+                    : q.state === "decided"
+                      ? "Answered"
+                      : "Open"}
                 </Badge>
               </div>
+              {/*
+                The answer leads once there is one. A reader scanning this tab
+                wants to know what was decided, not to re-read why it mattered.
+              */}
+              {q.answer && (
+                <p className="rounded-md border border-emerald-600/30 bg-background/60 p-2 text-sm">
+                  {q.answer}
+                </p>
+              )}
               <p className="text-sm text-muted-foreground">{q.why}</p>
             </CardContent>
           </Card>

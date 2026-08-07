@@ -26,7 +26,7 @@
  */
 
 /** Snapshot date. Bump this whenever the file is re-synced from 00 - FACTS.md. */
-export const DILEX_AS_AT = "2026-08-02";
+export const DILEX_AS_AT = "2026-08-05";
 
 // --- The file itself --------------------------------------------------------
 
@@ -234,7 +234,7 @@ export const SPECIALIST_STUDIES: {
   { name: "MHI screening", state: "committed", route: "Competent-person screening", note: "Against the dangerous-substance inventory, per the MHI Regulations 2022." },
   { name: "Process safety review / HAZOP", state: "committed", route: "Specialist / engineering", note: "Pumps, tanks, isolation, emergency shutdown, commissioning." },
   { name: "Stormwater and contaminated water plan", state: "committed", route: "Engineering plan", note: "Clean/dirty separation, bund pits and separators, firewater containment, no-discharge controls." },
-  { name: "DWS water use trigger assessment", state: "committed", route: "Legal / technical screening", note: "Determines whether a water use licence is required." },
+  { name: "DWS water use trigger assessment", state: "committed", route: "Legal / technical screening", note: "Now urgent, not routine — the riparian corridor west of the site sits at 500-800 m, straddling the GN 509 500 m line." },
   { name: "Waste acceptance and classification note", state: "committed", route: "Technical note / EMPr input", note: "Produces the Waste Acceptance Criteria register — also answers acceptance condition 2." },
   { name: "Traffic and access statement", state: "committed", route: "Traffic statement", note: "Moonlight Road, Apollo weighbridge, ≤10 tankers/day, after-hours access." },
   { name: "Noise, lighting and visual", state: "committed", route: "Focused statement", note: "Driven by 24-hour operation." },
@@ -275,6 +275,34 @@ export type DemoFinding = {
 };
 
 export const FINDINGS: DemoFinding[] = [
+  {
+    agent: "specialist-studies",
+    severity: "critical",
+    title:
+      "A watercourse within 500 m would trigger a separate water use authorisation that is on no programme",
+    detail:
+      "The S15 rebuild of 5 August located the depression west of the site — previously recorded as \"a few hundred metres, unlocated\" — as a mapped riparian corridor with standing water at 500–800 m at closest approach. Under GN 509 of 2016 a water use within 500 m of a wetland triggers a National Water Act s21 authorisation: its own DWS application, on its own timeline, which can run longer than the WML itself. The 500–800 m figure is a hand-classified estimate from satellite imagery, not a survey, and its margin of error straddles the line that decides whether this applies. As at the 5 August handover no water-use process appears on the project timeline at all.",
+    action:
+      "Get the corridor's distance surveyed rather than estimated, because the answer either adds a whole parallel authorisation or removes the question. If it lands inside 500 m, open the DWS workstream immediately with its own owner and deadline — a licence granted over a site that still needs a water use authorisation cannot be exercised any more than one over unrezoned land.",
+    evidence: [
+      { source: "Dilex HANDOVER", locator: "5 August 2026, late", quote: "the depression west of the site, previously \"a few hundred metres, unlocated,\" is now a corridor confirmed at 500–800 m at closest approach" },
+      { source: "Dilex HANDOVER", locator: "5 August 2026, item 4", quote: "A wetland within 500 m triggers a separate National Water Act s21 water use authorisation (GN 509, 2016) — its own DWS application, potentially longer than the WML." },
+      { source: "Dilex HANDOVER", locator: "5 August 2026, item 4", quote: "As at tonight, no water-use process is on 00 - PROJECT TIMELINE.md at all." },
+    ],
+  },
+  {
+    agent: "specialist-studies",
+    severity: "high",
+    title: "S15 Animal Species is now Draft 0.2, and the evidence cuts both ways",
+    detail:
+      "Rebuilt 5 August on real evidence rather than framework text. Pretorius (2019, TUT) gives the African Grass Owl a mean home range of 423 ha and a precautionary maximum of 1 527 ha; a hand-classified 10×10 grid over Esri World Imagery returns roughly 43% developed or cleared, 33% natural grass-veld, 14% cultivated and 10% wetland or riparian within the mean home range. SABAP2 pentad 2555_2815 holds zero Grass Owl records across 81 full-protocol cards from 2007 to 2026, against 12 full-protocol records for Marsh Owl in the same pentad — so the pentad is not under-surveyed and the absence is itself the finding. GBIF returned zero occurrences within 15 km for all four Medium taxa, and zero South African records at all for Dasymys robertsii, which is a data gap rather than a finding.",
+    action:
+      "Run the two-part position as it actually stands: the footprint is unsuitable habitat, with a number behind it, but the riparian corridor nearby needs indirect-effects treatment rather than dismissal. Do not let the 43% developed figure be quoted without the corridor alongside it.",
+    evidence: [
+      { source: "Dilex HANDOVER", locator: "5 August 2026, item 2", quote: "The result is honest, not the clean story the framework hoped for." },
+      { source: "Dilex HANDOVER", locator: "5 August 2026, item 3", quote: "zero Grass Owl records across 81 full-protocol atlas cards, 2007–2026" },
+    ],
+  },
   {
     agent: "statutory-clock",
     severity: "critical",

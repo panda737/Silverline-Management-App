@@ -13,7 +13,7 @@
  * but "what exactly was done, when, and does it need a licence at all".
  */
 
-export const VERDEX_AS_AT = "2026-07-27";
+export const VERDEX_AS_AT = "2026-08-07";
 
 export const PROJECT = {
   client: "Verdex (Pty) Ltd",
@@ -23,8 +23,12 @@ export const PROJECT = {
   product: "Composite plastic boards, primarily construction formwork",
   process:
     "Receipt → weighing → inspection → shredding → blending → heating → compression moulding → QC → storage → dispatch",
-  routeLabel: "Section 24G rectification + WML",
-  authority: "UNCONFIRMED — DFFE or GDARD",
+  routeLabel: "Section 24G rectification + WML, then AEL",
+  // Two authorities, not one. The waste side is provincial because the waste is
+  // general; the air side is the metro because NEM:AQA puts AEL licensing with
+  // the metropolitan municipality. Treating "the competent authority" as a
+  // single question is what kept this field unconfirmed for three weeks.
+  authority: "GDARD (waste, decided 6 Aug) · City of Tshwane (air, decided 5 Aug)",
   consultant: "Silverline Compliance (Pty) Ltd, reg 2025/816742/07",
 } as const;
 
@@ -32,8 +36,8 @@ export const PROJECT = {
  *  written against what a facility *can* process, not what it did. */
 export const CAPACITY = [
   { label: "Current throughput", value: "10–15 tonnes per week", note: "As reported 22 July" },
-  { label: "Design capacity", value: "~30 tonnes per day", note: "Above the 10 t/day threshold" },
-  { label: "Absolute press maximum", value: "~2 t/hour ≈ 48 tonnes per day", note: "Also above" },
+  { label: "Design capacity", value: "~30 tonnes per day", note: "In GN 921 Cat A(5)/(6) band" },
+  { label: "Absolute press maximum", value: "~2 t/hour ≈ 48 tonnes per day", note: "Still under 100 t/day" },
   { label: "Processed to date", value: "~100 tonnes by 22 July 2026", note: "Since first board pressed" },
   { label: "Stock on floor", value: "~120 tonnes on 14 July 2026", note: "" },
   { label: "Maximum storage", value: "~300–500 tonnes", note: "Indoor and outdoor on hardstanding" },
@@ -50,6 +54,96 @@ export const FEEDSTOCK = {
   gaps:
     "The ledger carries date and quantity only — no supplier names, no finished-product output, and no destination record for the rejected load.",
 } as const;
+
+/**
+ * The listed activities, read off the gazette rather than described in general
+ * terms. GN 921 in GG 37083 of 29 November 2013, as amended by GN 332 (2 May
+ * 2014), GN R633 (24 July 2015), GN 1094 (11 October 2017) and GN 1757
+ * (11 February 2022).
+ *
+ * The distinction that does the work here is CATEGORY A versus CATEGORY C.
+ * Category A needs a Basic Assessment and a waste management licence — those are
+ * the activities the s24G has to rectify. Category C needs compliance with
+ * published norms and standards and registration, NOT a licence, so those
+ * activities are not part of the unlawful-commencement exposure at all.
+ *
+ * That matters for the fine: storage from the first feedstock receipt on
+ * 5 August 2025 is Category C, so the clock does not start there. It starts with
+ * the press, in March 2026.
+ */
+export type ActivityBearing = "applies" | "excluded-question" | "not-a-licence" | "does-not-apply";
+
+export const LISTED_ACTIVITIES: {
+  citation: string;
+  category: "A" | "B" | "C";
+  wording: string;
+  bearing: ActivityBearing;
+  note: string;
+}[] = [
+  {
+    citation: "GN 921 Category A(5)",
+    category: "A",
+    wording:
+      "The recovery of waste including the refining, utilisation, or co-processing of waste in excess of 10 tons but less than 100 tons of general waste per day … excluding recovery that takes place as an integral part of an internal manufacturing process within the same premises.",
+    bearing: "excluded-question",
+    note:
+      "Design capacity ~30 t/day and press maximum ~48 t/day sit squarely in the band. Whether the closing exclusion rescues Verdex is the live question — it is precisely the argument the client already makes in writing.",
+  },
+  {
+    citation: "GN 921 Category A(6)",
+    category: "A",
+    wording:
+      "The treatment of general waste using any form of treatment at a facility that has the capacity to process in excess of 10 tons but less than 100 tons per day calculated as a monthly average, excluding the treatment of organic waste using composting and any other organic waste treatment.",
+    bearing: "applies",
+    note:
+      "The one that bites hardest. It says CAPACITY TO PROCESS in terms, which settles the capacity-not-throughput point on the face of the gazette — and it carries NO internal-manufacturing exclusion, only an organic-waste one. A 200–220 °C press is treatment by any ordinary reading.",
+  },
+  {
+    citation: "GN 921 Category A(3)",
+    category: "A",
+    wording:
+      "The recycling of general waste at a facility that has an operational area in excess of 500 m², excluding recycling that takes place as an integral part of an internal manufacturing process within the same premises.",
+    bearing: "excluded-question",
+    note:
+      "Operational area is well over 500 m². Same exclusion as A(5), so it stands or falls with the same argument.",
+  },
+  {
+    citation: "GN 921 Category B(3)",
+    category: "B",
+    wording:
+      "The recovery of waste … at a facility that processes in excess of 100 tons of general waste per day or in excess of 1 ton of hazardous waste per day …",
+    bearing: "does-not-apply",
+    note:
+      "Threshold not met — 48 t/day at the press maximum. This is what keeps the file on BASIC ASSESSMENT rather than Scoping and EIR, and it is worth stating positively in the application.",
+  },
+  {
+    citation: "GN 921 Category C(1)",
+    category: "C",
+    wording:
+      "The storage of general waste at a facility that has the capacity to store in excess of 100 m³ of general waste at any one time, excluding the storage of waste in lagoons or temporary storage of such waste.",
+    bearing: "not-a-licence",
+    note:
+      "~200 t on the floor is comfortably over. But Category C means the Norms and Standards for Storage of Waste (GN R926, GG 37088) and registration — NOT a licence. So storage is not an unlawful commencement, and the fine clock does not run from the first bale.",
+  },
+  {
+    citation: "GN 921 Category C(6)",
+    category: "C",
+    wording:
+      "The sorting, shredding, grinding, crushing, screening or baling of general waste at a waste facility that has an operational area that is 1 000 m² and more.",
+    bearing: "not-a-licence",
+    note:
+      "Also Category C — the Norms and Standards published under GN 1094 (GG 41175). Shredding on its own is therefore not the licensable act; the heat is.",
+  },
+  {
+    citation: "GN 893 Subcategory 8.1 (NEM:AQA)",
+    category: "A",
+    wording:
+      "Category 8: Thermal Treatment of Hazardous and General Waste · Subcategory 8.1 — facilities where general and hazardous waste are treated by the application of heat. Application: all installations treating 10 kg per day of waste.",
+    bearing: "applies",
+    note:
+      "The air side. 10 kg per DAY, not per hour — the press maximum is roughly 200× the threshold. Licensing authority is the City of Tshwane. Carries the full incineration-grade emission suite including dioxins and furans at 0,1 ng I-TEQ/Nm³.",
+  },
+];
 
 export type ClockKind = "commenced" | "submitted" | "received" | "open" | "due";
 
@@ -158,61 +252,133 @@ export const TIMELINE: ClockEvent[] = [
   },
   {
     date: "2026-08-03",
-    kind: "due",
-    label: "Reasonable point to chase the checklist",
+    kind: "received",
+    label: "Ruhan answered the technical checklist",
     detail:
-      "No deadline has been set with the client. Phase 1 is paid and the client asked for urgent commencement, so a week is the outside limit before the absence of a reply becomes the project's own delay.",
+      "Followed at 14:07 by Luaan's full specification of what the site plans must show — locality map at 1:50 000, erf and 21-digit SG code, WGS84 corner coordinates, footprint per listed activity, receiving/inspection/quarantine/storage areas, treatment equipment and rated capacities, impermeable surfaces and bunding, clean/contaminated stormwater separation, process-flow diagram, firewater containment, sensitive receptors and a GIS shapefile.",
+  },
+  {
+    date: "2026-08-05",
+    kind: "received",
+    label: "The site drawings arrived — and moved three things",
+    detail:
+      "The erf is 12 243 m², which dissolves the area contradiction. The previous occupier was a HOT-DIP GALVANISING PLANT, which puts contaminated-land history on the file. Coverage sits at 59,97% against a permissible 60% — four square metres of headroom. And the occupancy classification on the drawings does not match the lease.",
+  },
+  {
+    date: "2026-08-05",
+    kind: "open",
+    label: "AEL decided to be in scope — City of Tshwane",
+    detail:
+      "Juandre's determination, superseding the provisional reading that an open press points away from thermal treatment. GN 893 Subcategory 8.1 applies to all installations treating 10 kg per day. Emission standards are incineration-grade, including dioxins and furans at 0,1 ng I-TEQ/Nm³.",
+  },
+  {
+    date: "2026-08-06",
+    kind: "open",
+    label: "Competent authority confirmed as GDARD, working draft remapped to v6",
+    detail:
+      "General waste, not hazardous, so licensing competence is provincial. The genuine blank DFFE 2016 form was also found on this machine and filled. One caveat survives: v6 is still built on the national structure, and GDARD's own 2021 edition has not been obtained.",
+  },
+  {
+    date: "2026-08-07",
+    kind: "open",
+    label: "Sequencing decided — waste first, then air",
+    detail:
+      "Juandre and Waldo, in person. The mandatory-cessation trigger in NEM:AQA s22A(3)(a) fires on the air application, so lodging waste first lets the WML and s24G be decided while the press runs. It is also the only physically possible order: a stack test needs a defined release point.",
+  },
+  {
+    date: "2026-08-07",
+    kind: "received",
+    label: "Ruhan gave the five dates — the commencement question is closed",
+    detail:
+      "Shredder first run on production material 10 March 2026. First board pressed 13 March 2026, evidenced by the Verdex LinkedIn post, with a dated video available. First shredder commissioned 9–10 March 2026 (twelve are on site now); first drum screen the week of 2–6 March 2026. The press itself went in over roughly four months, September 2025 to February 2026, with no work during the builder's break of 17 December to 3 January. Also answered: NO extraction is fitted to the press, and the shredder line has no dedicated extraction either. Hours are 06:00–22:00 with a Saturday shift 06:00–15:00, moving to 24 hours within a month or two, and the press runs about 45 minutes in every hour over a 20-hour day at full forecast production.",
+  },
+  {
+    date: "2027-03-13",
+    kind: "due",
+    label: "First 12-month cycle of unlicensed operation completes",
+    detail:
+      "GN 332 adds R200 000 for each completed 12-month cycle. Now a hard date rather than a month: the first board was pressed on 13 March 2026, so the first cycle closes on 13 March 2027. Lodging before then keeps Verdex in the first band.",
   },
 ];
 
 /** The questions that decide whether there is a matter at all. */
-export type LegalState = "blocking" | "open";
+export type LegalState = "blocking" | "open" | "decided";
 
 export const LEGAL_QUESTIONS: {
   question: string;
   state: LegalState;
   why: string;
+  /** Set once answered — what the answer is, and what it was decided on. */
+  answer?: string;
 }[] = [
   {
     question: "Does the incoming sorted and baled plastic remain \"waste\" under NEM:WA?",
     state: "blocking",
     why:
-      "Suppliers sort, separate and bale the material before delivery and Verdex buys it as a defined manufacturing feedstock. If it is a commodity rather than waste, there is no listed waste activity, no WML and no Section 24G — and two thirds of the mandate falls away. Everything else on this file is downstream of this answer.",
+      "Suppliers sort, separate and bale the material before delivery and Verdex buys it as a defined manufacturing feedstock. If it is a commodity rather than waste, there is no listed waste activity, no WML and no Section 24G — and two thirds of the mandate falls away. Everything else on this file is downstream of this answer. Complicated by the client's own signed lease, which calls the input \"plastic waste\" twice — signed by Dewald Muller on 7 February 2025, a year before the regulatory question arose. That does not decide it (\"waste\" is defined by NEM:WA s1, not by a letting clause) but it is the first thing an objector or a reviewing official will find.",
   },
   {
     question: "Which listed waste-management activities and thresholds apply?",
-    state: "blocking",
+    state: "decided",
     why:
-      "Turns on capacity, not throughput. Design capacity is ~30 t/day and the press maximum ~48 t/day, both comfortably above the 10 t/day general-waste treatment threshold and below 100 t/day.",
+      "Turns on CAPACITY, not throughput — GN 921 thresholds are written against what a facility can process. Design capacity ~30 t/day and press maximum ~48 t/day both sit above 10 t/day and below 100 t/day. Arguing from the ledger totals (a little over a tonne a day) gives the opposite answer and would not survive the first question.",
+    answer:
+      "Read off GN 921 (GG 37083, 29 Nov 2013) as amended to GN 1757 of 11 Feb 2022. The licensable activities are CATEGORY A — Basic Assessment plus a WML: A(5), recovery of waste including refining, utilisation or co-processing, \"in excess of 10 tons but less than 100 tons of general waste per day\"; A(6), treatment of general waste by any form of treatment where the facility has \"the capacity to process in excess of 10 tons but less than 100 tons per day calculated as a monthly average\"; and A(3), recycling of general waste at a facility with an operational area over 500 m². Category B(3) starts at 100 t/day and does NOT apply, so this is Basic Assessment, not Scoping and EIR. Storage and baling are NOT licensable here: storage of general waste over 100 m³ is Category C(1), and sorting/shredding/baling at 1 000 m² or more is Category C(6) — Category C is compliance with norms and standards, not a licence.",
   },
   {
-    question: "Is DFFE or GDARD the competent authority?",
+    question: "Does the \"internal manufacturing process\" exclusion take A(3) and A(5) away?",
     state: "blocking",
     why:
-      "Determines the form, the fee, the pre-application procedure and who the Section 24G representations are addressed to. Unconfirmed.",
+      "A(3) and A(5) both end with the words \"excluding recycling/recovery that takes place as an integral part of an internal manufacturing process within the same premises\". That is exactly what Verdex says it does. If the exclusion holds, those two fall away — but A(6), treatment, carries NO such exclusion (it excludes only organic waste composting). So the exclusion cannot clear the file on its own, and the opinion has to deal with A(6) head-on rather than resting on the commodity argument.",
   },
   {
-    question: "Does the 200–220 °C open-press process trigger an atmospheric emission requirement?",
-    state: "open",
+    question: "Is DFFE or GDARD the competent authority for the waste application?",
+    state: "decided",
     why:
-      "The process is designed to melt and consolidate, not to decompose or combust, and produces no intentional oil, condensate, ash or char. But extraction specifications, airflow, discharge configuration and monitoring records have not been supplied, so the question cannot be closed.",
+      "Determines the form, the fee, the pre-application procedure and who the Section 24G representations are addressed to.",
+    answer:
+      "GDARD — decided 6 August 2026. The activity classifies as GENERAL waste, not hazardous, and general-waste licensing competence sits with the province rather than with DFFE nationally. Every \"DFFE / GDARD — unconfirmed\" field in the working draft is now GDARD (v6).",
+  },
+  {
+    question: "Does the 200–220 °C press trigger an Atmospheric Emission Licence?",
+    state: "decided",
+    why:
+      "The earlier provisional position was that an open press points away from thermal treatment. That position is superseded.",
+    answer:
+      "YES — decided 5 August 2026, and Silverline will do it. The listed activity is GN 893 (NEM:AQA s21) Category 8, Subcategory 8.1, \"facilities where general and hazardous waste are treated by the application of heat\", applying to \"all installations treating 10 kg per day of waste\" — note per DAY, not per hour. The licensing authority is the CITY OF TSHWANE, not DFFE and not GDARD, so competent authority was never one question but at least two. Subcategory 8.1 carries the full incineration-grade emission suite including dioxins and furans at 0,1 ng I-TEQ/Nm³ — a stack test with a long lead time and a major cost.",
+  },
+  {
+    question: "In what order do the waste and air applications go in?",
+    state: "decided",
+    why:
+      "The mandatory-cessation trigger in NEM:AQA s22A(3)(a) fires on the AIR application, so the order decides whether the press keeps running while the file is assessed.",
+    answer:
+      "Waste first, then air — decided in person by Juandre and Waldo on 7 August 2026. Lodging waste first lets the WML and s24G be decided while the plant runs, so the air application goes in against a licensed operation rather than an unlawful one. It is also the only physically possible order: a stack test needs a defined release point. Two consequences carry: GN 332 adds R200 000 for each completed 12-month cycle of unlicensed operation and the first board was pressed in March 2026, so the first cycle completes around March 2027; and the s24G must disclose the air contravention anyway — GN R698 reg 10 makes omitting material information an offence, and reg 8(4) requires every organ of state with jurisdiction on the I&AP register.",
   },
   {
     question: "Do the general-waste storage norms or a registration apply?",
     state: "open",
     why:
-      "Maximum storage was reported at ~300–500 tonnes across indoor and outdoor hardstanding. Volume in cubic metres and the pre-shred/post-shred split have not been provided.",
+      "Now narrowed: storage of general waste above 100 m³ at any one time is Category C(1) of GN 921, which means compliance with the Norms and Standards for Storage of Waste (GN R926, GG 37088) and registration — not a licence. Maximum storage was reported at ~300–500 tonnes across indoor and outdoor hardstanding, and the density figure from the drawings now makes the m³ calculable. Still needs the volume in cubic metres and the pre-shred/post-shred split.",
   },
   {
     question: "Which Section 24G form does the authority actually require?",
     state: "open",
     why:
-      "The DFFE RCSM page still links the 2016 form, which the working draft uses. DFFE published a consultation notice on 15 May 2026 proposing amendments to the fine regulations and Annexure A — a consultation, not final law. A Gauteng-specific or updated version may be required.",
+      "Now that GDARD is confirmed, GDARD's own 2021 edition is what applies. A reference to \"S24G Application Form_Gauteng_2021\" was found on SAHRIS but the document itself could not be retrieved — both mirrors were unreachable on 6 August (connection refused on sahris.sahra.org.za, HTTP 403 on sahris.org.za). The current draft (v6) is still built on the national DFFE structure as the best available approximation. The Free State precedent shows a provincial edition can differ materially in structure, not just letterhead.",
   },
   {
     question: "May one combined Section 24G application cover all identified activities?",
     state: "open",
     why: "Affects whether this is one submission or several, and the fine calculation.",
+  },
+  {
+    question: "Which listed activity commenced when?",
+    state: "decided",
+    why:
+      "The fine is calculated off it. Materially narrowed by the GN 921 reading above: because storage and baling are Category C rather than licensable, commencement does NOT run from the first feedstock receipt on 5 August 2025.",
+    answer:
+      "13 March 2026 — the first board pressed, given by Ruhan on 7 August 2026 and evidenced by the Verdex LinkedIn post of that date, with a dated video available. Shredding on production material began 10 March 2026, which also corrects the file's earlier note of \"January 2026\" by two months. Since the licensable activity is the treatment and recovery at the press, not the storage or the shredding, the s24G commencement date is 13 March 2026 and the first 12-month cycle under GN 332 closes on 13 March 2027.",
   },
 ];
 
@@ -222,9 +388,7 @@ export const OUTSTANDING: { section: string; item: string }[] = [
   { section: "Company", item: "Authorised application signatory and the resolution giving that authority" },
   { section: "Property", item: "Title deed or lease, landowner details and written consent" },
   { section: "Property", item: "Erf/farm/portion, SG code, zoning, and building, occupancy and fire approvals" },
-  { section: "Dates", item: "Exact date shredding commenced" },
-  { section: "Dates", item: "Exact date the first board was pressed" },
-  { section: "Dates", item: "Installation and commissioning dates of the main equipment" },
+  { section: "Dates", item: "Per-component commissioning dates for the press train — Ruhan asked whether to break these down or use 13 March 2026 throughout" },
   { section: "Site", item: "Equipment schedule or specification sheets" },
   { section: "Site", item: "Site plan, operational footprint, storage volume in m³ and recent photographs" },
   { section: "Records", item: "Supplier names linked to the existing feedstock ledger" },
@@ -261,6 +425,32 @@ export type VerdexFinding = {
 };
 
 export const FINDINGS: VerdexFinding[] = [
+  {
+    agent: "air-quality",
+    severity: "critical",
+    title: "There is no extraction on the press, so there is no release point to test",
+    detail:
+      "Ruhan confirmed on 7 August that no extraction system is fitted to the press — \"No not yet\" — and that the shredder line has no dedicated extraction either, only general area extractor fans being installed for dust. The press is the Subcategory 8.1 activity. An AEL application has to describe each emission source, its release point and any abatement, and the emission standards are incineration-grade down to dioxins and furans at 0,1 ng I-TEQ/Nm³. None of that can be demonstrated on an unducted press: there is nothing to sample.",
+    action:
+      "Treat extraction and a stack as a design-and-build item on the critical path for the air application, not a compliance detail to be settled later. It has to be specified, installed and commissioned before a stack test can even be booked, and the test itself has a long lead time. This is the strongest practical argument for the waste-first sequencing already decided — but it also means the air side cannot simply be started later, because the plant does not yet have the thing the application describes.",
+    evidence: [
+      { source: "Ruhan Rykaart", locator: "7 August 2026, 13:29 — Part B q6", quote: "Is an extraction system fitted to the press? … No not yet" },
+      { source: "Ruhan Rykaart", locator: "7 August 2026 — Part B q10", quote: "We do not have focussed extraction dedicated to the shredder, but we are in the process of installing general extractor fans to extract dust from the general area." },
+    ],
+  },
+  {
+    agent: "scope",
+    severity: "high",
+    title: "The move to 24-hour operation lands inside the application window",
+    detail:
+      "Operating hours are currently 06:00–22:00 with a Saturday shift of 06:00–15:00, but Ruhan says the plant moves to 24-hour operation \"in the next month or two\" — that is, while the s24G and WML are being prepared. Emission limits and the impact assessment are both calculated against hours of operation, and the press is forecast to run 45 minutes in every hour across a 20-hour day. An application describing a 16-hour operation that becomes a 24-hour operation before it is decided is wrong on the day it is lodged.",
+    action:
+      "Fix the operating pattern that the application will describe, in writing with Verdex, before the technical sections are finalised — and describe the 24-hour case if that is where the plant is going. Changing it afterwards means amending the application or applying again.",
+    evidence: [
+      { source: "Ruhan Rykaart", locator: "7 August 2026 — Part C q14", quote: "Normal operating hours are 06:00 – 22:00 currently but we will move to 24h operations in the next month or two." },
+      { source: "Ruhan Rykaart", locator: "7 August 2026 — Part C q16", quote: "Rough estimate is that the Hot press will run for 45min every hour, 20hours per working day. This is based on full forecasted production." },
+    ],
+  },
   {
     agent: "legal-classification",
     severity: "critical",
