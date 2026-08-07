@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow, format } from "date-fns";
 import {
+  Check,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   ClipboardList,
   FileText,
   MessageSquare,
@@ -169,11 +172,151 @@ function ReviewList({
     );
   }
 
+  const batches = groupIntoBatches(reviews);
+
+  // One send, one heading. A single loose review needs no ceremony around it.
+  if (batches.length === 1 && !batches[0].id) {
+    return (
+      <div className="space-y-3">
+        {reviews.map((r) => (
+          <ReviewCard key={r.id} review={r} showReviewer={showReviewer} />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-3">
-      {reviews.map((r) => (
-        <ReviewCard key={r.id} review={r} showReviewer={showReviewer} />
+    <div className="space-y-4">
+      {batches.map((batch) => (
+        <BatchGroup
+          key={batch.id ?? "loose"}
+          batch={batch}
+          showReviewer={showReviewer}
+        />
       ))}
+    </div>
+  );
+}
+
+type Batch = {
+  id: string | null;
+  note: string | null;
+  sentAt: string | null;
+  reviews: ReviewQueueRow[];
+};
+
+/**
+ * Reviews gathered into the sends they arrived in, newest send first.
+ *
+ * Anything without a batch — assigned one at a time, or before batches existed
+ * — falls into a single trailing group so nothing is ever dropped from the
+ * queue just because it predates the grouping.
+ */
+function groupIntoBatches(reviews: ReviewQueueRow[]): Batch[] {
+  const byBatch = new Map<string, Batch>();
+  const loose: ReviewQueueRow[] = [];
+
+  for (const r of reviews) {
+    if (!r.batch) {
+      loose.push(r);
+      continue;
+    }
+    const existing = byBatch.get(r.batch.id);
+    if (existing) existing.reviews.push(r);
+    else
+      byBatch.set(r.batch.id, {
+        id: r.batch.id,
+        note: r.batch.note,
+        sentAt: r.batch.created_at,
+        reviews: [r],
+      });
+  }
+
+  const batches = [...byBatch.values()].sort((a, b) =>
+    (b.sentAt ?? "").localeCompare(a.sentAt ?? "")
+  );
+  if (loose.length > 0) {
+    batches.push({ id: null, note: null, sentAt: null, reviews: loose });
+  }
+  return batches;
+}
+
+/**
+ * One send, collapsed to a single row until you open it.
+ *
+ * A batch of sixteen studies is one thing the reviewer was asked to do. Listing
+ * all sixteen at once reads as a backlog; showing the send, with how much of it
+ * is left, reads as the job it actually is.
+ */
+function BatchGroup({
+  batch,
+  showReviewer,
+}: {
+  batch: Batch;
+  showReviewer?: boolean;
+}) {
+  const waiting = batch.reviews.filter((r) => r.status === "pending").length;
+  const done = batch.reviews.length - waiting;
+  // A big send stays folded — seeing seventeen rows at once is what made the
+  // queue read as a backlog. A small one opens, because collapsing three
+  // documents behind a click buys nothing.
+  const [open, setOpen] = useState(batch.reviews.length <= 3);
+
+  const project = batch.reviews[0]?.document?.project?.name;
+
+  return (
+    <div className="overflow-hidden rounded-xl border">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-3 bg-muted/40 px-4 py-3 text-left transition-colors hover:bg-muted/70"
+        aria-expanded={open}
+      >
+        {open ? (
+          <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">
+            {batch.note ??
+              (batch.id
+                ? `${batch.reviews.length} documents`
+                : "Sent individually")}
+          </p>
+          <p className="truncate text-sm text-muted-foreground">
+            {project ? `${project} · ` : ""}
+            {batch.reviews.length} document
+            {batch.reviews.length === 1 ? "" : "s"}
+            {batch.sentAt
+              ? ` · sent ${format(new Date(batch.sentAt), "d MMM yyyy")}`
+              : ""}
+          </p>
+        </div>
+        {waiting > 0 ? (
+          <Badge variant="secondary" className="shrink-0">
+            {waiting} to read
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="shrink-0 gap-1">
+            <Check className="size-3" />
+            Done
+          </Badge>
+        )}
+        {done > 0 && waiting > 0 && (
+          <span className="shrink-0 text-xs text-muted-foreground">
+            {done} done
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="space-y-3 p-3">
+          {batch.reviews.map((r) => (
+            <ReviewCard key={r.id} review={r} showReviewer={showReviewer} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

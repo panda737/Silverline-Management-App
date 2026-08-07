@@ -30,6 +30,12 @@ export type ReviewQueueRow = {
     project: { id: string; name: string } | null;
   } | null;
   reviewer: { id: string; full_name: string; email: string } | null;
+  /**
+   * The send that this review arrived in. Sixteen specialist studies sent
+   * together are one act of work, not sixteen — the queue groups by this so a
+   * reviewer sees two things to do rather than twenty-two.
+   */
+  batch: { id: string; note: string | null; created_at: string } | null;
   open_comments: number;
 };
 
@@ -38,7 +44,8 @@ const REVIEW_SELECT = `
   annotated_storage_path,
   document:documents ( id, name, doc_type, version, storage_path,
     project:projects ( id, name ) ),
-  reviewer:profiles!document_reviews_reviewer_id_fkey ( id, full_name, email )
+  reviewer:profiles!document_reviews_reviewer_id_fkey ( id, full_name, email ),
+  batch:review_batches ( id, note, created_at )
 `;
 
 const invalidate = async () => {
