@@ -368,10 +368,15 @@ export const FINDINGS: VerdexFinding[] = [
   },
 ];
 
-/** What is actually on file, verified against the package's evidence folder. */
+/**
+ * What is actually on file, verified against the package's evidence folder.
+ *
+ * The Phase 1 proof of payment is deliberately NOT listed. This view is headed
+ * for the client's own eyes, and showing Verdex their own payment back to them —
+ * amount in the filename — is not evidence they need from us.
+ */
 export const EVIDENCE_HELD = [
   { name: "Quotation_-_QUO0000794 - signed.pdf", note: "Signed by Verdex, 27 July" },
-  { name: "POP SilverlineCo 260727 R80000.pdf", note: "Phase 1 payment proof, 27 July" },
   { name: "Invoice - INV0000969.pdf", note: "Phase 1 invoice" },
   { name: "NDA - Waste Management - Completed and Signed.pdf", note: "Signed 15 July" },
   { name: "Feedstock per date 260713.xlsx", note: "The only technical data attachment received" },
