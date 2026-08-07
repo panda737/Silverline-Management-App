@@ -18,6 +18,8 @@ import ClientsPage from "@/pages/clients";
 import ClientDetailPage from "@/pages/clients/detail";
 import TasksPage from "@/pages/tasks";
 import DocumentsPage from "@/pages/documents";
+import ReviewsPage from "@/pages/reviews";
+import ReviewDetailPage from "@/pages/reviews/detail";
 import LicenceAuditsPage from "@/pages/licence-audits";
 import LicenceAuditDetailPage from "@/pages/licence-audits/detail";
 import LicenceAuditReportPage from "@/pages/licence-audits/report";
@@ -66,6 +68,8 @@ export default function App() {
           <Route path="/clients/:id" element={<ClientDetailPage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
+          <Route path="/reviews/:id" element={<ReviewDetailPage />} />
           <Route path="/licence-audits" element={<LicenceAuditsPage />} />
           <Route path="/licence-audits/:id" element={<LicenceAuditDetailPage />} />
           <Route

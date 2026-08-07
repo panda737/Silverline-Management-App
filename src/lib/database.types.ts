@@ -395,6 +395,63 @@ export type ChatMessageRow = {
   created_at: string;
 }
 
+/** Where a document review has got to. */
+export type ReviewStatus = "pending" | "changes_requested" | "approved";
+
+/** One publish event to one reviewer — the unit a notification email covers. */
+export type ReviewBatchRow = {
+  id: string;
+  reviewer_id: string;
+  created_by: string | null;
+  note: string | null;
+  notified_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * A review is pinned to a document VERSION: if the source is republished the
+ * reviewer's comments still describe the text they actually read.
+ */
+export type DocumentReviewRow = {
+  id: string;
+  document_id: string;
+  document_version: number;
+  reviewer_id: string;
+  batch_id: string | null;
+  status: ReviewStatus;
+  decision_note: string | null;
+  annotated_storage_path: string | null;
+  annotated_at: string | null;
+  assigned_by: string | null;
+  assigned_at: string;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Anchored to a heading slug, not a character range. Null key = whole document. */
+export type DocumentCommentRow = {
+  id: string;
+  document_id: string;
+  review_id: string | null;
+  author_id: string | null;
+  section_key: string | null;
+  section_title: string | null;
+  body: string;
+  /** Verbatim selected text; null for a section- or document-level remark. */
+  quote: string | null;
+  /** Offset of quote within the section's plain text; picks the right repeat. */
+  quote_start: number | null;
+  /** Proposed replacement wording. Null = plain comment, not a suggestion. */
+  suggested_text: string | null;
+  resolved: boolean;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 import type { LicenceAuditRow } from "./licence-audit";
 
 type TableType<Row, Optional extends keyof Row> = {
@@ -529,6 +586,33 @@ export type Database = {
         CommonOptional | "folder_key" | "sort_order" | "parent_id"
       >;
       project_comments: TableType<ProjectCommentRow, CommonOptional | "author_id" | "visibility">;
+      review_batches: TableType<
+        ReviewBatchRow,
+        CommonOptional | "created_by" | "note" | "notified_at"
+      >;
+      document_reviews: TableType<
+        DocumentReviewRow,
+        | CommonOptional
+        | "batch_id"
+        | "status"
+        | "decision_note"
+        | "annotated_storage_path"
+        | "annotated_at"
+        | "assigned_by"
+        | "assigned_at"
+        | "completed_at"
+      >;
+      document_comments: TableType<
+        DocumentCommentRow,
+        | CommonOptional
+        | "review_id"
+        | "author_id"
+        | "section_key"
+        | "section_title"
+        | "resolved"
+        | "resolved_by"
+        | "resolved_at"
+      >;
       activity_log: TableType<
         ActivityLogRow,
         CommonOptional | "project_id" | "actor_id" | "details"
@@ -595,6 +679,7 @@ export type Database = {
       task_status: TaskStatus;
       comment_visibility: CommentVisibility;
       chat_message_role: ChatMessageRole;
+      review_status: ReviewStatus;
     };
     CompositeTypes: Record<string, never>;
   };

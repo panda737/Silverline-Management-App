@@ -137,3 +137,115 @@
     @apply font-sans;
   }
 }
+
+/*
+ * Rendered document body (Word/Markdown converted to HTML for review).
+ *
+ * Sized up deliberately — 16px base and a generous measure — because the people
+ * reading these are reading dense regulatory prose late at night, often on a
+ * laptop. Tables scroll inside themselves rather than pushing the page sideways.
+ */
+.doc-prose {
+  @apply text-[16px] leading-relaxed text-foreground;
+}
+.doc-prose > * + * {
+  @apply mt-4;
+}
+.doc-prose p {
+  @apply leading-7;
+}
+.doc-prose strong {
+  @apply font-semibold;
+}
+.doc-prose ul {
+  @apply ml-6 list-disc space-y-1.5;
+}
+.doc-prose ol {
+  @apply ml-6 list-decimal space-y-1.5;
+}
+.doc-prose h1,
+.doc-prose h2,
+.doc-prose h3,
+.doc-prose h4 {
+  @apply mt-6 font-semibold tracking-tight;
+}
+.doc-prose h1 {
+  @apply text-xl;
+}
+.doc-prose h2 {
+  @apply text-lg;
+}
+.doc-prose h3,
+.doc-prose h4 {
+  @apply text-base;
+}
+.doc-prose a {
+  @apply text-primary underline underline-offset-2;
+}
+.doc-prose blockquote {
+  @apply border-l-2 border-muted-foreground/30 pl-4 italic text-muted-foreground;
+}
+.doc-prose pre {
+  @apply overflow-x-auto rounded-md bg-muted p-3 text-sm;
+}
+.doc-prose code {
+  @apply rounded bg-muted px-1 py-0.5 text-[0.9em];
+}
+.doc-prose img {
+  @apply max-w-full rounded-md;
+}
+/*
+  Every commentable block. The whole block is the target — pointing at it cannot
+  miss the way drag-selecting a phrase can, which is the point.
+*/
+.doc-prose [data-block] {
+  @apply cursor-pointer rounded transition-colors;
+}
+.doc-block-hover {
+  @apply bg-primary/10 ring-1 ring-primary/25;
+}
+/*
+  A block that carries comments stays lit, and its card sits flush underneath
+  with no gap between them, so the two read as one object rather than as a note
+  that happens to be nearby.
+*/
+.doc-prose .doc-block-commented {
+  @apply rounded-b-none bg-amber-100/60 dark:bg-amber-950/40;
+}
+.doc-prose [data-comment-slot] {
+  @apply mb-4 rounded-b-md border-l-2 border-amber-400/70 bg-amber-50/70 px-3 py-2 dark:bg-amber-950/20;
+}
+.doc-prose > [data-comment-slot],
+.doc-prose li > [data-comment-slot] {
+  @apply -mt-1;
+}
+/* In a table the card is its own row, so the cell carries the framing instead. */
+.doc-prose tr[data-comment-slot] > td {
+  @apply border-0 p-0;
+}
+/* Rows cannot take a ring — border-collapse eats it — so tint the cells. */
+tr.doc-block-hover {
+  @apply bg-transparent ring-0;
+}
+tr.doc-block-hover > td,
+tr.doc-block-hover > th {
+  @apply bg-primary/10;
+}
+
+.doc-prose table {
+  @apply w-full border-collapse text-sm;
+}
+.doc-prose thead {
+  @apply bg-muted/60;
+}
+.doc-prose th,
+.doc-prose td {
+  @apply border border-border px-3 py-2 text-left align-top;
+}
+.doc-prose th {
+  @apply font-semibold;
+}
+/* Wide regulatory tables must scroll in place, never widen the page. */
+.doc-prose-scroll {
+  @apply overflow-x-auto;
+}
