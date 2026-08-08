@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  Eye,
   FileText,
   MessageSquare,
   PenLine,
@@ -26,8 +27,16 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import {
-  fetchMyReviews,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   fetchAllReviews,
+  fetchReviewers,
+  fetchReviewsFor,
   type ReviewQueueRow,
   type ReviewStatus,
 } from "./actions";
@@ -325,11 +334,33 @@ export default function ReviewsPage() {
   useDocumentTitle("Reviews");
   const profileQuery = useProfile();
   const [tab, setTab] = useState("mine");
+  const me = profileQuery.data;
+
+  /*
+    Whose queue is on screen. Defaults to your own, and the only way to change
+    it is deliberately, from the picker.
+
+    This exists so a reviewer's view can be checked WITHOUT signing in as them.
+    Borrowing someone's magic link to see their screen means every comment,
+    decision and audit entry from that session is recorded as them — on a file
+    whose whole value is being an honest record of who reviewed what, that is
+    the one thing not to do.
+  */
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const viewing = viewingId ?? me?.id ?? null;
+  const isSelf = !viewingId || viewingId === me?.id;
+
+  const reviewers = useQuery({
+    queryKey: ["reviewers"],
+    queryFn: fetchReviewers,
+    enabled: !!me,
+  });
+  const viewingPerson = reviewers.data?.find((r) => r.id === viewing);
 
   const mine = useQuery({
-    queryKey: ["reviews", "mine", profileQuery.data?.id],
-    queryFn: fetchMyReviews,
-    enabled: !!profileQuery.data,
+    queryKey: ["reviews", "for", viewing],
+    queryFn: () => fetchReviewsFor(viewing!),
+    enabled: !!viewing,
   });
 
   const all = useQuery({
@@ -345,21 +376,66 @@ export default function ReviewsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Reviews"
-        description="Documents sent to you to read, comment on and sign off."
+        description={
+          isSelf
+            ? "Documents sent to you to read, comment on and sign off."
+            : `Showing ${viewingPerson?.full_name ?? "another reviewer"}'s queue exactly as they see it.`
+        }
       >
-        <SendForReviewDialog
-          onSent={() => {
-            void mine.refetch();
-            void all.refetch();
-          }}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={viewing ?? ""}
+            onValueChange={(v) => setViewingId(v)}
+          >
+            <SelectTrigger className="w-auto min-w-52 gap-2">
+              <Eye className="size-4 text-muted-foreground" />
+              <SelectValue placeholder="Viewing as…" />
+            </SelectTrigger>
+            <SelectContent>
+              {(reviewers.data ?? []).map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  {r.id === me?.id ? "My queue" : r.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <SendForReviewDialog
+            onSent={() => {
+              void mine.refetch();
+              void all.refetch();
+            }}
+          />
+        </div>
       </PageHeader>
+
+      {/*
+        Impossible to forget you are looking at someone else's screen — which is
+        what makes it safe to comment from here. Anything you write is still
+        written as you.
+      */}
+      {!isSelf && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+          <Eye className="size-4 shrink-0 text-amber-700 dark:text-amber-400" />
+          <span className="flex-1">
+            Viewing <strong>{viewingPerson?.full_name}</strong>&rsquo;s queue.
+            This is their live view, not a copy. Anything you write here is
+            recorded as you, not as them.
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setViewingId(me?.id ?? null)}
+          >
+            Back to my queue
+          </Button>
+        </div>
+      )}
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="mine" className="gap-2">
             <FileText className="size-4" />
-            For me
+            {isSelf ? "For me" : "For them"}
             {myPending.length > 0 && (
               <Badge variant="secondary" className="ml-1">
                 {myPending.length}
@@ -372,13 +448,17 @@ export default function ReviewsPage() {
         <TabsContent value="mine" className="space-y-6">
           <section className="space-y-3">
             <h2 className="text-sm font-medium text-muted-foreground">
-              Waiting for you
+              {isSelf ? "Waiting for you" : "Waiting for them"}
             </h2>
             <ReviewList
               reviews={myPending}
               isPending={mine.isPending}
               emptyTitle="Nothing waiting"
-              emptyDescription="When a document is sent to you for review it will appear here."
+              emptyDescription={
+                isSelf
+                  ? "When a document is sent to you for review it will appear here."
+                  : "Nothing has been sent to them, or they have finished everything."
+              }
             />
           </section>
 

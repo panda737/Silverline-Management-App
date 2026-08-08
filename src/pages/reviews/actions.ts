@@ -69,6 +69,32 @@ export async function fetchMyReviews(): Promise<ReviewQueueRow[]> {
   return withOpenCommentCounts(data as unknown as ReviewQueueRow[]);
 }
 
+/**
+ * One person's queue, exactly as they see it.
+ *
+ * Not a report about their queue — the same query as fetchMyReviews with a
+ * different id, so what you see here cannot drift from what they see. That is
+ * the whole point: checking a colleague's view by duplicating their reviews
+ * onto your own account would give you a second copy that diverges the moment
+ * either of you comments on anything.
+ *
+ * Internal users can already read every review through the "Everyone" tab, so
+ * this exposes nothing new. RLS still decides.
+ */
+export async function fetchReviewsFor(
+  reviewerId: string
+): Promise<ReviewQueueRow[]> {
+  const { data, error } = await supabase
+    .from("document_reviews")
+    .select(REVIEW_SELECT)
+    .eq("reviewer_id", reviewerId)
+    .order("status", { ascending: true })
+    .order("assigned_at", { ascending: false });
+  if (error || !data) return [];
+
+  return withOpenCommentCounts(data as unknown as ReviewQueueRow[]);
+}
+
 /** Every review in flight — the "who is holding what" view for the team. */
 export async function fetchAllReviews(): Promise<ReviewQueueRow[]> {
   const { data, error } = await supabase
