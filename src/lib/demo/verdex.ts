@@ -13,7 +13,7 @@
  * but "what exactly was done, when, and does it need a licence at all".
  */
 
-export const VERDEX_AS_AT = "2026-08-07";
+export const VERDEX_AS_AT = "2026-08-08";
 
 export const PROJECT = {
   client: "Verdex (Pty) Ltd",
@@ -108,6 +108,24 @@ export const LISTED_ACTIVITIES: {
       "Operational area is well over 500 m². Same exclusion as A(5), so it stands or falls with the same argument.",
   },
   {
+    citation: "GN 921 Category A(12)",
+    category: "A",
+    wording:
+      "The construction of a facility for a waste management activity listed in Category A of this Schedule.",
+    bearing: "applies",
+    note:
+      "Added to the screening 8 August. It matters because it reaches back further than anything else: physical implementation of the facility began around September 2025, months before the first board. The exact first site-work date has to come from contractor records.",
+  },
+  {
+    citation: "GN 921 Category A(13)",
+    category: "A",
+    wording:
+      "The expansion of a waste management activity or facility where the applicable threshold may be reached or exceeded.",
+    bearing: "excluded-question",
+    note:
+      "Also added 8 August. Twelve shredders are now on site where the original facility had fewer — whether that is an expansion within A(13) turns on the installation history, which is part of the technical pack still to come from Ruhan.",
+  },
+  {
     citation: "GN 921 Category B(3)",
     category: "B",
     wording:
@@ -144,6 +162,71 @@ export const LISTED_ACTIVITIES: {
       "The air side. 10 kg per DAY, not per hour — the press maximum is roughly 200× the threshold. Licensing authority is the City of Tshwane. Carries the full incineration-grade emission suite including dioxins and furans at 0,1 ng I-TEQ/Nm³.",
   },
 ];
+
+/**
+ * The position Silverline actually runs on this file.
+ *
+ * Not decoration and not a closing paragraph. Verdex went up the waste
+ * hierarchy — recovery ahead of landfill — believing they were doing the right
+ * thing. That is the professional case, and it is the frame the s24G
+ * motivation, the need and desirability chapter, the fine representations and
+ * every authority meeting are built on.
+ *
+ * Its limit matters as much as its strength, which is why WHERE_IT_HELPS is
+ * here rather than left to be worked out later: this is mitigation, context and
+ * better-outcome logic. It is NOT a route to argue the material is not waste,
+ * and it does not avoid the licensing trigger. Used that way it stops being an
+ * argument and becomes a credibility problem in front of the same official who
+ * has to decide the fine.
+ */
+export const THE_POSITION = {
+  line:
+    "Verdex's operation should be viewed in its proper context: it diverts high-calorific-value plastic waste from landfill, advances recovery and circular-economy objectives, converts a problematic waste stream into a useful product, and was implemented in good faith. While this does not remove the need for regulatory compliance, it is highly relevant to the authority's consideration of rectification, mitigation, and the appropriate enforcement response.",
+  pillars: [
+    {
+      title: "Diversion from landfill",
+      detail: "Significant volumes of plastic are diverted from disposal.",
+    },
+    {
+      title: "Recovery of value",
+      detail:
+        "The waste is not merely stored or moved. It is converted into a usable product with value.",
+    },
+    {
+      title: "Alignment with environmental policy",
+      detail:
+        "The activity sits where the waste hierarchy says it should — recovery ahead of disposal — and supports circular-economy objectives.",
+    },
+    {
+      title: "Good faith",
+      detail:
+        "Verdex did not set out to evade the law. They pursued a recovery model, believed it was the right thing, and are now regularising it.",
+    },
+    {
+      title: "Better environmental outcome",
+      detail:
+        "On the evidence, controlled recovery may be environmentally preferable to landfilling high-calorific-value plastic waste.",
+    },
+  ],
+  /** Said plainly, because the same argument is strong in one place and fatal in another. */
+  whereItHelps: [
+    {
+      weight: "Strongest" as const,
+      use: "Section 24G motivation · need and desirability · administrative-fine mitigation · authority engagement meetings · the public participation narrative · and the enforcement discretion available to the decision-maker",
+    },
+    {
+      weight: "Moderate" as const,
+      use: "Section 22A mitigation narrative and the overall good-faith context",
+    },
+    {
+      weight: "Not a safe use" as const,
+      use: "Proving the material is not waste · avoiding the legal trigger · avoiding an AEL where the air trigger is otherwise met",
+    },
+  ],
+  /** Claims become facts only once these exist. */
+  evidenceNeeded:
+    "Tonnage records, destination evidence, composition and calorific-value support, product output records, and a competent fire-risk assessment — before any of this is put as fact rather than as position.",
+} as const;
 
 export type ClockKind = "commenced" | "submitted" | "received" | "open" | "due";
 
@@ -293,6 +376,20 @@ export const TIMELINE: ClockEvent[] = [
       "Shredder first run on production material 10 March 2026. First board pressed 13 March 2026, evidenced by the Verdex LinkedIn post, with a dated video available. First shredder commissioned 9–10 March 2026 (twelve are on site now); first drum screen the week of 2–6 March 2026. The press itself went in over roughly four months, September 2025 to February 2026, with no work during the builder's break of 17 December to 3 January. Also answered: NO extraction is fitted to the press, and the shredder line has no dedicated extraction either. Hours are 06:00–22:00 with a Saturday shift 06:00–15:00, moving to 24 hours within a month or two, and the press runs about 45 minutes in every hour over a 20-hour day at full forecast production.",
   },
   {
+    date: "2026-08-08",
+    kind: "open",
+    label: "Classification settled, and the strategy with it",
+    detail:
+      "The incoming material is treated as general waste; no relabelling or payment-based feedstock route. A(12) construction and A(13) expansion join A(3), A(5) and A(6) in the screening, and the twelve shredders are assessed as one integrated process on the rated bottleneck rather than by summing nameplates. Commencement is split by activity. Sequencing is revised: both tracks prepared in parallel, controlled pre-application engagement with GDARD and the City of Tshwane, no promise of continued operation.",
+  },
+  {
+    date: "2026-08-08",
+    kind: "due",
+    label: "Client must decide whether to lodge — letter drafted, not sent",
+    detail:
+      "Because both routes trigger a cessation direction, lodging is Dewald's commercial decision and he has not been asked. Nothing lodges until he has had the letter and answered. This is the gate everything else queues behind.",
+  },
+  {
     date: "2027-03-13",
     kind: "due",
     label: "First 12-month cycle of unlicensed operation completes",
@@ -313,9 +410,11 @@ export const LEGAL_QUESTIONS: {
 }[] = [
   {
     question: "Does the incoming sorted and baled plastic remain \"waste\" under NEM:WA?",
-    state: "blocking",
+    state: "decided",
     why:
-      "Suppliers sort, separate and bale the material before delivery and Verdex buys it as a defined manufacturing feedstock. If it is a commodity rather than waste, there is no listed waste activity, no WML and no Section 24G — and two thirds of the mandate falls away. Everything else on this file is downstream of this answer. Complicated by the client's own signed lease, which calls the input \"plastic waste\" twice — signed by Dewald Muller on 7 February 2025, a year before the regulatory question arose. That does not decide it (\"waste\" is defined by NEM:WA s1, not by a letting clause) but it is the first thing an objector or a reviewing official will find.",
+      "Everything was downstream of this. Complicated by the client's own signed lease, which calls the input \"plastic waste\" twice — signed by Dewald Muller on 7 February 2025, a year before the regulatory question arose.",
+    answer:
+      "Treated as GENERAL WASTE — settled on advice, 8 August 2026. Silverline will not advance a relabelling or payment-based \"feedstock\" route. That Verdex pays its suppliers is an indicator only; it does not turn waste into a product. The supplier contracts, invoices, specifications, rejection records, origin and composition are still wanted — as the classification evidence pack, not as a way around the legislation.",
   },
   {
     question: "Which listed waste-management activities and thresholds apply?",
@@ -327,9 +426,19 @@ export const LEGAL_QUESTIONS: {
   },
   {
     question: "Does the \"internal manufacturing process\" exclusion take A(3) and A(5) away?",
-    state: "blocking",
+    state: "decided",
     why:
-      "A(3) and A(5) both end with the words \"excluding recycling/recovery that takes place as an integral part of an internal manufacturing process within the same premises\". That is exactly what Verdex says it does. If the exclusion holds, those two fall away — but A(6), treatment, carries NO such exclusion (it excludes only organic waste composting). So the exclusion cannot clear the file on its own, and the opinion has to deal with A(6) head-on rather than resting on the commodity argument.",
+      "A(3) and A(5) both end with \"excluding recycling/recovery that takes place as an integral part of an internal manufacturing process within the same premises\". That is exactly what Verdex says it does.",
+    answer:
+      "Test A(3) and A(5) separately against their exclusions — but the exclusions do NOT reach A(6), which has no equivalent wording. If the material is waste, A(6) remains the working activity and the licence is required regardless. Confirmed on advice, 8 August 2026, independently of Silverline's own reading of the gazette.",
+  },
+  {
+    question: "When did each activity commence?",
+    state: "decided",
+    why:
+      "The fine is calculated off it, and forcing every activity onto one date is what makes a rectification statement fall apart under the first question.",
+    answer:
+      "Split by activity, and every date disclosed. A(6) treatment and the NEM:AQA Subcategory 8.1 air-side operation are both advanced as 13 March 2026, the first evidenced board. The 10 March shredder run is characterised as commissioning ONLY if the commissioning and production records honestly support that. A(12) construction, if the screening confirms it, reaches back to about September 2025 — the exact first physical-implementation date still has to come from contractor and site records. The application must explain why each date is advanced, not conceal the less favourable ones.",
   },
   {
     question: "Is DFFE or GDARD the competent authority for the waste application?",
@@ -348,12 +457,20 @@ export const LEGAL_QUESTIONS: {
       "YES — decided 5 August 2026, and Silverline will do it. The listed activity is GN 893 (NEM:AQA s21) Category 8, Subcategory 8.1, \"facilities where general and hazardous waste are treated by the application of heat\", applying to \"all installations treating 10 kg per day of waste\" — note per DAY, not per hour. The licensing authority is the CITY OF TSHWANE, not DFFE and not GDARD, so competent authority was never one question but at least two. Subcategory 8.1 carries the full incineration-grade emission suite including dioxins and furans at 0,1 ng I-TEQ/Nm³ — a stack test with a long lead time and a major cost.",
   },
   {
+    question: "Does lodging force the plant to stop?",
+    state: "blocking",
+    why:
+      "This now outranks everything except the classification, and it is the reason the sequencing answer below changed.",
+    answer:
+      "YES, on both routes. NEM:AQA s22A(3)(a) and — since 30 June 2023 — NEMA s24G(1)(aa)(A) both require the authority to direct immediate cessation when the application is made. s24G carries a narrow exception where stopping would itself cause serious environmental harm; s22A carries none. So lodging is a COMMERCIAL DECISION FOR THE CLIENT rather than a formality. It is blocking because the client has not yet been asked: the letter that puts it to him is drafted and unsent. Nothing lodges before he has had it and answered.",
+  },
+  {
     question: "In what order do the waste and air applications go in?",
     state: "decided",
     why:
-      "The mandatory-cessation trigger in NEM:AQA s22A(3)(a) fires on the AIR application, so the order decides whether the press keeps running while the file is assessed.",
+      "The earlier working answer was waste first, so that the WML and s24G could be decided while the press kept running.",
     answer:
-      "Waste first, then air — decided in person by Juandre and Waldo on 7 August 2026. Lodging waste first lets the WML and s24G be decided while the plant runs, so the air application goes in against a licensed operation rather than an unlawful one. It is also the only physically possible order: a stack test needs a defined release point. Two consequences carry: GN 332 adds R200 000 for each completed 12-month cycle of unlicensed operation and the first board was pressed in March 2026, so the first cycle completes around March 2027; and the s24G must disclose the air contravention anyway — GN R698 reg 10 makes omitting material information an offence, and reg 8(4) requires every organ of state with jurisdiction on the I&AP register.",
+      "That answer did not survive the cessation provisions — waste-first does NOT preserve a right to operate, because s24G now triggers a cessation direction of its own. Revised 8 August: prepare both tracks in parallel, hold controlled pre-application engagement with GDARD and the City of Tshwane, and seek coordinated directions, a prompt fine determination and the earliest lawful provisional AEL. Where ceasing a particular waste-side activity would itself cause serious environmental harm, a fact-based s24G exception can be investigated for that activity — there is no equivalent for the hot press.",
   },
   {
     question: "Do the general-waste storage norms or a registration apply?",
@@ -426,6 +543,32 @@ export type VerdexFinding = {
 
 export const FINDINGS: VerdexFinding[] = [
   {
+    agent: "legal",
+    severity: "critical",
+    title: "Lodging either application forces the plant to stop",
+    detail:
+      "NEM:AQA s22A(3)(a) and, since 30 June 2023, NEMA s24G(1)(aa)(A) both require the authority to direct immediate cessation when the application is made. Section 24G has a narrow exception where stopping would itself cause serious environmental harm; section 22A has none. The working plan until 7 August was to lodge waste first so the press could keep running while it was decided — that reasoning does not survive, because s24G now carries a cessation trigger of its own.",
+    action:
+      "Treat lodging as the client's commercial decision, not a Silverline milestone, and put it to Dewald in writing before anything is prepared for filing. The letter exists and has not gone. Where stopping a particular waste-side activity would itself cause serious environmental harm, a fact-based s24G exception can be investigated for that activity — but there is no equivalent route for the hot press, so the air side stops either way.",
+    evidence: [
+      { source: "Verdex project timeline", locator: "§2, added 7 August 2026", quote: "BOTH ROUTES CARRY A MANDATORY CESSATION DIRECTION … s24G has a narrow exception where stopping would itself cause serious environmental harm; s22A has none." },
+      { source: "Verdex project timeline", locator: "§2", quote: "So lodging is a commercial decision for the client, not a formality, and the client has not yet been told." },
+    ],
+  },
+  {
+    agent: "s24g-form",
+    severity: "critical",
+    title: "Every S24G draft on file is built on a superseded form — including the one already sent",
+    detail:
+      "All seven drafts in the submissions folder, and the filled copy, use the DFFE 2016 form. That form predates GN R698 of 20 July 2017 and has nowhere to put an entire part of the application: Directives, Deferral, representations on the QUANTUM OF THE FINE, and preliminary advertisement. The current form is S24GAF/04/2018. Draft v6 was attached to the EAP of record on 6 August, so a copy on the wrong structure is already out.",
+    action:
+      "Rebuild on S24GAF/04/2018. The content carries over — property description, process description, applicant details and the rectification statement were all built from verified sources — but the container does not, and the missing part is the one where the money is. Tell Lucas to set aside what he was sent. Keep trying for GDARD's own edition; both SAHRIS mirrors were unreachable on 6 August.",
+    evidence: [
+      { source: "05_Submissions — READ THIS FIRST", locator: "8 August 2026", quote: "The DFFE 2016 form predates GN R698 of 20 July 2017 and is missing an entire part of the application — Directives, Deferral, Quantum of the s24G Fine, and Preliminary Advertisement." },
+      { source: "05_Submissions — READ THIS FIRST", locator: "8 August 2026", quote: "do not lodge, quote or send any file in this folder, and do not treat the highest version number as the current position." },
+    ],
+  },
+  {
     agent: "air-quality",
     severity: "critical",
     title: "There is no extraction on the press, so there is no release point to test",
@@ -453,16 +596,15 @@ export const FINDINGS: VerdexFinding[] = [
   },
   {
     agent: "legal-classification",
-    severity: "critical",
-    title: "Whether the feedstock is \"waste\" decides whether there is a matter at all",
+    severity: "info",
+    title: "Closed — the material is general waste, and the file is built on that",
     detail:
-      "Suppliers sort, separate and bale the material before it arrives, and Verdex purchases it as a defined manufacturing feedstock. If that material is a commodity rather than waste under NEM:WA, there is no listed waste activity, no waste management licence, and therefore no Section 24G to rectify. If it is waste, the capacity figures put the facility squarely inside the licensing band. The entire R240,000 mandate, and the client's exposure to a Section 24G fine, rest on this one classification — and it is recorded as unresolved.",
+      "This governed the file from July: if the sorted, baled plastic were a commodity rather than waste there would be no listed activity, no licence and no Section 24G. It is settled as of 8 August. The material is treated as GENERAL waste, and Silverline will not advance a relabelling or payment-based \"feedstock\" route — that Verdex pays its suppliers is an indicator only and does not turn waste into a product. The lease wording, which calls the input \"plastic waste\" twice and was signed by Dewald Muller in February 2025, points the same way.",
     action:
-      "Get a documented legal opinion on the waste-versus-commodity question before any further work is billed against Phases 2 and 3. It is the cheapest task on the file and the only one that can make the others unnecessary.",
+      "Stop treating this as open. The supplier contracts, invoices, specifications, rejection records, origin and composition are still wanted, but as the classification evidence pack rather than as a route around the legislation — and the request to the client should say so, or it reads as though the question is still live.",
     evidence: [
-      { source: "S24G package — Confirmed Facts", locator: "Feedstock", quote: "Whether all incoming material remains \"waste\" under NEMWA is unresolved." },
-      { source: "S24G package — Legal research", locator: "Unresolved legal questions", quote: "Whether the incoming sorted and baled plastic remains \"waste\" under NEMWA." },
-      { source: "Dewald Muller", locator: "13 July 2026", quote: "Suppliers sort, separate and bale material before delivery." },
+      { source: "Verdex project timeline", locator: "§2, 8 August 2026", quote: "Waldo decided on 8 August 2026 that the incoming material is to be treated as general waste." },
+      { source: "Lease, Schedule item 6", locator: "signed 7 February 2025", quote: "Industrial Manufacturing — Converting plastic waste into composite products" },
     ],
   },
   {

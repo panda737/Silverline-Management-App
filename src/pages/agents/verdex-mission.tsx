@@ -19,6 +19,7 @@ import {
   FINDINGS,
   LEGAL_QUESTIONS,
   LISTED_ACTIVITIES,
+  THE_POSITION,
   OUTSTANDING,
   PROJECT,
   TIMELINE,
@@ -61,7 +62,7 @@ export function VerdexMission() {
             label="Blocking legal questions"
             value={`${blocking.length} of ${LEGAL_QUESTIONS.length}`}
             tone="bad"
-            note="One decides if there is a matter"
+            note="Lodging stops the plant — client's call"
           />
           <Stat
             label="Design capacity"
@@ -89,6 +90,64 @@ export function VerdexMission() {
           />
         </div>
 
+        {/*
+          The position leads the brief. It is what every motivation, the fine
+          representations and every authority meeting are built on, and burying
+          it below the status narrative is how it ends up being written as a
+          closing paragraph instead of as the case.
+        */}
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-base">The position we run</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm leading-relaxed">{THE_POSITION.line}</p>
+
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {THE_POSITION.pillars.map((p) => (
+                <div
+                  key={p.title}
+                  className="rounded-md border bg-background/60 p-3"
+                >
+                  <p className="text-sm font-medium">{p.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {p.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/*
+              The limit, next to the argument rather than in a footnote. The
+              same case that carries the fine representations is a credibility
+              problem if it is used to say the material is not waste.
+            */}
+            <div className="space-y-2">
+              {THE_POSITION.whereItHelps.map((w) => (
+                <div key={w.weight} className="flex flex-wrap gap-2 text-sm">
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "shrink-0 rounded-full text-[11px]",
+                      w.weight === "Strongest" &&
+                        "border-emerald-600/40 text-emerald-700 dark:text-emerald-400",
+                      w.weight === "Not a safe use" &&
+                        "border-destructive/40 text-destructive"
+                    )}
+                  >
+                    {w.weight}
+                  </Badge>
+                  <span className="flex-1 text-muted-foreground">{w.use}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              {THE_POSITION.evidenceNeeded}
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Where this file stands</CardTitle>
@@ -97,19 +156,21 @@ export function VerdexMission() {
             <p>
               Verdex manufactures composite plastic boards from sorted, baled
               plastic at Waltloo. Feedstock receipt began in August 2025,
-              shredding in January 2026 and pressing in March 2026 — all of it
-              before any environmental authorisation, which is what puts a
-              Section 24G rectification on the table alongside the waste licence.
-              The mandate went live on 27 July when the signed quotation and proof
-              of the R80,000 Phase 1 payment came in, and the client asked to move
-              urgently.
+              construction of the facility from around September 2025, shredding
+              on production material on 10 March 2026 and the first board on
+              13 March 2026 — all of it before any environmental authorisation,
+              which is what puts a Section 24G rectification on the table
+              alongside the waste licence. The mandate went live on 27 July when
+              the signed quotation and the Phase 1 payment came in.
             </p>
             <p className="text-foreground">
-              One question governs everything else: whether the sorted and baled
-              plastic Verdex buys is still <em>waste</em> under NEM:WA. If it is a
-              commodity, there is no listed activity, no licence and no Section
-              24G. If it is waste, the capacity figures put the facility inside
-              the licensing band and the rectification is real.
+              The classification question that governed this file is settled. The
+              material is treated as <strong>general waste</strong>; there is no
+              relabelling or payment-based &ldquo;feedstock&rdquo; route, and the
+              capacity figures put the facility inside the licensing band. What
+              is left is not whether the rectification is real, but on what
+              footing it is put — and whether the client will lodge at all, given
+              that lodging stops the plant.
             </p>
             <p>
               That second point is where the arithmetic misleads. Throughput of
