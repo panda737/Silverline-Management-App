@@ -123,16 +123,28 @@ function CommentComposer({
         />
       )}
 
+      {/*
+        Two rows on a phone, four on a desktop. With the keyboard up there are
+        only about 470 vertical pixels to work with, and a tall box spends them
+        on emptiness — pushing Save down behind the keyboard. The field still
+        grows as you type; it just does not start large.
+
+        text-base is not decoration: below 16px, iOS zooms the whole page when
+        the field takes focus, and the reader then has to pinch back out.
+      */}
       <Textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder={suggesting ? "Why? (optional)" : placeholder}
-        rows={suggesting ? 2 : 4}
+        rows={suggesting ? 2 : 3}
         autoFocus={!suggesting}
-        className="text-base"
+        className="min-h-16 text-base sm:min-h-24"
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div
+        data-composer-actions
+        className="flex flex-wrap items-center gap-2"
+      >
         <Button onClick={save} disabled={saving || !canSave}>
           {saving && <Loader2 className="animate-spin" />}
           {suggesting ? "Save change" : "Save comment"}
@@ -144,7 +156,9 @@ function CommentComposer({
             disabled={saving}
           >
             <Replace />
-            {suggesting ? "Just comment" : "Suggest wording"}
+            <span className="max-sm:sr-only">
+              {suggesting ? "Just comment" : "Suggest wording"}
+            </span>
           </Button>
         )}
         <Button variant="ghost" onClick={onCancel} disabled={saving}>
@@ -256,6 +270,38 @@ type CommentSlot = {
  * table and the card lands somewhere else entirely — so a row gets a full-width
  * row of its own instead.
  */
+/**
+ * Strip the previous pass's decorations without rebuilding the document.
+ *
+ * The obvious way to get back to clean text is `innerHTML = section.html`. It is
+ * also unusable: replacing the whole document collapses its height, the browser
+ * clamps the scroll position, and the paragraph the reviewer just tapped leaps
+ * hundreds of pixels out from under their finger. On a phone that is the
+ * difference between a usable tool and an unusable one.
+ *
+ * So marks are unwrapped and slots removed in place, and the surrounding text
+ * nodes are re-joined so character offsets still line up with the original.
+ */
+function undecorate(prose: HTMLElement) {
+  prose
+    .querySelectorAll(`[${SLOT_ATTR}]`)
+    .forEach((el) => el.parentNode?.removeChild(el));
+
+  prose.querySelectorAll("mark[data-comment-id]").forEach((mark) => {
+    const parent = mark.parentNode;
+    if (!parent) return;
+    while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+    parent.removeChild(mark);
+    // Splitting left several adjacent text nodes; merge them again or the next
+    // pass measures a different shape of the same text.
+    (parent as HTMLElement).normalize?.();
+  });
+
+  prose
+    .querySelectorAll(".doc-block-commented")
+    .forEach((el) => el.classList.remove("doc-block-commented"));
+}
+
 function insertSlotAfter(block: HTMLElement): HTMLElement {
   const slot = document.createElement("div");
   slot.setAttribute(SLOT_ATTR, "");
@@ -306,6 +352,9 @@ function SectionBlock({
   onCancelComment: () => void;
 }) {
   const proseRef = useRef<HTMLDivElement>(null);
+  // What HTML is currently written into the prose node. Guards the one
+  // operation that must not happen on every keystroke — see paint().
+  const renderedHtml = useRef<string | null>(null);
   // One entry per block that carries comments: the DOM node its cards render
   // into, and which comments belong there.
   const [slots, setSlots] = useState<CommentSlot[]>([]);
@@ -341,17 +390,23 @@ function SectionBlock({
     const prose = proseRef.current;
     if (!prose) return;
 
-    // Start from clean HTML each time. Marks from the previous pass would nest,
-    // and last pass's cards would be counted as document text. That also
-    // destroys whatever element the pointer was over, so drop that reference.
     hoverEl.current = null;
-    prose.innerHTML = section.html;
 
-    // Mark every block as a target so the cursor says it is clickable before
-    // you find out by clicking.
-    prose
-      .querySelectorAll<HTMLElement>(BLOCK_SELECTOR)
-      .forEach((el) => el.setAttribute("data-block", ""));
+    // Write the document out ONLY when it is actually different. Every other
+    // pass — a comment saved, a composer opened, a tap — reuses the DOM that is
+    // already on screen and just strips last pass's decorations, so the page
+    // does not move under the reader.
+    if (renderedHtml.current !== section.html) {
+      prose.innerHTML = section.html;
+      renderedHtml.current = section.html;
+      // Mark every block as a target so the cursor says it is clickable before
+      // you find out by clicking.
+      prose
+        .querySelectorAll<HTMLElement>(BLOCK_SELECTOR)
+        .forEach((el) => el.setAttribute("data-block", ""));
+    } else {
+      undecorate(prose);
+    }
 
     // Measured once, before any card exists, so offsets describe the document
     // and nothing else.
@@ -435,6 +490,80 @@ function SectionBlock({
   useLayoutEffect(() => {
     paint();
   }, [paint]);
+
+  /*
+    Bring the composer into view when it opens.
+
+    On a phone the textarea autofocuses, the keyboard comes up, and it covers
+    roughly the bottom 40% of the screen — so a composer that opened in the
+    lower half is behind it, Save included. visualViewport reports the area the
+    keyboard has NOT taken; where it is unavailable, the window height is the
+    same number.
+
+    Deliberately not `scrollIntoView({block:'center'})`: for a comment on a
+    paragraph, centring the card pushes the paragraph it is about off the top of
+    the screen, and the whole point is to see them together.
+  */
+  const pendingSlotKey = composingHere ? (pending?.quote ?? "section") : null;
+  useEffect(() => {
+    if (!pendingSlotKey) return;
+    const prose = proseRef.current;
+    const slot = prose?.querySelector<HTMLElement>(`[${SLOT_ATTR}]`);
+    if (!prose || !slot) return;
+
+    const id = window.setTimeout(() => {
+      const block = slot.previousElementSibling ?? slot;
+      const blockTop = block.getBoundingClientRect().top;
+      const cardBottom = slot.getBoundingClientRect().bottom;
+      const visible = window.visualViewport?.height ?? window.innerHeight;
+      const margin = 16;
+      const rest = 72;
+
+      // The passage scrolled off the top — bring it back and stop.
+      if (blockTop < 8) {
+        window.scrollBy({ top: blockTop - rest, behavior: "smooth" });
+        return;
+      }
+
+      // Everything already fits. Do nothing: on a laptop the card almost always
+      // fits under its paragraph, and scrolling anyway is its own kind of jump.
+      const overflow = cardBottom - (visible - margin);
+      if (overflow <= 0) return;
+
+      // Scroll just enough to reveal the card — and never so far that the
+      // passage it belongs to is pushed off the top, because seeing the two
+      // together is the whole point.
+      const headroom = Math.max(blockTop - rest, 0);
+      window.scrollBy({ top: Math.min(overflow, headroom), behavior: "smooth" });
+    }, 50);
+
+    /*
+      Then hand the rest to the keyboard.
+
+      A long paragraph plus a comment box does not fit in the ~470px a phone
+      leaves above an open keyboard, so preferring the passage — right until the
+      moment the reviewer starts typing — is the correct trade. Once the
+      keyboard is actually up they are writing, not reading, and Save has to be
+      reachable. visualViewport resizes when the keyboard opens; nothing else
+      tells us it happened.
+    */
+    const vv = window.visualViewport;
+    const keepActionsReachable = () => {
+      const visible = vv?.height ?? window.innerHeight;
+      const actions =
+        slot.querySelector<HTMLElement>("[data-composer-actions]") ?? slot;
+      const rect = actions.getBoundingClientRect();
+      const margin = 12;
+      if (rect.bottom <= visible - margin) return;
+      window.scrollBy({ top: rect.bottom - (visible - margin), behavior: "smooth" });
+    };
+    vv?.addEventListener("resize", keepActionsReachable);
+
+    return () => {
+      window.clearTimeout(id);
+      vv?.removeEventListener("resize", keepActionsReachable);
+    };
+  }, [pendingSlotKey]);
 
   return (
     <section
