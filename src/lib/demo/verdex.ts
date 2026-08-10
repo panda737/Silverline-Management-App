@@ -394,7 +394,7 @@ export const TIMELINE: ClockEvent[] = [
     kind: "due",
     label: "First 12-month cycle of unlicensed operation completes",
     detail:
-      "The AIR-side mechanism — GN 332 of 18 March 2016 under NEM:AQA s22A — adds R200 000 for each completed 12-month cycle. Not the s24G fine, which is discretionary up to R5 million on the nine indices under GN R698. The first board was pressed on 13 March 2026, so the first air cycle closes on 13 March 2027.",
+      "The AIR-side mechanism — GN 332 of 18 March 2016 under NEM:AQA s22A — adds R200 000 for each completed 12-month cycle. Not the s24G fine, which is discretionary on the nine indices under GN R698 and capped by s24G(4) at R10 million — NOT the R5 million the 2018 form still prints, which predates NEMLAA 2 of 2022. The first board was pressed on 13 March 2026, so the first air cycle closes on 13 March 2027.",
   },
 ];
 
