@@ -50,6 +50,7 @@ import SettingsPage from "@/pages/settings";
 import PortalDashboardPage from "@/pages/portal";
 import PortalProjectPage from "@/pages/portal/project";
 import PortalVerdexPage from "@/pages/portal/verdex";
+import PortalDilexPage from "@/pages/portal/dilex";
 
 function NotFound() {
   return (
@@ -127,6 +128,7 @@ export default function App() {
             there is no RLS behind it — see the note in verdex-client.ts.
           */}
           <Route path="/portal/verdex" element={<PortalVerdexPage />} />
+          <Route path="/portal/dilex" element={<PortalDilexPage />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
