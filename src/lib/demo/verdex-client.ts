@@ -27,6 +27,13 @@
 
 export const VERDEX_CLIENT_AS_AT = "2026-08-08";
 
+/**
+ * The client this page belongs to. The route is wrapped in RequireClientId with
+ * it, so no other client's login can read this page — there is no database
+ * behind a written fixture, so nothing else in the stack is checking.
+ */
+export const VERDEX_CLIENT_ID = "7c782793-c84a-4001-a991-a6d41c391913";
+
 export const CLIENT_PROJECT = {
   client: "Verdex (Pty) Ltd",
   facility: "Composite plastic board manufacturing facility",

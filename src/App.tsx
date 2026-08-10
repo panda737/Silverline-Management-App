@@ -4,6 +4,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import {
   RequireAdmin,
   RequireClient,
+  RequireClientId,
   RequireInternal,
   RedirectIfAuthed,
   RootRedirect,
@@ -51,6 +52,8 @@ import PortalDashboardPage from "@/pages/portal";
 import PortalProjectPage from "@/pages/portal/project";
 import PortalVerdexPage from "@/pages/portal/verdex";
 import PortalDilexPage from "@/pages/portal/dilex";
+import { VERDEX_CLIENT_ID } from "@/lib/demo/verdex-client";
+import { DILEX_CLIENT_ID } from "@/lib/demo/dilex-client";
 
 function NotFound() {
   return (
@@ -122,13 +125,33 @@ export default function App() {
           <Route path="/portal" element={<PortalDashboardPage />} />
           <Route path="/portal/projects/:id" element={<PortalProjectPage />} />
           {/*
-            A hand-built page for one engagement, because the generic portal
-            reads project stages and this is an application with a shape of its
-            own. It renders a written fixture, so unlike the rest of the portal
-            there is no RLS behind it — see the note in verdex-client.ts.
+            Hand-built pages for one engagement each, because the generic portal
+            reads project stages and these are applications with a shape of
+            their own. They render written fixtures, so unlike the rest of the
+            portal there is no RLS behind them — see the note in the *-client.ts
+            files.
+
+            THAT IS WHY EACH IS WRAPPED IN RequireClientId. RequireClient only
+            asks "is this a client?", which is enough where RLS scopes the rows
+            to the caller and is not enough here: without the wrapper, any
+            client login reaches every one of these pages.
           */}
-          <Route path="/portal/verdex" element={<PortalVerdexPage />} />
-          <Route path="/portal/dilex" element={<PortalDilexPage />} />
+          <Route
+            path="/portal/verdex"
+            element={
+              <RequireClientId clientId={VERDEX_CLIENT_ID}>
+                <PortalVerdexPage />
+              </RequireClientId>
+            }
+          />
+          <Route
+            path="/portal/dilex"
+            element={
+              <RequireClientId clientId={DILEX_CLIENT_ID}>
+                <PortalDilexPage />
+              </RequireClientId>
+            }
+          />
         </Route>
 
         <Route path="*" element={<NotFound />} />

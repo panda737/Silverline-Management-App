@@ -132,6 +132,38 @@ export function RequireClient() {
   );
 }
 
+/**
+ * A client route that belongs to ONE client.
+ *
+ * RequireClient only asks "is this a client?". That is right for the generic
+ * portal, where every query is scoped by RLS to the signed-in client's own
+ * rows. It is NOT enough for the hand-built per-engagement pages
+ * (/portal/verdex, /portal/dilex): those render a written fixture with no
+ * database behind them, so nothing else in the stack is checking who is
+ * reading. Without this, any client login reaches every client's page — two
+ * hazardous-waste operators in the same province reading each other's licence
+ * status.
+ *
+ * Wrap those routes in this and give it the client's id. A client who does not
+ * match is sent to their own portal home rather than shown an error, because a
+ * wrong-client visit is far more likely to be a stale bookmark than an attack.
+ */
+export function RequireClientId({
+  clientId,
+  children,
+}: {
+  clientId: string;
+  children: ReactNode;
+}) {
+  const profileQuery = useProfile();
+  if (profileQuery.isPending) return <AuthPending />;
+  const profile = profileQuery.data;
+  if (!profile || profile.client_id !== clientId) {
+    return <Navigate to="/portal" replace />;
+  }
+  return <>{children}</>;
+}
+
 /** "/" — mirror of the old RootPage: route to the role's home. */
 export function RootRedirect() {
   const { session, loading } = useSession();

@@ -35,6 +35,22 @@
 
 export const DILEX_CLIENT_AS_AT = "2026-08-10";
 
+/**
+ * The client this page belongs to. The route is wrapped in RequireClientId with
+ * it, so no other client's login can read this page — there is no database
+ * behind a written fixture, so nothing else in the stack is checking.
+ *
+ * ⚠ This is the `clients` row Hamish Miller's login is currently attached to,
+ * and it is named "Miller and Consulting" — which is NOT the licence applicant.
+ * The applicant is Dilex Inland (Pty) Ltd. "Miller Consulting and Trading" is
+ * one of the three conflicting applicant entities we owe the Department a
+ * correction on, so the portal currently reinforces the exact confusion the
+ * application has to resolve. Renaming the client record, or creating a Dilex
+ * Inland one and moving his login to it, is a decision for Juandre — not a
+ * silent edit. Until then this id is what makes the page reachable for him.
+ */
+export const DILEX_CLIENT_ID = "01ab61e4-d984-4a60-bc42-0d8f77de9377";
+
 /** The brief. */
 export const CLIENT_PROJECT = {
   client: "Dilex Inland (Pty) Ltd",
