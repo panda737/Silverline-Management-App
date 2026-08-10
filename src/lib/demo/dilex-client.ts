@@ -40,14 +40,21 @@ export const DILEX_CLIENT_AS_AT = "2026-08-10";
  * it, so no other client's login can read this page — there is no database
  * behind a written fixture, so nothing else in the stack is checking.
  *
- * ⚠ This is the `clients` row Hamish Miller's login is currently attached to,
- * and it is named "Miller and Consulting" — which is NOT the licence applicant.
- * The applicant is Dilex Inland (Pty) Ltd. "Miller Consulting and Trading" is
- * one of the three conflicting applicant entities we owe the Department a
- * correction on, so the portal currently reinforces the exact confusion the
- * application has to resolve. Renaming the client record, or creating a Dilex
- * Inland one and moving his login to it, is a decision for Juandre — not a
- * silent edit. Until then this id is what makes the page reachable for him.
+ * This is the `clients` row **Miller Consulting and Trading**, which is Hamish
+ * Miller's company and Silverline's contracting client. It carries all three
+ * Dilex matters: the Elandsfontein licence, the Randfontein norms and
+ * standards registration, and the Purification section 31L response.
+ *
+ * ⚠ DO NOT "correct" this to Dilex Inland. The portal client and the licence
+ * applicant are deliberately different things, settled 10 August 2026. Silverline
+ * contracts with Miller Consulting and Trading; the applicant on this particular
+ * licence is Dilex Inland (Pty) Ltd, and the other two matters belong to neither.
+ * Naming the portal account after one of the three would be wrong.
+ *
+ * Separately and unrelated to this file: the application record itself names
+ * three different applicant entities across the Screening Report, the Scoping
+ * Report and the form. That correction is owed to the Department directly and
+ * the portal is not where it gets fixed.
  */
 export const DILEX_CLIENT_ID = "01ab61e4-d984-4a60-bc42-0d8f77de9377";
 
