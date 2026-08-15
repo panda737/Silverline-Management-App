@@ -21,9 +21,25 @@ create table if not exists public.project_facts (
   -- client for confirmation.
   source_note   text,
   sort_order    integer not null default 0,
-  -- Defaults to hidden. Promoting a fact to the client side is a deliberate act,
-  -- the same way document visibility works.
-  client_visible boolean not null default false,
+
+  -- ---- THE CLASSIFICATION -------------------------------------------------
+  -- One control, and it is deliberately not a bare boolean. A future reader --
+  -- person or agent -- must be able to see not only whether a fact is client
+  -- facing but WHY someone decided that.
+  --
+  --   client_safe   the applicant's own information, safe to assert back to him
+  --   internal_only never goes across: our analysis, our exposure, our strategy,
+  --                 or a finding about the client rather than for him
+  --   withheld      client-safe in principle, held back for a reason that will
+  --                 expire. The reason belongs in sensitivity_note.
+  --
+  -- Default is internal_only. Promoting a fact is a deliberate act, the same
+  -- way document visibility already works.
+  sensitivity   text not null default 'internal_only'
+                check (sensitivity in ('client_safe', 'internal_only', 'withheld')),
+  -- Why it is classified that way. Required in practice for anything not
+  -- client_safe -- "internal" with no reason is how judgement rots.
+  sensitivity_note text,
   -- Some rows are context rather than questions.
   confirmable   boolean not null default true,
   created_at    timestamptz not null default now(),
@@ -32,6 +48,9 @@ create table if not exists public.project_facts (
 
 create index if not exists project_facts_project_idx
   on public.project_facts (project_id, section, sort_order);
+
+create index if not exists project_facts_sensitivity_idx
+  on public.project_facts (sensitivity);
 
 create table if not exists public.project_fact_responses (
   id            uuid primary key default gen_random_uuid(),
@@ -63,7 +82,7 @@ create policy "staff read responses"
   using (public.is_internal());
 
 -- --- client ----------------------------------------------------------------
--- A client may read only client_visible facts on their own project, and may
+-- A client may read only client_safe facts on their own project, and may
 -- respond only to those same facts. They may never write a fact, and they may
 -- never edit or delete a response once given — the record of what they said,
 -- and when, is the point.
@@ -72,7 +91,7 @@ create policy "client reads own visible facts"
   on public.project_facts for select
   to authenticated
   using (
-    client_visible
+    sensitivity = 'client_safe'
     and exists (
       select 1 from public.projects p
       where p.id = project_facts.project_id
@@ -101,7 +120,7 @@ create policy "client responds to own visible facts"
       from public.project_facts f
       join public.projects p on p.id = f.project_id
       where f.id = project_fact_responses.fact_id
-        and f.client_visible
+        and f.sensitivity = 'client_safe'
         and f.confirmable
         and p.id = project_fact_responses.project_id
         and p.client_id = public.my_client_id()
@@ -131,13 +150,16 @@ left join lateral (
   order by rr.created_at desc
   limit 1
 ) r on true
-where f.client_visible
+where f.sensitivity = 'client_safe'
   and p.client_id = public.my_client_id();
 
 revoke all on public.portal_facts from anon;
 grant select on public.portal_facts to authenticated;
 
 comment on table public.project_facts is
-  'Facts asserted to a client for confirmation. client_visible defaults to false — promoting a fact is deliberate.';
+  'Facts we may assert to a client for confirmation. sensitivity decides what crosses: client_safe / internal_only / withheld. Default internal_only — promoting is deliberate, and sensitivity_note records why.';
+comment on column public.project_facts.sensitivity is
+  'client_safe = the applicant''s own information. internal_only = never crosses (our analysis, exposure, strategy, or a finding about the client). withheld = client-safe in principle but held back for a reason that will expire; put the reason in sensitivity_note.';
+
 comment on table public.project_fact_responses is
   'The client''s confirmation or dispute. Insert-only: the record of what was said, and when, is the point.';

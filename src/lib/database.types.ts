@@ -358,7 +358,8 @@ export type ProjectFactRow = {
   value: string | null;
   source_note: string | null;
   sort_order: number;
-  client_visible: boolean;
+  sensitivity: "client_safe" | "internal_only" | "withheld";
+  sensitivity_note: string | null;
   confirmable: boolean;
   created_at: string;
   updated_at: string;
@@ -679,7 +680,7 @@ export type Database = {
       >;
       project_facts: TableType<
         ProjectFactRow,
-        CommonOptional | "value" | "source_note" | "sort_order" | "client_visible" | "confirmable"
+        CommonOptional | "value" | "source_note" | "sort_order" | "sensitivity" | "sensitivity_note" | "confirmable"
       >;
       project_fact_responses: TableType<
         ProjectFactResponseRow,
