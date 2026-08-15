@@ -5,7 +5,6 @@ import {
   CalendarDays,
   FolderKanban,
   MessageSquare,
-  UserRound,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useProfile } from "@/lib/auth";
@@ -185,20 +184,21 @@ export default function PortalDashboardPage() {
                         {p.client_summary}
                       </p>
                     )}
-                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
-                      {p.manager_name && (
-                        <span className="flex items-center gap-1.5">
-                          <UserRound className="size-3.5" />
-                          {p.manager_name}
-                        </span>
-                      )}
-                      {p.target_date && (
+                    {/*
+                      No manager name here. The same person runs every project
+                      on this list, so repeating it on each card says nothing
+                      and takes the eye off what the card is for. Who is working
+                      on the file lives once, at the foot of that project's
+                      Brief tab.
+                    */}
+                    {p.target_date && (
+                      <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1.5">
                           <CalendarDays className="size-3.5" />
                           Target: {fmtDate(p.target_date)}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </CardContent>
                   </Card>
                 </Link>

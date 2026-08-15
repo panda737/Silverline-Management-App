@@ -485,27 +485,6 @@ export function PortalMission({
             />
           </div>
 
-          {bySection.team.length > 0 && (
-            <Card>
-              <CardContent className="space-y-3 pt-6">
-                <p className="text-sm font-medium">Who is working on your file</p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {bySection.team.map((t) => (
-                    <div key={t.id} className="space-y-0.5">
-                      <p className="text-xs text-muted-foreground">{t.label}</p>
-                      <p className="text-sm font-medium">{t.value}</p>
-                      {t.source_note && (
-                        <p className="text-xs text-muted-foreground">
-                          From {t.source_note}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           <Card>
             <CardContent className="space-y-3 pt-6 text-sm text-muted-foreground">
               <p className="text-foreground">
@@ -544,6 +523,27 @@ export function PortalMission({
                 </CardContent>
               </Card>
             </section>
+          )}
+
+          {bySection.team.length > 0 && (
+            <Card>
+              <CardContent className="space-y-3 pt-6">
+                <p className="text-sm font-medium">Who is working on your file</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {bySection.team.map((t) => (
+                    <div key={t.id} className="space-y-0.5">
+                      <p className="text-xs text-muted-foreground">{t.label}</p>
+                      <p className="text-sm font-medium">{t.value}</p>
+                      {t.source_note && (
+                        <p className="text-xs text-muted-foreground">
+                          From {t.source_note}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 
