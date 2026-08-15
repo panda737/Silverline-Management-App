@@ -67,6 +67,10 @@ export default function PortalDashboardPage() {
         supabase
           .from("portal_projects")
           .select("*")
+          // Deliberate sequence, not creation order — for Verdex that is the
+          // Section 24G everything waits on, then Norms & Standards, then the
+          // air leg that has not started. Ties fall back to newest first.
+          .order("sort_order")
           .order("created_at", { ascending: false }),
         supabase
           .from("portal_updates")

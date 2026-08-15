@@ -326,6 +326,8 @@ export type PortalProjectRow = {
   created_at: string;
   updated_at: string;
   manager_name: string | null;
+  /** The order the client should read this client's projects in. */
+  sort_order: number;
 }
 
 export type PortalTimelineItemRow = {
