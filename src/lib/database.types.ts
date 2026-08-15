@@ -375,6 +375,17 @@ export type ProjectFactResponseRow = {
   created_at: string;
 }
 
+export type PortalClockEventRow = {
+  id: string;
+  project_id: string;
+  event_date: string | null;
+  label: string;
+  detail: string | null;
+  source_note: string | null;
+  kind: "done" | "now" | "expected";
+  sort_order: number;
+}
+
 export type PortalFactRow = {
   id: string;
   project_id: string;
@@ -710,6 +721,7 @@ export type Database = {
       portal_documents: { Row: PortalDocumentRow; Relationships: [] };
       portal_updates: { Row: PortalUpdateRow; Relationships: [] };
       portal_facts: { Row: PortalFactRow; Relationships: [] };
+      portal_clock_events: { Row: PortalClockEventRow; Relationships: [] };
     };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };

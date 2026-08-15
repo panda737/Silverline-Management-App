@@ -39,11 +39,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MissionTabs, Stat } from "@/pages/agents/shared";
 import { cn } from "@/lib/utils";
-import type { PortalFactRow } from "@/lib/database.types";
+import type { PortalClockEventRow, PortalFactRow } from "@/lib/database.types";
 
 /** Commencement is built but withheld — see the file header. */
 const TABS = [
   { value: "brief", label: "Brief" },
+  { value: "clock", label: "Statutory clock" },
   { value: "operation", label: "Operation" },
   { value: "outstanding", label: "What we need" },
   { value: "evidence", label: "Documents held" },
@@ -172,6 +173,54 @@ function FactRow({ fact, projectId }: { fact: PortalFactRow; projectId: string }
   );
 }
 
+/** The statutory clock — every event anchored to what establishes it. */
+function ClockEvent({
+  event,
+  last,
+}: {
+  event: PortalClockEventRow;
+  last: boolean;
+}) {
+  return (
+    <div className="flex gap-4">
+      <div className="flex flex-col items-center">
+        <span
+          className={cn(
+            "mt-1.5 size-2.5 shrink-0 rounded-full",
+            event.kind === "done" && "bg-emerald-500",
+            event.kind === "now" && "bg-primary ring-4 ring-primary/20",
+            event.kind === "expected" && "border border-border bg-muted"
+          )}
+        />
+        {!last && <span className="w-px flex-1 bg-border" />}
+      </div>
+      <div className="min-w-0 flex-1 pb-6">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">
+            {event.event_date ? fmtDate(event.event_date) : "To come"}
+          </span>
+          <span className="font-medium">{event.label}</span>
+          {event.kind === "now" && (
+            <Badge variant="secondary" className="rounded-full">
+              Where we are
+            </Badge>
+          )}
+        </div>
+        {event.detail && (
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            {event.detail}
+          </p>
+        )}
+        {event.source_note && (
+          <p className="mt-1 text-xs text-muted-foreground/70">
+            From {event.source_note}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Section({
   facts,
   projectId,
@@ -219,6 +268,19 @@ export function PortalMission({
         .order("sort_order");
       if (error) throw new Error(error.message);
       return (data ?? []) as PortalFactRow[];
+    },
+  });
+
+  const { data: clock = [] } = useQuery({
+    queryKey: ["portal", "clock", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("portal_clock_events")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("sort_order");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as PortalClockEventRow[];
     },
   });
 
@@ -296,6 +358,27 @@ export function PortalMission({
               </p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="clock" className="space-y-4 pt-6">
+          <p className="text-sm text-muted-foreground">
+            What has happened on your application, and what comes next. Each
+            entry says what establishes it, so you can check any of it against
+            your own records.
+          </p>
+          {clock.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-sm text-muted-foreground">
+                Nothing recorded yet.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-0">
+              {clock.map((e, i) => (
+                <ClockEvent key={e.id} event={e} last={i === clock.length - 1} />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="operation" className="pt-6">
