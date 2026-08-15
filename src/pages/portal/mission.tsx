@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import {
   Check,
   CircleAlert,
+  Download,
   FileText,
   Inbox,
   ListChecks,
@@ -40,8 +41,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MissionTabs, Stat } from "@/pages/agents/shared";
 import { ClientResponse } from "./upload";
+import { getPortalDocumentUrl } from "./actions";
+import { DOC_TYPE_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
-import type { PortalClockEventRow, PortalFactRow } from "@/lib/database.types";
+import type {
+  PortalClockEventRow,
+  PortalDocumentRow,
+  PortalFactRow,
+  PortalUpdateRow,
+} from "@/lib/database.types";
 
 /** Commencement is built but withheld — see the file header. */
 const TABS = [
@@ -283,6 +291,43 @@ function OutstandingRow({
   );
 }
 
+/** One shared file, opened through a five-minute signed URL. */
+function DocumentRow({ doc }: { doc: PortalDocumentRow }) {
+  const [busy, setBusy] = useState(false);
+
+  async function download() {
+    setBusy(true);
+    const { url, error } = await getPortalDocumentUrl(doc);
+    setBusy(false);
+    if (error || !url) {
+      toast.error(error ?? "Could not open that file.");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+      <div className="min-w-0 space-y-0.5">
+        <p className="truncate text-sm font-medium">{doc.name}</p>
+        <p className="text-xs text-muted-foreground">
+          {DOC_TYPE_LABELS[doc.doc_type]} · {fmtDate(doc.created_at)}
+        </p>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={download}
+        disabled={busy}
+        aria-label={`Download ${doc.name}`}
+        className="shrink-0"
+      >
+        <Download className="size-4" />
+      </Button>
+    </div>
+  );
+}
+
 function Section({
   facts,
   projectId,
@@ -315,9 +360,21 @@ function Section({
 export function PortalMission({
   projectId,
   projectName,
+  summary,
+  documents,
+  updates,
 }: {
   projectId: string;
   projectName: string;
+  /**
+   * The one-line description of the matter. The project's manager and target
+   * date are deliberately NOT passed: the manager is already a team fact on
+   * this tab, and dates belong on the statutory clock. Rendering them here as
+   * well is the duplication this component exists to avoid.
+   */
+  summary: string | null;
+  documents: PortalDocumentRow[];
+  updates: PortalUpdateRow[];
 }) {
   const { data: facts = [], isPending } = useQuery({
     queryKey: ["portal", "facts", projectId],
@@ -382,6 +439,12 @@ export function PortalMission({
         <MissionTabs tabs={TABS} />
 
         <TabsContent value="brief" className="space-y-5 pt-6">
+          {summary && (
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {summary}
+            </p>
+          )}
+
           <div className="grid gap-3 sm:grid-cols-3">
             <Stat
               label="Awaiting your confirmation"
@@ -442,6 +505,24 @@ export function PortalMission({
               </p>
             </CardContent>
           </Card>
+
+          {updates.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-medium">Updates from the team</h3>
+              <Card>
+                <CardContent className="divide-y pt-6">
+                  {updates.map((u) => (
+                    <div key={u.id} className="space-y-1 py-4 first:pt-0 last:pb-0">
+                      <p className="text-sm whitespace-pre-wrap">{u.body}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {u.author_name ?? "Silverline"} · {fmtDate(u.created_at)}
+                      </p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </section>
+          )}
         </TabsContent>
 
         <TabsContent value="clock" className="space-y-4 pt-6">
@@ -494,12 +575,32 @@ export function PortalMission({
           )}
         </TabsContent>
 
-        <TabsContent value="evidence" className="pt-6">
+        <TabsContent value="evidence" className="space-y-5 pt-6">
           <Section
             facts={bySection.evidence}
             projectId={projectId}
             empty="No documents recorded yet."
           />
+
+          <section className="space-y-3">
+            <h3 className="text-sm font-medium">Files you can open</h3>
+            {documents.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-sm text-muted-foreground">
+                  Nothing to download yet. Anything your Silverline team shares
+                  will appear here.
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="divide-y pt-6">
+                  {documents.map((d) => (
+                    <DocumentRow key={d.id} doc={d} />
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </section>
         </TabsContent>
       </Tabs>
     </div>
