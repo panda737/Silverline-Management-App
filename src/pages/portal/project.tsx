@@ -169,7 +169,7 @@ export default function PortalProjectPage() {
         </p>
       </div>
 
-      <ProjectTimeline items={stages} progress={project.progress} />
+      <ProjectTimeline items={stages} />
 
       <PortalMission projectId={project.id} projectName={project.name} />
 

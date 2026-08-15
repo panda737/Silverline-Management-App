@@ -17,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PROJECT_STATUS_LABELS, PROJECT_TYPE_LABELS } from "@/lib/labels";
@@ -167,15 +166,6 @@ export default function PortalDashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <div className="mb-1.5 flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium tabular-nums">
-                          {p.progress}%
-                        </span>
-                      </div>
-                      <Progress value={p.progress} className="h-2" />
-                    </div>
                     {currentStage && (
                       <div className="rounded-lg bg-accent px-3 py-2.5">
                         <p className="text-xs font-medium text-accent-foreground/70 uppercase tracking-wide">

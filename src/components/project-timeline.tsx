@@ -57,7 +57,13 @@ export function ProjectTimeline({
   onSelectStage,
 }: {
   items: TimelineStageLike[];
-  progress: number;
+  /**
+   * Omit to hide the figure. The client view does: on a rectification most
+   * stages fall after lodgement, so a percentage reads far worse than the file
+   * actually is, and a client comparing it to what he has paid draws the wrong
+   * conclusion. The stage name and the statutory clock carry it instead.
+   */
+  progress?: number;
   onSelectStage?: (id: string) => void;
 }) {
   const done = items.filter((i) => i.status === "completed").length;
@@ -93,9 +99,11 @@ export function ProjectTimeline({
             · {done} done
           </p>
         </div>
-        <div className="shrink-0 text-right">
-          <span className="text-xl font-semibold tabular-nums">{progress}%</span>
-        </div>
+        {progress !== undefined && (
+          <div className="shrink-0 text-right">
+            <span className="text-xl font-semibold tabular-nums">{progress}%</span>
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto py-1">
