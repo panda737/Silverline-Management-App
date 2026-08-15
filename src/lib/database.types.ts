@@ -353,7 +353,7 @@ export type PortalDocumentRow = {
 export type ProjectFactRow = {
   id: string;
   project_id: string;
-  section: "operation" | "evidence" | "outstanding" | "commencement";
+  section: "team" | "operation" | "evidence" | "outstanding" | "commencement";
   label: string;
   value: string | null;
   source_note: string | null;
@@ -389,7 +389,7 @@ export type PortalClockEventRow = {
 export type PortalFactRow = {
   id: string;
   project_id: string;
-  section: "operation" | "evidence" | "outstanding" | "commencement";
+  section: "team" | "operation" | "evidence" | "outstanding" | "commencement";
   label: string;
   value: string | null;
   source_note: string | null;

@@ -28,6 +28,7 @@ import {
   FileText,
   Inbox,
   ListChecks,
+  Paperclip,
   Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MissionTabs, Stat } from "@/pages/agents/shared";
+import { ClientResponse } from "./upload";
 import { cn } from "@/lib/utils";
 import type { PortalClockEventRow, PortalFactRow } from "@/lib/database.types";
 
@@ -221,6 +223,66 @@ function ClockEvent({
   );
 }
 
+/** An outstanding item. Always answerable — a comment, a document, or both. */
+function OutstandingRow({
+  fact,
+  projectId,
+}: {
+  fact: PortalFactRow;
+  projectId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const answered = fact.response_state !== null;
+
+  return (
+    <div
+      className={cn(
+        "space-y-2 rounded-lg border p-4",
+        answered ? "border-emerald-500/30 bg-emerald-500/5" : "border-border"
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <div className="flex items-center gap-2">
+            <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+            <p className="text-sm font-medium">{fact.label}</p>
+          </div>
+          {fact.value && (
+            <p className="text-sm text-muted-foreground">{fact.value}</p>
+          )}
+        </div>
+        <Button
+          size="sm"
+          variant={answered ? "ghost" : "secondary"}
+          className="shrink-0"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <Paperclip className="size-3.5" />
+          {answered ? "Send more" : "Reply or attach"}
+        </Button>
+      </div>
+
+      {answered && fact.response_comment && (
+        <p className="rounded-md bg-background/60 p-3 text-sm whitespace-pre-wrap">
+          {fact.response_comment}
+          <span className="mt-1 block text-xs text-muted-foreground">
+            Sent {fmtDate(fact.responded_at)}
+          </span>
+        </p>
+      )}
+
+      {open && (
+        <ClientResponse
+          projectId={projectId}
+          factId={fact.id}
+          factLabel={fact.label}
+          onDone={() => setOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
+
 function Section({
   facts,
   projectId,
@@ -289,6 +351,7 @@ export function PortalMission({
     // so that promoting a row by mistake cannot surface it.
     const visible = facts.filter((f) => f.section !== "commencement");
     return {
+      team: visible.filter((f) => f.section === "team"),
       operation: visible.filter((f) => f.section === "operation"),
       outstanding: visible.filter((f) => f.section === "outstanding"),
       evidence: visible.filter((f) => f.section === "evidence"),
@@ -336,6 +399,27 @@ export function PortalMission({
               note={bySection.flagged === 0 ? "None" : "We are dealing with these"}
             />
           </div>
+
+          {bySection.team.length > 0 && (
+            <Card>
+              <CardContent className="space-y-3 pt-6">
+                <p className="text-sm font-medium">Who is working on your file</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {bySection.team.map((t) => (
+                    <div key={t.id} className="space-y-0.5">
+                      <p className="text-xs text-muted-foreground">{t.label}</p>
+                      <p className="text-sm font-medium">{t.value}</p>
+                      {t.source_note && (
+                        <p className="text-xs text-muted-foreground">
+                          From {t.source_note}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardContent className="space-y-3 pt-6 text-sm text-muted-foreground">
@@ -389,12 +473,25 @@ export function PortalMission({
           />
         </TabsContent>
 
-        <TabsContent value="outstanding" className="pt-6">
-          <Section
-            facts={bySection.outstanding}
-            projectId={projectId}
-            empty="Nothing outstanding from you at the moment."
-          />
+        <TabsContent value="outstanding" className="space-y-3 pt-6">
+          <p className="text-sm text-muted-foreground">
+            Each item can be answered here — write us a note, attach the
+            document, or both. It reaches the team working on your file
+            directly.
+          </p>
+          {bySection.outstanding.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-sm text-muted-foreground">
+                Nothing outstanding from you at the moment.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {bySection.outstanding.map((f) => (
+                <OutstandingRow key={f.id} fact={f} projectId={projectId} />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="evidence" className="pt-6">
