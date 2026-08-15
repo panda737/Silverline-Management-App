@@ -18,6 +18,7 @@ import { ProjectTabs } from "./project-tabs";
 import { ProjectFiles } from "./project-files";
 import { StageStepper } from "./stage-stepper";
 import { CustomerView } from "./customer-view";
+import { ProjectQuestions } from "./questions";
 import { GenericOverview } from "./generic-overview";
 import { WmlOverview } from "./wml/wml-overview";
 import { WmlDocuments } from "./wml/wml-documents";
@@ -129,6 +130,7 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
   return (
     <ProjectTabs
       overview={overview}
+      questions={<ProjectQuestions projectId={projectId} />}
       customer={<CustomerView project={project} />}
       documents={
         <>

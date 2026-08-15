@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MissionTabs, Stat } from "@/pages/agents/shared";
 import { ClientResponse } from "./upload";
+import { PortalQuestions } from "./questions";
 import { getPortalDocumentUrl } from "./actions";
 import { DOC_TYPE_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,9 @@ const TABS = [
   { value: "clock", label: "Statutory clock" },
   { value: "operation", label: "Operation" },
   { value: "outstanding", label: "What we need" },
+  // "What we need" is us asking them; this is them asking us. They sit next to
+  // each other because they are the two halves of the same conversation.
+  { value: "questions", label: "Ask us" },
   { value: "evidence", label: "Documents held" },
 ];
 
@@ -516,7 +520,9 @@ export function PortalMission({
                 <span className="text-foreground">What we need</span> lists what
                 is still outstanding from your side, and{" "}
                 <span className="text-foreground">Documents held</span> shows
-                what we have received.
+                what we have received. If you want to ask us something, use{" "}
+                <span className="text-foreground">Ask us</span> — the answer
+                stays on the record where everyone can see it.
               </p>
             </CardContent>
           </Card>
@@ -615,6 +621,10 @@ export function PortalMission({
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="questions" className="pt-6">
+          <PortalQuestions projectId={projectId} readOnly={readOnly} />
         </TabsContent>
 
         <TabsContent value="evidence" className="space-y-5 pt-6">

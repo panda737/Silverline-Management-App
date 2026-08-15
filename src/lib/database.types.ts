@@ -330,6 +330,29 @@ export type PortalProjectRow = {
   sort_order: number;
 }
 
+export type ProjectQuestionRow = {
+  id: string;
+  project_id: string;
+  body: string;
+  asked_by: string | null;
+  created_at: string;
+  answer: string | null;
+  answered_by: string | null;
+  answered_at: string | null;
+  updated_at: string;
+}
+
+export type PortalQuestionRow = {
+  id: string;
+  project_id: string;
+  body: string;
+  created_at: string;
+  asked_by_name: string | null;
+  answer: string | null;
+  answered_at: string | null;
+  answered_by_name: string | null;
+}
+
 export type PortalTimelineItemRow = {
   id: string;
   project_id: string;
@@ -700,6 +723,10 @@ export type Database = {
         ProjectFactResponseRow,
         "id" | "created_at" | "comment" | "responded_by"
       >;
+      project_questions: TableType<
+        ProjectQuestionRow,
+        CommonOptional | "asked_by" | "answer" | "answered_by" | "answered_at"
+      >;
       chat_threads: TableType<
         ChatThreadRow,
         CommonOptional | "project_id" | "title" | "last_message_at"
@@ -720,6 +747,7 @@ export type Database = {
     Views: {
       portal_company: { Row: PortalCompanyRow; Relationships: [] };
       portal_projects: { Row: PortalProjectRow; Relationships: [] };
+      portal_questions: { Row: PortalQuestionRow; Relationships: [] };
       portal_timeline_items: { Row: PortalTimelineItemRow; Relationships: [] };
       portal_documents: { Row: PortalDocumentRow; Relationships: [] };
       portal_updates: { Row: PortalUpdateRow; Relationships: [] };

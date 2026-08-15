@@ -8,6 +8,9 @@ const TAB_KEYS = [
   "deadlines",
   "activity",
   "assistant",
+  // The two client-facing tabs sit together: what the client asked, and what
+  // the client sees.
+  "questions",
   "customer",
 ] as const;
 type TabKey = (typeof TAB_KEYS)[number];
@@ -18,6 +21,7 @@ const TAB_LABELS: Record<TabKey, string> = {
   deadlines: "Deadlines",
   activity: "Activity",
   assistant: "Assistant",
+  questions: "Questions",
   customer: "Client View",
 };
 
