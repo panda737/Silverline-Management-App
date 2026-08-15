@@ -23,6 +23,7 @@ import {
   PROJECT_TYPE_LABELS,
 } from "@/lib/labels";
 import { getPortalDocumentUrl } from "./actions";
+import { PortalMission } from "./mission";
 import type {
   PortalDocumentRow,
   PortalProjectRow,
@@ -169,6 +170,8 @@ export default function PortalProjectPage() {
       </div>
 
       <ProjectTimeline items={stages} progress={project.progress} />
+
+      <PortalMission projectId={project.id} projectName={project.name} />
 
       {(project.client_summary || project.manager_name || project.target_date) && (
         <Card>

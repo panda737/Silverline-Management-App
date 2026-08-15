@@ -350,6 +350,44 @@ export type PortalDocumentRow = {
   created_at: string;
 }
 
+export type ProjectFactRow = {
+  id: string;
+  project_id: string;
+  section: "operation" | "evidence" | "outstanding" | "commencement";
+  label: string;
+  value: string | null;
+  source_note: string | null;
+  sort_order: number;
+  client_visible: boolean;
+  confirmable: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectFactResponseRow = {
+  id: string;
+  fact_id: string;
+  project_id: string;
+  state: "confirmed" | "disputed";
+  comment: string | null;
+  responded_by: string | null;
+  created_at: string;
+}
+
+export type PortalFactRow = {
+  id: string;
+  project_id: string;
+  section: "operation" | "evidence" | "outstanding" | "commencement";
+  label: string;
+  value: string | null;
+  source_note: string | null;
+  sort_order: number;
+  confirmable: boolean;
+  response_state: "confirmed" | "disputed" | null;
+  response_comment: string | null;
+  responded_at: string | null;
+}
+
 export type PortalUpdateRow = {
   id: string;
   project_id: string;
@@ -639,6 +677,14 @@ export type Database = {
         | "audit_date"
         | "exec_summary"
       >;
+      project_facts: TableType<
+        ProjectFactRow,
+        CommonOptional | "value" | "source_note" | "sort_order" | "client_visible" | "confirmable"
+      >;
+      project_fact_responses: TableType<
+        ProjectFactResponseRow,
+        "id" | "created_at" | "comment" | "responded_by"
+      >;
       chat_threads: TableType<
         ChatThreadRow,
         CommonOptional | "project_id" | "title" | "last_message_at"
@@ -662,6 +708,7 @@ export type Database = {
       portal_timeline_items: { Row: PortalTimelineItemRow; Relationships: [] };
       portal_documents: { Row: PortalDocumentRow; Relationships: [] };
       portal_updates: { Row: PortalUpdateRow; Relationships: [] };
+      portal_facts: { Row: PortalFactRow; Relationships: [] };
     };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
