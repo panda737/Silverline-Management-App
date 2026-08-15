@@ -442,9 +442,14 @@ export function PortalMission({
   return (
     <div className="space-y-5">
       <div className="space-y-1">
-        <h2 className="text-lg font-medium tracking-tight">
-          Section 24G Mission Control
-        </h2>
+        {/*
+          Not "Section 24G Mission Control". Verdex is three projects now, and
+          this panel renders on all of them — the heading was announcing the
+          Section 24G on the air-side and Norms & Standards legs too. The
+          statutory identity belongs to the project, which is named directly
+          above this and again in the line below.
+        */}
+        <h2 className="text-lg font-medium tracking-tight">Mission Control</h2>
         <p className="text-sm text-muted-foreground">
           What we hold on {projectName}, and where we still need you. Anything
           below that is wrong, say so — it is quicker to fix here than in a
