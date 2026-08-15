@@ -10,6 +10,7 @@ import type {
 
 export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
   waste_management_licence: "Waste Management Licence",
+  atmospheric_emission_licence: "Atmospheric Emission Licence",
   norms_and_standards: "Norms & Standards",
   audit: "Audit",
   compliance_assessment: "Compliance Assessment",

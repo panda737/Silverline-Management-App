@@ -14,6 +14,7 @@ export type UserRole = "admin" | "staff" | "client";
 
 export type ProjectType =
   | "waste_management_licence"
+  | "atmospheric_emission_licence"
   | "norms_and_standards"
   | "audit"
   | "compliance_assessment"
