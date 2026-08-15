@@ -116,8 +116,15 @@ function FactRow({
         !state && "border-border"
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
+      {/*
+        NOT flex-wrap. With wrapping, a long label pushed the controls
+        onto their own line, so "Correct / Not right" sat on the right of
+        one row and under the next — the eye had to hunt for it on every
+        item. The control column is fixed on the right and the text takes
+        the squeeze.
+      */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
           <p className="text-xs text-muted-foreground">{fact.label}</p>
           <p className="text-sm font-medium">{fact.value ?? "—"}</p>
           {fact.source_note && (
@@ -136,7 +143,7 @@ function FactRow({
             You flagged this
           </Badge>
         ) : fact.confirmable && !readOnly ? (
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 justify-end gap-2">
             <Button
               size="sm"
               variant="secondary"
@@ -259,8 +266,15 @@ function OutstandingRow({
         answered ? "border-emerald-500/30 bg-emerald-500/5" : "border-border"
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
+      {/*
+        NOT flex-wrap. With wrapping, a long label pushed the controls
+        onto their own line, so "Correct / Not right" sat on the right of
+        one row and under the next — the eye had to hunt for it on every
+        item. The control column is fixed on the right and the text takes
+        the squeeze.
+      */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <FileText className="size-3.5 shrink-0 text-muted-foreground" />
             <p className="text-sm font-medium">{fact.label}</p>
