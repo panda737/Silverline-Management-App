@@ -79,28 +79,28 @@ export function WmlListedActivities({
               <TableBody>
                 {activities.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell className="font-medium whitespace-nowrap">
+                    <TableCell className="align-top font-medium whitespace-nowrap">
                       {a.activity_number}
                     </TableCell>
-                    <TableCell className="hidden text-muted-foreground sm:table-cell">
+                    <TableCell className="hidden align-top text-muted-foreground sm:table-cell">
                       {a.category ?? "—"}
                     </TableCell>
-                    <TableCell className="max-w-72 text-muted-foreground">
+                    <TableCell className="max-w-96 align-top whitespace-normal text-muted-foreground">
                       {a.description ?? "—"}
                       {a.threshold && (
                         <p className="text-xs">Threshold: {a.threshold}</p>
                       )}
                     </TableCell>
-                    <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    <TableCell className="hidden max-w-40 align-top whitespace-normal text-muted-foreground lg:table-cell">
                       {a.waste_stream ?? "—"}
                     </TableCell>
-                    <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    <TableCell className="hidden max-w-56 align-top whitespace-normal text-muted-foreground lg:table-cell">
                       {a.project_capacity ?? "—"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="align-top">
                       <ActivityTriggeredBadge value={a.triggered} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="align-top">
                       <div className="flex items-center gap-0.5">
                         <ActivityDialog projectId={projectId} activity={a} />
                         <DeleteActivityButton projectId={projectId} id={a.id} />
