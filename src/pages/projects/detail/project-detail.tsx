@@ -129,7 +129,7 @@ export function ProjectDetail({ project }: { project: ProjectWithRelations }) {
   return (
     <ProjectTabs
       overview={overview}
-      customer={<CustomerView project={project} items={items} comments={comments} />}
+      customer={<CustomerView project={project} />}
       documents={
         <>
           <ProjectFiles projectId={projectId} />

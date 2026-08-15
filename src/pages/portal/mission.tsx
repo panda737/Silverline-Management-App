@@ -67,7 +67,15 @@ function fmtDate(d: string | null) {
 /* -------------------------------------------------------------------------- */
 
 /** One asserted fact, with the client's confirm / dispute control. */
-function FactRow({ fact, projectId }: { fact: PortalFactRow; projectId: string }) {
+function FactRow({
+  fact,
+  projectId,
+  readOnly,
+}: {
+  fact: PortalFactRow;
+  projectId: string;
+  readOnly: boolean;
+}) {
   const qc = useQueryClient();
   const [disputing, setDisputing] = useState(false);
   const [comment, setComment] = useState("");
@@ -127,7 +135,7 @@ function FactRow({ fact, projectId }: { fact: PortalFactRow; projectId: string }
             <CircleAlert className="size-3" />
             You flagged this
           </Badge>
-        ) : fact.confirmable ? (
+        ) : fact.confirmable && !readOnly ? (
           <div className="flex shrink-0 gap-2">
             <Button
               size="sm"
@@ -157,7 +165,7 @@ function FactRow({ fact, projectId }: { fact: PortalFactRow; projectId: string }
         </p>
       )}
 
-      {disputing && !state && (
+      {disputing && !state && !readOnly && (
         <div className="space-y-2 pt-1">
           <Textarea
             value={comment}
@@ -235,9 +243,11 @@ function ClockEvent({
 function OutstandingRow({
   fact,
   projectId,
+  readOnly,
 }: {
   fact: PortalFactRow;
   projectId: string;
+  readOnly: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const answered = fact.response_state !== null;
@@ -259,15 +269,17 @@ function OutstandingRow({
             <p className="text-sm text-muted-foreground">{fact.value}</p>
           )}
         </div>
-        <Button
-          size="sm"
-          variant={answered ? "ghost" : "secondary"}
-          className="shrink-0"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <Paperclip className="size-3.5" />
-          {answered ? "Send more" : "Reply or attach"}
-        </Button>
+        {!readOnly && (
+          <Button
+            size="sm"
+            variant={answered ? "ghost" : "secondary"}
+            className="shrink-0"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <Paperclip className="size-3.5" />
+            {answered ? "Send more" : "Reply or attach"}
+          </Button>
+        )}
       </div>
 
       {answered && fact.response_comment && (
@@ -279,7 +291,7 @@ function OutstandingRow({
         </p>
       )}
 
-      {open && (
+      {open && !readOnly && (
         <ClientResponse
           projectId={projectId}
           factId={fact.id}
@@ -332,10 +344,12 @@ function Section({
   facts,
   projectId,
   empty,
+  readOnly,
 }: {
   facts: PortalFactRow[];
   projectId: string;
   empty: string;
+  readOnly: boolean;
 }) {
   if (facts.length === 0) {
     return (
@@ -349,7 +363,7 @@ function Section({
   return (
     <div className="space-y-3">
       {facts.map((f) => (
-        <FactRow key={f.id} fact={f} projectId={projectId} />
+        <FactRow key={f.id} fact={f} projectId={projectId} readOnly={readOnly} />
       ))}
     </div>
   );
@@ -363,6 +377,7 @@ export function PortalMission({
   summary,
   documents,
   updates,
+  readOnly = false,
 }: {
   projectId: string;
   projectName: string;
@@ -375,6 +390,8 @@ export function PortalMission({
   summary: string | null;
   documents: PortalDocumentRow[];
   updates: PortalUpdateRow[];
+  /** Staff preview: identical content, controls disabled. */
+  readOnly?: boolean;
 }) {
   const { data: facts = [], isPending } = useQuery({
     queryKey: ["portal", "facts", projectId],
@@ -548,6 +565,7 @@ export function PortalMission({
 
         <TabsContent value="operation" className="pt-6">
           <Section
+            readOnly={readOnly}
             facts={bySection.operation}
             projectId={projectId}
             empty="Nothing to confirm here yet. As we build the application, the facts we intend to rely on will appear here for you to check."
@@ -569,7 +587,12 @@ export function PortalMission({
           ) : (
             <div className="space-y-3">
               {bySection.outstanding.map((f) => (
-                <OutstandingRow key={f.id} fact={f} projectId={projectId} />
+                <OutstandingRow
+                  key={f.id}
+                  fact={f}
+                  projectId={projectId}
+                  readOnly={readOnly}
+                />
               ))}
             </div>
           )}
@@ -577,6 +600,7 @@ export function PortalMission({
 
         <TabsContent value="evidence" className="space-y-5 pt-6">
           <Section
+            readOnly={readOnly}
             facts={bySection.evidence}
             projectId={projectId}
             empty="No documents recorded yet."
