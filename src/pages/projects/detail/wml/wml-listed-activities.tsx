@@ -52,7 +52,11 @@ export function WmlListedActivities({
         <div className="space-y-1">
           <h3 className="font-heading text-base font-medium">Listed Activities</h3>
           <p className="text-sm text-muted-foreground">
-            NEMWA listed activities triggered by this project.
+            The GN 921 screening: every activity tested, and whether it applies.
+            {/* Not "activities triggered by this project" — the register
+                carries the negatives too, and they are load-bearing. B(3)
+                not being met is what keeps a file on Basic Assessment
+                rather than a full Scoping and EIR. */}
           </p>
         </div>
         <ActivityDialog projectId={projectId} />
